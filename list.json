@@ -1,0 +1,14 @@
+{
+    "list": [
+        {
+            "name": "xtao-some",
+            "version": "1.0",
+            "section": "daily",
+            "maintainer": "xtaodada",
+            "size": "12.9 kb",
+            "supported": true,
+            "des-short": "一大堆便民功能。",
+            "des": "超多功能 例如 -ip"
+        }
+    ]
+}
