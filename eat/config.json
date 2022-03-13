@@ -1,0 +1,24 @@
+{
+  "positions": {
+    "ri": [64, 87],
+    "zou": [171, 328, "zou1"],
+    "zou1": [444, 339],
+    "ada": [223, 314, "ada1"],
+    "ada1": [283, 146]
+  },
+  "notifies": {
+    "ri": "日一下",
+    "zou": "揍你哦",
+    "ada": "给爷死"
+  },
+  "needDownloadFileList": [
+    "https://raw.githubusercontent.com/lowking/PagerMaid_Plugins/modify/eat/eatada.png",
+    "https://raw.githubusercontent.com/lowking/PagerMaid_Plugins/modify/eat/maskada.png",
+    "https://raw.githubusercontent.com/lowking/PagerMaid_Plugins/modify/eat/maskada1.png",
+    "https://raw.githubusercontent.com/lowking/PagerMaid_Plugins/modify/eat/eatzou.png",
+    "https://raw.githubusercontent.com/lowking/PagerMaid_Plugins/modify/eat/maskzou.png",
+    "https://raw.githubusercontent.com/lowking/PagerMaid_Plugins/modify/eat/maskzou1.png",
+    "https://raw.githubusercontent.com/lowking/PagerMaid_Plugins/modify/eat/eatri.png",
+    "https://raw.githubusercontent.com/lowking/PagerMaid_Plugins/modify/eat/maskri.png"
+  ]
+}
