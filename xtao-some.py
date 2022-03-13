@@ -3,7 +3,7 @@ import json
 from pyrogram import Client
 
 from pagermaid.listener import listener
-from pagermaid.utils import alias_command, Message, edit_or_reply, client
+from pagermaid.utils import alias_command, Message, client
 
 
 @listener(is_plugin=True, outgoing=True, command=alias_command("guess"),
@@ -11,8 +11,8 @@ from pagermaid.utils import alias_command, Message, edit_or_reply, client
 async def guess(c: Client, message: Message):
     text = message.arguments
     if not text:
-        return await edit_or_reply(message, "请先输入一个缩写。")
-    message = await edit_or_reply(message, "获取中 . . .")
+        return await message.edit("请先输入一个缩写。")
+    message = await message.edit("获取中 . . .")
 
     text = {'text': text}
     guess_json = (await client.post("https://lab.magiconch.com/api/nbnhhsh/guess", json=text)).json()
@@ -29,6 +29,6 @@ async def guess(c: Client, message: Message):
                 except:
                     guess_res1_ans = "尚未录入"
             guess_res.extend(["词组：" + guess_res1_name + "\n释义：" + guess_res1_ans])
-        await edit_or_reply(message, "\n\n".join(guess_res))
+        await message.edit("\n\n".join(guess_res))
     else:
-        await edit_or_reply(message, "没有匹配到拼音首字母缩写")
+        await message.edit("没有匹配到拼音首字母缩写")
