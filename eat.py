@@ -61,7 +61,7 @@ async def eat_it(context, user, base, mask, photo, number, layer=0):
     # 增加判断是否有第二个头像孔
     isContinue = len(numberPosition) > 2 and layer == 0
     if isContinue:
-        await client.download_media(
+        await context._client.download_media(
             user.photo.big_file_id,
             f"plugins{sep}eat{sep}" + str(user.id) + ".jpg",
         )
@@ -205,7 +205,7 @@ async def eat(client_: Client, context: Message):
         await context.edit("出错了呜呜呜 ~ 无效的参数。")
         return
     diu_round = False
-    from_user_id = context.from_user.id if context.from_user else context.sender_chat.id
+    from_user_id = context.from_user.id
     if context.reply_to_message:
         user = context.reply_to_message.from_user
         if not user:
@@ -388,7 +388,7 @@ async def eat(client_: Client, context: Message):
             notifyStr = notifyStrArr[str(number)]
         except:
             notifyStr = "吃头像"
-        await context.edit(f"正在生成 {notifyStr} 图片中 . . .")
+        final_msg = await context.edit(f"正在生成 {notifyStr} 图片中 . . .")
         markImg = Image.open(f"plugins{sep}eat{sep}" + str(target_user_id) + ".jpg")
         try:
             eatImg = Image.open(f"plugins{sep}eat{sep}eat" + str(number) + ".png")
@@ -403,7 +403,7 @@ async def eat(client_: Client, context: Message):
             number = str(number)
         except:
             pass
-        result = await eat_it(context, user, eatImg, maskImg, markImg, number)
+        result = await eat_it(context, context.from_user, eatImg, maskImg, markImg, number)
         result.save(f"plugins{sep}eat{sep}eat.webp")
         try:
             remove(f"plugins{sep}eat{sep}" + str(target_user_id) + ".jpg")
@@ -423,22 +423,22 @@ async def eat(client_: Client, context: Message):
                 f"plugins{sep}eat{sep}eat.webp",
                 reply_to_message_id=reply_to
             )
-            await context.safe_delete()
+            await final_msg.safe_delete()
         except TypeError:
-            await context.edit("此用户未设置头像或头像对您不可见。")
+            await final_msg.edit("此用户未设置头像或头像对您不可见。")
         except:
-            await context.edit("此群组无法发送贴纸。")
+            await final_msg.edit("此群组无法发送贴纸。")
     else:
         try:
             await client_.send_document(
                 context.chat.id,
                 f"plugins{sep}eat{sep}eat.webp",
             )
-            await context.safe_delete()
+            await final_msg.safe_delete()
         except TypeError:
-            await context.edit("此用户未设置头像或头像对您不可见。")
+            await final_msg.edit("此用户未设置头像或头像对您不可见。")
         except:
-            await context.edit("此群组无法发送贴纸。")
+            await final_msg.edit("此群组无法发送贴纸。")
     remove(f"plugins{sep}eat{sep}eat.webp")
     try:
         remove(photo)
