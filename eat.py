@@ -226,6 +226,8 @@ async def eat(client_: Client, context: Message):
                 user = await client_.get_me()
             else:
                 return await context.edit(f"{lang('error_prefix')}{lang('arg_error')}")
+        if user[:1] in [".", "/", "-", "!"]:
+            user = await client_.get_me()
         if not isinstance(user, User):
             try:
                 user = await client_.get_users(user)
