@@ -430,8 +430,6 @@ async def eat(client_: Client, context: Message):
         safe_remove(f"plugins{sep}eat{sep}" + str(target_user_id) + ".png")
         safe_remove(f"plugins{sep}eat{sep}" + str(from_user_id) + ".jpg")
         safe_remove(f"plugins{sep}eat{sep}" + str(from_user_id) + ".png")
-        safe_remove(f"plugins{sep}eat{sep}eat.webp")
-        safe_remove(photo)
     else:
         return await context.edit("此用户未设置头像或头像对您不可见。")
     if reply_to:
