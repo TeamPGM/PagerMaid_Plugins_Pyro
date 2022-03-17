@@ -9,6 +9,16 @@
             "supported": true,
             "des-short": "一大堆便民功能。",
             "des": "超多功能 例如 -ip"
+        },
+        {
+            "name": "eat",
+            "version": "1.044",
+            "section": "profile",
+            "maintainer": "SF_PICK",
+            "size": "20.0 kb",
+            "supported": false,
+            "des-short": "生成一张 吃头像 图片。",
+            "des": "这个人很懒，什么都没有留下。"
         }
     ]
 }

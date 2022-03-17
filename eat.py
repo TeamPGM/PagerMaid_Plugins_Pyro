@@ -2,14 +2,14 @@
 
 from PIL import Image
 from os.path import exists
-from os import remove, sep
+from os import sep
 from random import randint
 
 from pyrogram import Client
 from pyrogram.errors import PeerIdInvalid, UsernameNotOccupied
-from pyrogram.types import User
+from pyrogram.types import User, Chat
 
-from pagermaid.single_utils import sqlite
+from pagermaid.single_utils import sqlite, safe_remove
 from pagermaid.listener import listener
 from pagermaid.utils import alias_command, client, Message, lang
 
@@ -134,15 +134,15 @@ async def loadConfigFile(context, forceDownload=False):
             # 读取配置文件中的needDownloadFileList
             data = json.loads(json.dumps(remoteConfigJson["needDownloadFileList"]))
             # 下载列表中的文件
-            for fileurl in data:
+            for file_url in data:
                 try:
-                    fsplit = fileurl.split("/")
+                    fsplit = file_url.split("/")
                     filePath = f"plugins{sep}eat{sep}{fsplit[len(fsplit) - 1]}"
                     if not exists(filePath) or forceDownload:
-                        await downloadFileFromUrl(fileurl, filePath)
+                        await downloadFileFromUrl(file_url, filePath)
 
                 except:
-                    await context.edit(f"下载文件异常，url：{fileurl}")
+                    await context.edit(f"下载文件异常，url：{file_url}")
                     return -1
     except:
         return -1
@@ -168,20 +168,20 @@ async def downloadFileByIds(ids, context):
             # 下载列表中的文件
             sucSet = set()
             failSet = set()
-            for fileurl in data:
+            for file_url in data:
                 try:
-                    fsplit = fileurl.split("/")
+                    fsplit = file_url.split("/")
                     fileFullName = fsplit[len(fsplit) - 1]
                     fileName = fileFullName.split(".")[0].replace("eat", "").replace("mask", "")
                     if f',{fileName},' in idsStr:
                         filePath = f"plugins{sep}eat{sep}{fileFullName}"
-                        if (await downloadFileFromUrl(fileurl, filePath)) == 0:
+                        if (await downloadFileFromUrl(file_url, filePath)) == 0:
                             sucSet.add(fileName)
                         else:
                             failSet.add(fileName)
                 except:
                     failSet.add(fileName)
-                    await context.edit(f"下载文件异常，url：{fileurl}")
+                    await context.edit(f"下载文件异常，url：{file_url}")
             notifyStr = "更新模版完成"
             if len(sucSet) > 0:
                 notifyStr = f'{notifyStr}\n成功模版如下：{"，".join(sucSet)}'
@@ -205,9 +205,15 @@ async def eat(client_: Client, context: Message):
         await context.edit("出错了呜呜呜 ~ 无效的参数。")
         return
     diu_round = False
-    from_user_id = context.from_user.id
+    if context.from_user:
+        from_user_id = context.from_user.id
+    else:
+        from_user_id = context.sender_chat.id
     if context.reply_to_message:
-        user = context.reply_to_message.from_user
+        if context.reply_to_message.from_user:
+            user = context.reply_to_message.from_user
+        else:
+            user = context.reply_to_message.sender_chat
         if not user:
             return await context.edit(f"{lang('error_prefix')}{lang('profile_e_no')}")
     else:
@@ -216,29 +222,42 @@ async def eat(client_: Client, context: Message):
             if user.isdigit():
                 user = int(user)
         else:
-            user = await client_.get_me()
+            if context.from_user:
+                user = context.from_user
+            else:
+                user = context.sender_chat
         if context.entities is not None:
             if context.entities[0].type == "text_mention":
                 user = context.entities[0].user
             elif context.entities[0].type == "phone_number":
                 user = int(context.parameter[0])
             elif context.entities[0].type == "bot_command":
-                user = await client_.get_me()
+                if context.from_user:
+                    user = context.from_user
+                else:
+                    user = context.sender_chat
             else:
                 return await context.edit(f"{lang('error_prefix')}{lang('arg_error')}")
-        if user[:1] in [".", "/", "-", "!"]:
-            user = await client_.get_me()
-        if not isinstance(user, User):
-            try:
-                user = await client_.get_users(user)
-            except PeerIdInvalid:
-                return await context.edit(f"{lang('error_prefix')}{lang('profile_e_nof')}")
-            except UsernameNotOccupied:
-                return await context.edit(f"{lang('error_prefix')}{lang('profile_e_nou')}")
-            except OverflowError:
-                return await context.edit(f"{lang('error_prefix')}{lang('profile_e_long')}")
-            except Exception as exception:
-                raise exception
+        if not (isinstance(user, User) or isinstance(user, Chat)):
+            if user[:1] in [".", "/", "-", "!"]:
+                if context.from_user:
+                    user = context.from_user
+                else:
+                    user = context.sender_chat
+            else:
+                try:
+                    try:
+                        user = await client_.get_users(user)
+                    except IndexError:
+                        user = await client_.get_chat(user)  # noqa
+                except PeerIdInvalid:
+                    return await context.edit(f"{lang('error_prefix')}{lang('profile_e_nof')}")
+                except UsernameNotOccupied:
+                    return await context.edit(f"{lang('error_prefix')}{lang('profile_e_nou')}")
+                except OverflowError:
+                    return await context.edit(f"{lang('error_prefix')}{lang('profile_e_long')}")
+                except Exception as exception:
+                    raise exception
     target_user_id = user.id
     photo = await client_.download_media(
         user.photo.big_file_id,
@@ -407,15 +426,12 @@ async def eat(client_: Client, context: Message):
             pass
         result = await eat_it(context, context.from_user, eatImg, maskImg, markImg, number)
         result.save(f"plugins{sep}eat{sep}eat.webp")
-        try:
-            remove(f"plugins{sep}eat{sep}" + str(target_user_id) + ".jpg")
-            remove(f"plugins{sep}eat{sep}" + str(target_user_id) + ".png")
-            remove(f"plugins{sep}eat{sep}" + str(from_user_id) + ".jpg")
-            remove(f"plugins{sep}eat{sep}" + str(from_user_id) + ".png")
-            remove(f"plugins{sep}eat{sep}eat.webp")
-            remove(photo)
-        except:
-            pass
+        safe_remove(f"plugins{sep}eat{sep}" + str(target_user_id) + ".jpg")
+        safe_remove(f"plugins{sep}eat{sep}" + str(target_user_id) + ".png")
+        safe_remove(f"plugins{sep}eat{sep}" + str(from_user_id) + ".jpg")
+        safe_remove(f"plugins{sep}eat{sep}" + str(from_user_id) + ".png")
+        safe_remove(f"plugins{sep}eat{sep}eat.webp")
+        safe_remove(photo)
     else:
         return await context.edit("此用户未设置头像或头像对您不可见。")
     if reply_to:
@@ -441,8 +457,5 @@ async def eat(client_: Client, context: Message):
             await final_msg.edit("此用户未设置头像或头像对您不可见。")
         except:
             await final_msg.edit("此群组无法发送贴纸。")
-    remove(f"plugins{sep}eat{sep}eat.webp")
-    try:
-        remove(photo)
-    except:
-        pass
+    safe_remove(f"plugins{sep}eat{sep}eat.webp")
+    safe_remove(photo)
