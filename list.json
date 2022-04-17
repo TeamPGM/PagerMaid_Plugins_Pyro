@@ -19,6 +19,16 @@
             "supported": false,
             "des-short": "生成一张 吃头像 图片。",
             "des": "这个人很懒，什么都没有留下。"
+        },
+        {
+            "name": "abstract",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "42.1 kb",
+            "supported": true,
+            "des-short": "语句抽象化",
+            "des": "能够将你的语句变得抽象起来~"
         }
     ]
 }
