@@ -263,7 +263,7 @@ async def eat(client_: Client, context: Message):
         user.photo.big_file_id,
         f"plugins{sep}eat{sep}" + str(target_user_id) + ".jpg",)
 
-    reply_to = context.reply_to_message.message_id if context.reply_to_message else None
+    reply_to = context.reply_to_message.id if context.reply_to_message else None
     if exists(f"plugins{sep}eat{sep}" + str(target_user_id) + ".jpg"):
         for num in range(1, max_number + 1):
             if not exists(f"plugins{sep}eat{sep}eat" + str(num) + ".png"):
