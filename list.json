@@ -12,7 +12,7 @@
         },
         {
             "name": "eat",
-            "version": "1.045",
+            "version": "1.046",
             "section": "profile",
             "maintainer": "SF_PICK",
             "size": "20.0 kb",
@@ -29,6 +29,16 @@
             "supported": true,
             "des-short": "语句抽象化",
             "des": "能够将你的语句变得抽象起来~"
+        },
+        {
+            "name": "moyu",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "3.0 kb",
+            "supported": true,
+            "des-short": "摸鱼日历",
+            "des": "支持群订阅"
         }
     ]
 }
