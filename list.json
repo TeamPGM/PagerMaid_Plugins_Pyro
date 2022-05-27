@@ -39,6 +39,16 @@
             "supported": true,
             "des-short": "摸鱼日历",
             "des": "支持群订阅"
+        },
+        {
+            "name": "everyday_en",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "4.1 kb",
+            "supported": true,
+            "des-short": "每日英语",
+            "des": "支持群订阅"
         }
     ]
 }
