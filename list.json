@@ -49,6 +49,26 @@
             "supported": true,
             "des-short": "每日英语",
             "des": "支持群订阅"
+        },
+        {
+            "name": "calculator",
+            "version": "1.1",
+            "section": "chat",
+            "maintainer": "Pentacene,zhxycn",
+            "size": "1.48 kb",
+            "supported": true,
+            "des-short": "小型计算器",
+            "des": "支持基本运算（加减乘除乘方开方）及进制转换。\n命令：,cal [表达式] ,con [进制] [数字]\n例如：`,cal 1+2` `,con 16 10`"
+        },
+        {
+            "name": "base64",
+            "version": "1.00",
+            "section": "chat",
+            "maintainer": "zhxycn,xtaodada",
+            "size": "1.14 kb",
+            "supported": true,
+            "des-short": "Base64编码/解码。",
+            "des": "Base64编码/解码。\n命令：,b64e ,b64d"
         }
     ]
 }
