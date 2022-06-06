@@ -106,6 +106,7 @@ async def process_pm_captcha(client: Client, message: Message):
 
 
 @listener(is_plugin=True, outgoing=True, command="pmcaptcha",
+          need_admin=True,
           description='一个简单的私聊人机验证 可用命令列表请见 t.me/cloudreflection_channel/298')
 async def pm_captcha(client: Client, message: Message):
     cid_ = str(message.chat.id)
