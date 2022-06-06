@@ -22,8 +22,11 @@ captcha_success = Sub("pmcaptcha.success")
 async def process_pm_captcha_self(_: Client, message: Message):
     cid = message.chat.id
     if message.text:
-        if message.text[0] == ",":
-            return
+        try:
+            if message.text[0] == ",": #忽略命令
+                return
+        except UnicodeDecodeError:
+            pass
     if captcha_success.check_id(cid):
         return
     else:
@@ -34,28 +37,18 @@ async def process_pm_captcha_self(_: Client, message: Message):
 async def process_pm_captcha(client: Client, message: Message):
     cid = message.chat.id
     data = sqlite.get("pmcaptcha", {})
-    if message.text is not None:
-        try:
-            message.text == "114514"
-        except UnicodeDecodeError:
-            await message.reply('您触犯了风控规则，已被封禁\n\nYou have violated the risk control rules and been banned')
-            await client.block_user(user_id=cid)
-            await asyncio.sleep(random.randint(0, 100) / 1000)
-            return await client.archive_chats(chat_ids=cid)
     if not captcha_success.check_id(cid) and sqlite.get("pmcaptcha." + str(cid)) is None:
-        # 忽略联系人
-        if message.from_user.is_contact:
+        # 忽略联系人和服务消息
+        if message.from_user.is_contact or message.from_user.id == 777000:
             return captcha_success.add_id(cid)
         await client.read_chat_history(message.chat.id)
-        if message.text is not None:
-            if data.get("blacklist", ""):
-                for i in data.get("blacklist", "").split(","):
-                    if i in message.text:
-                        await message.reply(
-                            '您触犯了黑名单规则，已被封禁\n\nYou have violated the blacklist rules and been banned')
-                        await client.block_user(user_id=cid)
-                        await asyncio.sleep(random.randint(0, 100) / 1000)
-                        return await client.archive_chats(chat_ids=cid)
+        if data.get("blacklist", "") and message.text is not None:
+            for i in data.get("blacklist", "").split(","):
+                if i in message.text:
+                    await message.reply('您触犯了黑名单规则，已被封禁\n\nYou have violated the blacklist rules and been banned')
+                    await client.block_user(user_id=cid)
+                    await asyncio.sleep(random.randint(0, 100) / 1000)
+                    return await client.archive_chats(chat_ids=cid)
         try:
             await client.invoke(UpdateNotifySettings(peer=InputNotifyPeer(peer=await client.resolve_peer(cid)),
                                                      settings=InputPeerNotifySettings(silent=True)))
@@ -74,7 +67,7 @@ async def process_pm_captcha(client: Client, message: Message):
             str(key1) + '+' + str(key2) + '\" (numbers only) first.\nYou have ' + str(wait) +
             ' seconds to complete the verification.')
         await asyncio.sleep(wait)
-        await msg.safe_delete()  # noqa
+        await msg.safe_delete()
         if sqlite.get('pmcaptcha.' + str(cid)) is not None:
             del sqlite['pmcaptcha.' + str(cid)]
             await message.reply('验证超时,您已被封禁\n\nVerification timeout.You have been banned.')
@@ -82,8 +75,8 @@ async def process_pm_captcha(client: Client, message: Message):
             await asyncio.sleep(random.randint(0, 100) / 1000)
             await client.archive_chats(chat_ids=cid)
     elif sqlite.get("pmcaptcha." + str(cid)):
-        await message.safe_delete()
         if message.text == sqlite.get("pmcaptcha." + str(cid)):
+            await message.safe_delete()
             del sqlite['pmcaptcha.' + str(cid)]
             captcha_success.add_id(cid)
             try:
@@ -92,11 +85,9 @@ async def process_pm_captcha(client: Client, message: Message):
             except:  # noqa
                 pass
             await asyncio.sleep(random.randint(0, 100) / 1000)
-            msg = await message.reply(data.get("welcome", "验证通过\n\nVerification Passe"))
+            msg = await message.reply(data.get("welcome", "验证通过\n\nVerification Passed"))
             await asyncio.sleep(random.randint(0, 100) / 1000)
             await client.unarchive_chats(chat_ids=cid)
-            await asyncio.sleep(5)
-            await msg.safe_delete()  # noqa
         else:
             del sqlite['pmcaptcha.' + str(cid)]
             await message.reply('验证错误，您已被封禁\n\nVerification failed.You have been banned.')
@@ -107,7 +98,7 @@ async def process_pm_captcha(client: Client, message: Message):
 
 @listener(is_plugin=True, outgoing=True, command="pmcaptcha",
           need_admin=True,
-          description='一个简单的私聊人机验证 可用命令列表请见 t.me/cloudreflection_channel/298')
+          description='一个简单的私聊人机验证  请使用 ,pmcaptcha h 查看可用命令')
 async def pm_captcha(client: Client, message: Message):
     cid_ = str(message.chat.id)
     data = sqlite.get("pmcaptcha", {})
@@ -131,6 +122,28 @@ async def pm_captcha(client: Client, message: Message):
         elif message.parameter[0] == 'wait':
             await message.edit(
                 '当前验证等待时间(秒): ' + str(data.get('wait', '无')) + '\n如需编辑，请使用 ,pmcaptcha wait +等待秒数(整数)')
+        elif message.parameter[0] == 'h':
+            await message.edit(''',pmcaptcha
+查询当前私聊用户验证状态
+
+,pmcaptcha chk [id]
+查询指定id用户验证状态
+
+,pmcaptcha add <id>
+将id加入已验证，如未指定为当前私聊用户id
+
+,pmcaptcha del <id>
+将id移除验证状态，如未指定为当前私聊用户id
+
+,pmcaptcha wel <message>
+查看或设置验证通过时发送的消息（不能有空格）
+
+,pmcaptcha bl <list>
+查看或设置黑名单列表（英文逗号分隔，不能有空格）
+
+,pmcaptcha wait <int>
+查看或设置超时时间
+''')
         elif message.chat.type != ChatType.PRIVATE:
             await message.edit('请在私聊时使用此命令，或添加id参数执行')
             await asyncio.sleep(3)
