@@ -69,6 +69,46 @@
             "supported": true,
             "des-short": "Base64编码/解码。",
             "des": "Base64编码/解码。\n命令：,b64e ,b64d"
+        },
+        {
+            "name": "bc",
+            "version": "1.232",
+            "section": "chat",
+            "maintainer": "Pentacene",
+            "size": "4.2 kb",
+            "supported": true,
+            "des-short": "查询含虚拟货币在内的货币价格",
+            "des": "命令：bc 数量 货币1 货币2"
+        },
+        {
+            "name": "bin",
+            "version": "1.021",
+            "section": "daily",
+            "maintainer": "paulkm",
+            "size": "2.09 kb",
+            "supported": true,
+            "des-short": "查询信用卡bin信息。",
+            "des": "使用binlist api查询，1分钟限额10次否则报错。使用方法：-bin xxx （xxx为信用卡卡号前4-8位，推荐6位）"
+        },
+        {
+            "name": "tel",
+            "version": "1.111",
+            "section": "daily",
+            "maintainer": "KorenKrita、xtaodada",
+            "size": "1 kb",
+            "supported": true,
+            "des-short": "查询手机号码归属地等信息",
+            "des": "查询电话号码归属地，号码段，卡类型，运营商及通信标准。命令：tel。"
+        },
+        {
+            "name": "news",
+            "version": "1.0",
+            "section": "daily",
+            "maintainer": "xtaodada",
+            "size": "1.3 kb",
+            "supported": true,
+            "des-short": "每日新闻、历史上的今天、天天成语、慧语香风、诗歌天地",
+            "des": "每日新闻、历史上的今天、天天成语、慧语香风、诗歌天地。\n指令：-news"
         }
     ]
 }
