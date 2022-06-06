@@ -38,9 +38,9 @@ async def process_pm_captcha(client: Client, message: Message):
     cid = message.chat.id
     data = sqlite.get("pmcaptcha", {})
     if not captcha_success.check_id(cid) and sqlite.get("pmcaptcha." + str(cid)) is None:
-        # 忽略联系人和服务消息
-        if message.from_user.is_contact or message.from_user.id == 777000:
-            return captcha_success.add_id(cid)
+        # 忽略联系人、服务消息、机器人消息
+        if message.from_user.is_contact or message.from_user.id == 777000 or message.chat.type == ChatType.BOT:
+            return
         await client.read_chat_history(message.chat.id)
         if data.get("blacklist", "") and message.text is not None:
             for i in data.get("blacklist", "").split(","):
