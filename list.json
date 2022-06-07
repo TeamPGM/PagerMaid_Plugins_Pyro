@@ -129,6 +129,26 @@
             "supported": true,
             "des-short": "查询域名whois信息",
             "des": "查看域名是否已被注册、注册日期、过期日期、域名状态、DNS解析服务器等。"
+        },
+        {
+            "name": "weather",
+            "version": "1.111",
+            "section": "daily",
+            "maintainer": "xtaodada",
+            "size": "3.1 kb",
+            "supported": true,
+            "des-short": "查询天气。",
+            "des": "这个人很懒，什么都没有留下。"
+        },
+        {
+            "name": "resou",
+            "version": "1.221",
+            "section": "daily",
+            "maintainer": "KorenKrita、xtaodada、monsterxcn",
+            "size": "2.5 kb",
+            "supported": true,
+            "des-short": "微博，知乎，抖音实时热搜。",
+            "des": "命令：wbrs，zhrs，dyrs。"
         }
     ]
 }
