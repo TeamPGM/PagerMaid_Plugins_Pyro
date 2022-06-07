@@ -119,6 +119,16 @@
             "supported": true,
             "des-short": "每日新闻、历史上的今天、天天成语、慧语香风、诗歌天地",
             "des": "每日新闻、历史上的今天、天天成语、慧语香风、诗歌天地。\n指令：-news"
+        },
+        {
+            "name": "whois",
+            "version": "1.141",
+            "section": "daily",
+            "maintainer": "xtaodada",
+            "size": "1.0 kb",
+            "supported": true,
+            "des-short": "查询域名whois信息",
+            "des": "查看域名是否已被注册、注册日期、过期日期、域名状态、DNS解析服务器等。"
         }
     ]
 }
