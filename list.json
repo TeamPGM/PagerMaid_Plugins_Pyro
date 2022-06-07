@@ -72,13 +72,13 @@
         },
         {
             "name": "pmcaptcha",
-            "version": "1.011",
+            "version": "1.1",
             "section": "chat",
             "maintainer": "cloudreflection",
-            "size": "9.33 kb",
+            "size": "11.5 kb",
             "supported": true,
             "des-short": "简单的私聊人机验证",
-            "des": "简单的私聊人机验证，支持自定义关键词黑名单，通过后欢迎语，验证超时时间"
+            "des": "简单的私聊人机验证，支持自定义关键词黑名单，通过后欢迎语，验证超时时间，禁止陌生人私聊"
         },
         {
             "name": "bc",

@@ -1,6 +1,6 @@
 # pmcaptcha - a pagermaid-pyro plugin by cloudreflection
 # https://t.me/cloudreflection_channel/268
-# ver 2022/06/06
+# ver 2022/06/07
 
 from pyrogram import Client
 from pyrogram.enums.chat_type import ChatType
@@ -35,14 +35,19 @@ async def process_pm_captcha_self(_: Client, message: Message):
 
 @listener(is_plugin=False, incoming=True, outgoing=False, ignore_edited=True, privates_only=True)
 async def process_pm_captcha(client: Client, message: Message):
+    # 忽略联系人、服务消息、机器人消息
+    if message.from_user.is_contact or message.from_user.id == 777000 or message.chat.type == ChatType.BOT:
+        return
     cid = message.chat.id
     data = sqlite.get("pmcaptcha", {})
+    if data.get('disable',False) and not captcha_success.check_id(cid):
+        await message.reply('对方已设置禁止私聊，您已被封禁\n\nYou are not allowed to send private messages to me and been banned')
+        await client.block_user(user_id=cid)
+        await asyncio.sleep(random.randint(0, 100) / 1000)
+        return await client.archive_chats(chat_ids=cid)
     if not captcha_success.check_id(cid) and sqlite.get("pmcaptcha." + str(cid)) is None:
-        # 忽略联系人、服务消息、机器人消息
-        if message.from_user.is_contact or message.from_user.id == 777000 or message.chat.type == ChatType.BOT:
-            return
         await client.read_chat_history(message.chat.id)
-        if data.get("blacklist", "") and message.text is not None:
+        if data.get("blacklist", False) and message.text is not None:
             for i in data.get("blacklist", "").split(","):
                 if i in message.text:
                     await message.reply('您触犯了黑名单规则，已被封禁\n\nYou have violated the blacklist rules and been banned')
@@ -126,24 +131,39 @@ async def pm_captcha(client: Client, message: Message):
             await message.edit(''',pmcaptcha
 查询当前私聊用户验证状态
 
-,pmcaptcha chk [id]
+,pmcaptcha chk id
 查询指定id用户验证状态
 
-,pmcaptcha add <id>
+,pmcaptcha add [id]
 将id加入已验证，如未指定为当前私聊用户id
 
-,pmcaptcha del <id>
-将id移除验证状态，如未指定为当前私聊用户id
+,pmcaptcha del [id]
+移除id验证记录，如未指定为当前私聊用户id
 
-,pmcaptcha wel <message>
-查看或设置验证通过时发送的消息（不能有空格）
+,pmcaptcha wel [message]
+查看或设置验证通过时发送的消息
+使用 ,pmcaptcha wel -clear 可恢复默认规则
 
-,pmcaptcha bl <list>
-查看或设置黑名单列表（英文逗号分隔，不能有空格）
+,pmcaptcha bl [list]
+查看或设置关键词黑名单列表（英文逗号分隔）
+使用 ,pmcaptcha bl -clear 可恢复默认规则
 
-,pmcaptcha wait <int>
+,pmcaptcha wait [int]
 查看或设置超时时间
+
+,pmcaptcha disablepm [true/false]
+启用/禁止陌生人私聊
+此功能会放行联系人和白名单(已通过验证)用户
+您可以使用 ,pmcaptcha add 将用户加入白名单
 ''')
+        elif message.parameter[0] == 'disablepm':
+            if data.get('disable',False):
+                status='关闭'
+            else:
+                status='开启'
+            await message.edit('当前禁止私聊状态: 已'+status+
+                               '\n如需修改 请使用 ,pmcaptcha disablepm true/false'+
+                               '\n此功能会放行联系人和白名单(已通过验证)用户')
         elif message.chat.type != ChatType.PRIVATE:
             await message.edit('请在私聊时使用此命令，或添加id参数执行')
             await asyncio.sleep(3)
@@ -173,6 +193,12 @@ async def pm_captcha(client: Client, message: Message):
             else:
                 await message.edit('参数错误')
         elif message.parameter[0] == 'wel':
+            if message.parameter[1]=='-clear':
+                if data.get("welcome", False):
+                    del data["welcome"]
+                    sqlite["pmcaptcha"] = data
+                await message.edit('已恢复至默认规则')
+                return
             data["welcome"] = " ".join(message.parameter[1:])
             sqlite["pmcaptcha"] = data
             await message.edit('规则已更新')
@@ -184,6 +210,12 @@ async def pm_captcha(client: Client, message: Message):
             else:
                 await message.edit('错误:不是整数')
         elif message.parameter[0] == 'bl':
+            if message.parameter[1]=='-clear':
+                if data.get("blacklist", False):
+                    del data["blacklist"]
+                    sqlite["pmcaptcha"] = data
+                await message.edit('已恢复至默认规则')
+                return
             data["blacklist"] = " ".join(message.parameter[1:])
             sqlite["pmcaptcha"] = data
             await message.edit('规则已更新')
@@ -195,3 +227,12 @@ async def pm_captcha(client: Client, message: Message):
                     await message.edit('id ' + message.parameter[1] + ' 未验证')
             else:
                 await message.edit('未知用户/无效id')
+        elif message.parameter[0] == 'disablepm':
+            if message.parameter[1] == 'true':
+                data["disable"] = True
+                sqlite["pmcaptcha"] = data
+                await message.edit('已禁止非白名单和联系人私聊\n您可以使用 ,pmcaptcha disablepm false 重新启用私聊')
+            elif message.parameter[1] == 'false':
+                data["disable"] = False
+                sqlite["pmcaptcha"] = data
+                await message.edit('已关闭禁止私聊，人机验证仍会工作')
