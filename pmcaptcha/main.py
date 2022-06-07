@@ -45,6 +45,8 @@ async def process_pm_captcha(client: Client, message: Message):
         await client.block_user(user_id=cid)
         await asyncio.sleep(random.randint(0, 100) / 1000)
         return await client.archive_chats(chat_ids=cid)
+        data['banned'] = data.get('banned',0) + 1
+        sqlite['pmcaptcha'] = data
     if not captcha_success.check_id(cid) and sqlite.get("pmcaptcha." + str(cid)) is None:
         await client.read_chat_history(message.chat.id)
         if data.get("blacklist", False) and message.text is not None:
@@ -54,6 +56,8 @@ async def process_pm_captcha(client: Client, message: Message):
                     await client.block_user(user_id=cid)
                     await asyncio.sleep(random.randint(0, 100) / 1000)
                     return await client.archive_chats(chat_ids=cid)
+                    data['banned'] = data.get('banned',0) + 1
+                    sqlite['pmcaptcha'] = data
         try:
             await client.invoke(UpdateNotifySettings(peer=InputNotifyPeer(peer=await client.resolve_peer(cid)),
                                                      settings=InputPeerNotifySettings(silent=True)))
@@ -79,6 +83,8 @@ async def process_pm_captcha(client: Client, message: Message):
             await client.block_user(user_id=cid)
             await asyncio.sleep(random.randint(0, 100) / 1000)
             await client.archive_chats(chat_ids=cid)
+            data['banned'] = data.get('banned',0) + 1
+            sqlite['pmcaptcha'] = data
     elif sqlite.get("pmcaptcha." + str(cid)):
         if message.text == sqlite.get("pmcaptcha." + str(cid)):
             await message.safe_delete()
@@ -93,13 +99,16 @@ async def process_pm_captcha(client: Client, message: Message):
             msg = await message.reply(data.get("welcome", "验证通过\n\nVerification Passed"))
             await asyncio.sleep(random.randint(0, 100) / 1000)
             await client.unarchive_chats(chat_ids=cid)
+            data['pass'] = data.get('pass',0) + 1
+            sqlite['pmcaptcha'] = data
         else:
             del sqlite['pmcaptcha.' + str(cid)]
             await message.reply('验证错误，您已被封禁\n\nVerification failed.You have been banned.')
             await client.block_user(user_id=cid)
             await asyncio.sleep(random.randint(0, 100) / 1000)
             await client.archive_chats(chat_ids=cid)
-
+            data['banned'] = data.get('banned',0) + 1
+            sqlite['pmcaptcha'] = data
 
 @listener(is_plugin=True, outgoing=True, command="pmcaptcha",
           need_admin=True,
@@ -131,7 +140,7 @@ async def pm_captcha(client: Client, message: Message):
             await message.edit(''',pmcaptcha
 查询当前私聊用户验证状态
 
-,pmcaptcha chk id
+,pmcaptcha check id
 查询指定id用户验证状态
 
 ,pmcaptcha add [id]
@@ -155,15 +164,22 @@ async def pm_captcha(client: Client, message: Message):
 启用/禁止陌生人私聊
 此功能会放行联系人和白名单(已通过验证)用户
 您可以使用 ,pmcaptcha add 将用户加入白名单
+
+,pmcaptcha stats
+查看验证计数器
+使用 ,pmcaptcha stats -clear 可重置
 ''')
         elif message.parameter[0] == 'disablepm':
             if data.get('disable',False):
-                status='关闭'
-            else:
                 status='开启'
+            else:
+                status='关闭'
             await message.edit('当前禁止私聊状态: 已'+status+
                                '\n如需修改 请使用 ,pmcaptcha disablepm true/false'+
                                '\n此功能会放行联系人和白名单(已通过验证)用户')
+        elif message.parameter[0] == 'stats':
+            t = str(data.get('banned',0)+data.get('pass',0))
+            await message.edit('自上次重置起，已进行验证 '+str(data.get('pass',0)+data.get('pass',0))+' 次\n其中，通过验证 '+str(data.get('pass',0))+' 次，拦截 '+str(data.get('banned',0))+' 次')
         elif message.chat.type != ChatType.PRIVATE:
             await message.edit('请在私聊时使用此命令，或添加id参数执行')
             await asyncio.sleep(3)
@@ -236,3 +252,8 @@ async def pm_captcha(client: Client, message: Message):
                 data["disable"] = False
                 sqlite["pmcaptcha"] = data
                 await message.edit('已关闭禁止私聊，人机验证仍会工作')
+        elif message.parameter[0] == 'stats' and message.parameter[1] == '-clear':
+            data["pass"] = 0
+            data["banned"] = 0
+            sqlite["pmcaptcha"] = data
+            await message.edit('已重置计数器')
