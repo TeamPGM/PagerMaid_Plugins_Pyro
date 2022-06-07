@@ -40,7 +40,7 @@ def calcWindDirection(windDirection):
           description="查询天气",
           parameters="<城市>")
 async def weather(_: Client, message: Message):
-    of not message.arguments:
+    if not message.arguments:
         return await message.edit("出错了呜呜呜 ~ 无效的参数。")
     try:
         req = await client.get(

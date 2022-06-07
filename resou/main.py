@@ -7,7 +7,7 @@ from pagermaid.utils import Message, client
 @listener(command="zhrs",
           description="知乎热搜。")
 async def zhrs(_: Client, message: Message):
-    req = await client.get("https://tenapi.cn/zhihuresou")
+    req = await client.get("https://tenapi.cn/zhihuresou/")
     if req.status_code == 200:
         try:
             data = req.json()
@@ -25,7 +25,7 @@ async def zhrs(_: Client, message: Message):
 @listener(command="wbrs",
           description="微博热搜。")
 async def wbrs(_: Client, message: Message):
-    req = await client.get("https://tenapi.cn/resou")
+    req = await client.get("https://tenapi.cn/resou/")
     if req.status_code == 200:
         try:
             data = req.json()
@@ -44,7 +44,7 @@ async def wbrs(_: Client, message: Message):
 @listener(command="dyrs",
           description="抖音热搜。")
 async def dyrs(_: Client, message: Message):
-    req = await client.get("https://tenapi.cn/douyinresou")
+    req = await client.get("https://tenapi.cn/douyinresou/")
     if req.status_code == 200:
         try:
             data = req.json()

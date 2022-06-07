@@ -132,7 +132,7 @@
         },
         {
             "name": "weather",
-            "version": "1.111",
+            "version": "1.112",
             "section": "daily",
             "maintainer": "xtaodada",
             "size": "3.1 kb",
@@ -142,7 +142,7 @@
         },
         {
             "name": "resou",
-            "version": "1.221",
+            "version": "1.222",
             "section": "daily",
             "maintainer": "KorenKrita、xtaodada、monsterxcn",
             "size": "2.5 kb",
