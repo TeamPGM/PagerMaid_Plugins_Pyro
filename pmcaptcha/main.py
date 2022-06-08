@@ -103,6 +103,8 @@ async def process_pm_captcha(client: Client, message: Message):
             await client.unarchive_chats(chat_ids=cid)
             data['pass'] = data.get('pass',0) + 1
             sqlite['pmcaptcha'] = data
+            await asyncio.sleep(5)
+            await msg.safe_delete()
         else:
             del sqlite['pmcaptcha.' + str(cid)]
             await message.reply('验证错误，您已被封禁\n\nVerification failed.You have been banned.')
@@ -111,6 +113,7 @@ async def process_pm_captcha(client: Client, message: Message):
             await client.archive_chats(chat_ids=cid)
             data['banned'] = data.get('banned',0) + 1
             sqlite['pmcaptcha'] = data
+
 
 @listener(is_plugin=True, outgoing=True, command="pmcaptcha",
           need_admin=True,
