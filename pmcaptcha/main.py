@@ -1,6 +1,6 @@
 # pmcaptcha - a pagermaid-pyro plugin by cloudreflection
 # https://t.me/cloudreflection_channel/268
-# ver 2022/06/07
+# ver 2022/06/08
 
 from pyrogram import Client
 from pyrogram.enums.chat_type import ChatType
@@ -20,6 +20,8 @@ captcha_success = Sub("pmcaptcha.success")
 
 @listener(is_plugin=False, incoming=False, outgoing=True, ignore_edited=True, privates_only=True)
 async def process_pm_captcha_self(_: Client, message: Message):
+    if message.chat.id == 777000 or message.chat.type == ChatType.BOT:
+        return
     cid = message.chat.id
     if message.text:
         try:
@@ -179,7 +181,8 @@ async def pm_captcha(client: Client, message: Message):
                                '\n此功能会放行联系人和白名单(已通过验证)用户')
         elif message.parameter[0] == 'stats':
             t = str(data.get('banned',0)+data.get('pass',0))
-            await message.edit('自上次重置起，已进行验证 '+str(data.get('pass',0)+data.get('pass',0))+' 次\n其中，通过验证 '+str(data.get('pass',0))+' 次，拦截 '+str(data.get('banned',0))+' 次')
+            await message.edit('自上次重置起，已进行验证 '+str(data.get('pass',0)+data.get('banned',0))+
+            ' 次\n其中，通过验证 '+str(data.get('pass',0))+' 次，拦截 '+str(data.get('banned',0))+' 次')
         elif message.chat.type != ChatType.PRIVATE:
             await message.edit('请在私聊时使用此命令，或添加id参数执行')
             await asyncio.sleep(3)
