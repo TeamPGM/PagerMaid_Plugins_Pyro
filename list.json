@@ -149,6 +149,16 @@
             "supported": true,
             "des-short": "微博，知乎，抖音实时热搜。",
             "des": "命令：wbrs，zhrs，dyrs。"
+        },
+        {
+            "name": "diss",
+            "version": "1.0",
+            "section": "daily",
+            "maintainer": "xtaodada",
+            "size": "700 b",
+            "supported": true,
+            "des-short": "儒雅随和版祖安语录。",
+            "des": "儒雅随和版祖安语录。"
         }
     ]
 }
