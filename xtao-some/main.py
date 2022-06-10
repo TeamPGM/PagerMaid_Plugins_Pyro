@@ -1,24 +1,13 @@
 import json
-from requests import get
 from pyrogram import Client
 
 from pagermaid.listener import listener
-from pagermaid.utils import alias_command, Message, client
+from pagermaid.utils import Message, client
 
 
-async def obtain_message(context) -> str:
-    reply = context.reply_to_message
-    message = context.arguments
-    if reply and not message:
-        message = reply.text
-    if not message:
-        raise ValueError(lang('msg_ValueError'))
-    return message
-
-
-@listener(is_plugin=True, outgoing=True, command=alias_command("guess"),
+@listener(is_plugin=True, command="guess",
           description="能不能好好说话？ - 拼音首字母缩写释义工具（需要回复一句话）")
-async def guess(c: Client, message: Message):
+async def guess(_: Client, message: Message):
     text = message.arguments
     if not text:
         return await message.edit("请先输入一个缩写。")
@@ -44,20 +33,19 @@ async def guess(c: Client, message: Message):
         await message.edit("没有匹配到拼音首字母缩写")
 
 
-@listener(is_plugin=True, outgoing=True, command="wiki", description="查询维基百科词条", parameters="<词组>")
-async def wiki(_: Client, context: Message):
-    await context.edit("获取中 . . .")
+@listener(is_plugin=True, command="wiki", 
+          description="查询维基百科词条",
+          parameters="<词组>")
+async def wiki(_: Client, message: Message):
+    message = await message.edit("获取中 . . .")
+    text = message.arguments
+    if not text:
+        return await message.edit("请先输入一个关键词。")
     try:
-        message = await obtain_message(context)
-    except ValueError:
-        await context.edit("出错了呜呜呜 ~ 无效的参数。")
-        return
-    try:
-        wiki_json = json.loads(get("https://zh.wikipedia.org/w/api.php?action=query&list=search&format=json&formatversion=2&srsearch=" + message).content.decode(
-            "utf-8"))
+        req = await client.get("https://zh.wikipedia.org/w/api.php?action=query&list=search&format=json&formatversion=2&srsearch=" + message)
+        wiki_json = json.loads(req.content.decode("utf-8"))
     except:
-        await context.edit("出错了呜呜呜 ~ 无法访问到维基百科。")
-        return
+        return await message.edit("出错了呜呜呜 ~ 无法访问到维基百科。")
     try:
         if not len(wiki_json['query']['search']) == 0:
             wiki_title = wiki_json['query']['search'][0]['title']
@@ -65,10 +53,10 @@ async def wiki(_: Client, context: Message):
                                                                               '**').replace(
                 '</span>', '**')
             wiki_time = wiki_json['query']['search'][0]['timestamp'].replace('T', ' ').replace('Z', ' ')
-            message = '词条： [' + wiki_title + '](https://zh.wikipedia.org/zh-cn/' + wiki_title + ')\n\n' + \
+            text = '词条： [' + wiki_title + '](https://zh.wikipedia.org/zh-cn/' + wiki_title + ')\n\n' + \
                       wiki_content + '...\n\n此词条最后修订于 ' + wiki_time
         else:
-            message = "没有匹配到相关词条"
+            text = "没有匹配到相关词条"
     except KeyError:
-        message = wiki_json['error']['info']
-    await context.edit(message)
+        text = wiki_json['error']['info']
+    await message.edit(text)
