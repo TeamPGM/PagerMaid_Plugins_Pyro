@@ -37,12 +37,12 @@ async def guess(_: Client, message: Message):
           description="查询维基百科词条",
           parameters="<词组>")
 async def wiki(_: Client, message: Message):
-    message = await message.edit("获取中 . . .")
     text = message.arguments
     if not text:
         return await message.edit("请先输入一个关键词。")
+    message = await message.edit("获取中 . . .")
     try:
-        req = await client.get("https://zh.wikipedia.org/w/api.php?action=query&list=search&format=json&formatversion=2&srsearch=" + message)
+        req = await client.get("https://zh.wikipedia.org/w/api.php?action=query&list=search&format=json&formatversion=2&srsearch=" + text)
         wiki_json = json.loads(req.content.decode("utf-8"))
     except:
         return await message.edit("出错了呜呜呜 ~ 无法访问到维基百科。")
