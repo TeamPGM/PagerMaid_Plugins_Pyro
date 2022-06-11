@@ -1,6 +1,6 @@
 # pmcaptcha - a pagermaid-pyro plugin by cloudreflection
 # https://t.me/cloudreflection_channel/268
-# ver 2022/06/08
+# ver 2022/06/11
 
 from pyrogram import Client
 from pyrogram.enums.chat_type import ChatType
@@ -45,12 +45,13 @@ async def process_pm_captcha(client: Client, message: Message):
     if data.get('disable',False) and not captcha_success.check_id(cid):
         await message.reply('对方已设置禁止私聊，您已被封禁\n\nYou are not allowed to send private messages to me and been banned')
         await client.block_user(user_id=cid)
+        await client.read_chat_history(cid)
         await asyncio.sleep(random.randint(0, 100) / 1000)
         return await client.archive_chats(chat_ids=cid)
         data['banned'] = data.get('banned',0) + 1
         sqlite['pmcaptcha'] = data
     if not captcha_success.check_id(cid) and sqlite.get("pmcaptcha." + str(cid)) is None:
-        await client.read_chat_history(message.chat.id)
+        await client.read_chat_history(cid)
         if data.get("blacklist", False) and message.text is not None:
             for i in data.get("blacklist", "").split(","):
                 if i in message.text:
@@ -107,6 +108,7 @@ async def process_pm_captcha(client: Client, message: Message):
             del sqlite['pmcaptcha.' + str(cid)]
             await message.reply('验证错误，您已被封禁\n\nVerification failed.You have been banned.')
             await client.block_user(user_id=cid)
+            await client.read_chat_history(cid)
             await asyncio.sleep(random.randint(0, 100) / 1000)
             await client.archive_chats(chat_ids=cid)
             data['banned'] = data.get('banned',0) + 1
@@ -114,7 +116,7 @@ async def process_pm_captcha(client: Client, message: Message):
 
 @listener(is_plugin=True, outgoing=True, command="pmcaptcha",
           need_admin=True,
-          description='一个简单的私聊人机验证  请使用 ,pmcaptcha h 查看可用命令')
+          description='一个简单的私聊人机验证  请使用 ```,pmcaptcha h``` 查看可用命令')
 async def pm_captcha(client: Client, message: Message):
     cid_ = str(message.chat.id)
     data = sqlite.get("pmcaptcha", {})
@@ -139,38 +141,40 @@ async def pm_captcha(client: Client, message: Message):
             await message.edit(
                 '当前验证等待时间(秒): ' + str(data.get('wait', '无')) + '\n如需编辑，请使用 ,pmcaptcha wait +等待秒数(整数)')
         elif message.parameter[0] == 'h':
-            await message.edit(''',pmcaptcha
+            await message.edit('''```,pmcaptcha```
 查询当前私聊用户验证状态
 
-,pmcaptcha check id
+```,pmcaptcha check id```
 查询指定id用户验证状态
 
-,pmcaptcha add [id]
+```,pmcaptcha add [id]```
 将id加入已验证，如未指定为当前私聊用户id
 
-,pmcaptcha del [id]
+```,pmcaptcha del [id]```
 移除id验证记录，如未指定为当前私聊用户id
 
-,pmcaptcha wel [message]
+```,pmcaptcha wel [message]```
 查看或设置验证通过时发送的消息
-使用 ,pmcaptcha wel -clear 可恢复默认规则
+使用 ```,pmcaptcha wel -clear``` 可恢复默认规则
 
-,pmcaptcha bl [list]
+```,pmcaptcha bl [list]```
 查看或设置关键词黑名单列表（英文逗号分隔）
-使用 ,pmcaptcha bl -clear 可恢复默认规则
+使用 ```,pmcaptcha bl -clear``` 可恢复默认规则
 
-,pmcaptcha wait [int]
+```,pmcaptcha wait [int]```
 查看或设置超时时间
 
-,pmcaptcha disablepm [true/false]
+```,pmcaptcha disablepm [true/false]```
 启用/禁止陌生人私聊
 此功能会放行联系人和白名单(已通过验证)用户
 您可以使用 ,pmcaptcha add 将用户加入白名单
 
-,pmcaptcha stats
+```,pmcaptcha stats```
 查看验证计数器
-使用 ,pmcaptcha stats -clear 可重置
-''')
+使用 ```,pmcaptcha stats -clear``` 可重置
+
+遇到任何问题请先 ```,apt update``` 更新后复现再反馈
+捐赠: cloudreflection.eu.org/donate''')
         elif message.parameter[0] == 'disablepm':
             if data.get('disable',False):
                 status='开启'
