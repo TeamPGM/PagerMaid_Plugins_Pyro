@@ -46,22 +46,22 @@ async def mtts(_: Client, msg: Message):
     opt = msg.arguments
     replied_msg = msg.reply_to_message
     cmtts = async_Mtts()
-    if msg.parameter[0] == "setname":
-        model_name = msg.parameter[1]
+    if opt.startswith("setname "):
+        model_name = opt.split(" ")[1]
         status = await config_set(model_name, "short_name")
         if not status:
             await msg.edit("❗️ tts setting  error")
         await msg.edit(
             "successfully set up mtts voice model to:{}".format(model_name))
-    elif msg.parameter[0] == "setstyle":
-        model_name = msg.parameter[1]
+    elif opt.startswith("setstyle "):
+        model_name = opt.split(" ")[1]
         status = await config_set(model_name, "style")
         if not status:
             await msg.edit("❗️ tts setting  error")
         await msg.edit(
             "successfully set up mtts voice style to:{}".format(model_name))
-    elif msg.parameter[0] == "list":
-        tag = msg.parameter[1]
+    elif opt.startswith("list "):
+        tag = opt.split(" ")[1]
         voice_model = await cmtts.get_lang_models()
         s = "code | local name | Gender | LocaleName\r\n"
         for model in voice_model:
@@ -86,11 +86,11 @@ async def mtts(_: Client, msg: Message):
             await msg.delete()
         else:
             await msg.reply_voice(
-                mp3_path, reply_to_message_id=replied_msg["message_id"])
+                mp3_path, reply_to_message_id=replied_msg.id)
             await msg.delete()
     elif replied_msg is not None:
         config = await config_check()
-        mp3_buffer = await cmtts.mtts(text=replied_msg["text"],
+        mp3_buffer = await cmtts.mtts(text=replied_msg.text,
                                       short_name=config["short_name"],
                                       style=config["style"],
                                       rate=config["rate"],
@@ -98,7 +98,7 @@ async def mtts(_: Client, msg: Message):
                                       kmhz=config["kmhz"])
         mp3_path = await save_audio(mp3_buffer)
         await msg.reply_voice(mp3_path,
-                              reply_to_message_id=replied_msg["message_id"])
+                              reply_to_message_id=replied_msg.id)
         await msg.delete()
     elif opt is None or opt == " ":
         await msg.edit("error, please use help command to show use case")
