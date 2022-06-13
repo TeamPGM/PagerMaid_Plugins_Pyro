@@ -159,6 +159,16 @@
             "supported": true,
             "des-short": "儒雅随和版祖安语录。",
             "des": "儒雅随和版祖安语录。"
+        },
+        {
+            "name": "mtts",
+            "version": "1.0",
+            "section": "daily",
+            "maintainer": "xtaodada",
+            "size": "4 kb",
+            "supported": true,
+            "des-short": "微软文本转语音",
+            "des": "微软文本转语音"
         }
     ]
 }
