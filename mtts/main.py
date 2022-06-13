@@ -4,8 +4,11 @@ from pagermaid.listener import listener
 from pagermaid.utils import Message, client
 from pymtts import async_Mtts
 from pyrogram import Client
+from pagermaid.single_utils import sqlite
 
-CONFIG_PATH = os.path.join(os.getcwd(), "data", "mtts_config.json")
+
+cmtts = async_Mtts()
+
 default_config = {
     "short_name": "zh-CN-XiaoxiaoNeural",
     "style": "general",
@@ -16,22 +19,17 @@ default_config = {
 
 
 async def config_check() -> dict:
-    if not os.path.exists(CONFIG_PATH):
-        with open(CONFIG_PATH, "w") as f:
-            json.dump(default_config, f)
-        return default_config
+    if not sqlite.get('mtts', {}):
+        sqlite['mtts'] = default_config
 
-    with open(CONFIG_PATH, "r") as f:
-        return json.load(f)
+    return sqlite['mtts']
 
 
 async def config_set(configset, cmd) -> bool:
     config = await config_check()
     config[cmd] = configset
-    with open(CONFIG_PATH, "w") as f:
-        json.dump(config, f)
-        return True
-    return False
+    sqlite['mtts'] = config
+    return True
 
 
 async def save_audio(buffer: bytes) -> str:
@@ -45,7 +43,6 @@ async def save_audio(buffer: bytes) -> str:
 async def mtts(_: Client, msg: Message):
     opt = msg.arguments
     replied_msg = msg.reply_to_message
-    cmtts = async_Mtts()
     if opt.startswith("setname "):
         model_name = opt.split(" ")[1]
         status = await config_set(model_name, "short_name")
