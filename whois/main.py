@@ -11,7 +11,10 @@ async def whois(_: Client, context: Message):
     except ValueError:
         await context.edit("出错了呜呜呜 ~ 无效的参数。")
         return
-    req = await client.get("https://namebeta.com/api/search/check?query=" + message)
+    req = await client.get(
+        f"https://namebeta.com/api/search/check?query={message}"
+    )
+
     if req.status_code == 200:
         try:
             data = req.json()["whois"]["whois"].split("For more information")[0].rstrip()

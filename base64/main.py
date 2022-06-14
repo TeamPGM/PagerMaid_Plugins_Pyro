@@ -12,9 +12,7 @@ async def b64e(_: Client, message: Message):
     if not msg:
         return await message.edit("`出错了呜呜呜 ~ 无效的参数。`")
 
-    result = b64encode(msg.encode("utf-8")).decode("utf-8")
-
-    if result:
+    if result := b64encode(msg.encode("utf-8")).decode("utf-8"):
         await message.edit(f"`{result}`")
 
 

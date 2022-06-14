@@ -48,7 +48,7 @@ async def weather(_: Client, message: Message):
             "=zh_cn&q=" + message.arguments)
         if req.status_code == 200:
             data = req.json()
-            cityName = "{}, {}".format(data["name"], data["sys"]["country"])
+            cityName = f'{data["name"]}, {data["sys"]["country"]}'
             timeZoneShift = data["timezone"]
             temp_Max = round(data["main"]["temp_max"], 2)
             temp_Min = round(data["main"]["temp_min"], 2)

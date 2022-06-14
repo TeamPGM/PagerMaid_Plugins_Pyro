@@ -33,13 +33,11 @@ async def get_everyday_en() -> None:
     everyday_en_cache_time = date.today()
     safe_remove(f"data{sep}everyday_en.jpg")
     safe_remove(f"data{sep}everyday_en.mp3")
-    url = everyday_en_data_cache.get("fenxiang_img", "")
-    if url:
+    if url := everyday_en_data_cache.get("fenxiang_img", ""):
         resp = await client.get(url, follow_redirects=True)
         with open(f"data{sep}everyday_en.jpg", "wb") as f:
             f.write(resp.content)
-    url = everyday_en_data_cache.get("tts", "")
-    if url:
+    if url := everyday_en_data_cache.get("tts", ""):
         resp = await client.get(url, follow_redirects=True)
         with open(f"data{sep}everyday_en.mp3", "wb") as f:
             f.write(resp.content)

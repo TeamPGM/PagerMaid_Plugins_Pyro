@@ -17,7 +17,7 @@ async def card(_: Client, message: Message):
         await message.edit("出错了呜呜呜 ~ 无效的参数。")
         return
     try:
-        r = requests.get("https://lookup.binlist.net/" + card_bin)
+        r = requests.get(f"https://lookup.binlist.net/{card_bin}")
     except:
         await message.edit("出错了呜呜呜 ~ 无法访问到binlist。")
         return
@@ -34,8 +34,7 @@ async def card(_: Client, message: Message):
         await message.edit("出错了呜呜呜 ~ 无效的参数。")
         return
 
-    msg_out = []
-    msg_out.extend(["BIN：" + card_bin])
+    msg_out = [f"BIN：{card_bin}"]
     try:
         msg_out.extend(["卡品牌：" + bin_json['scheme']])
     except (KeyError, TypeError):

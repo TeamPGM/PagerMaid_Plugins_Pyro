@@ -17,14 +17,26 @@ async def tel(_: Client, context: Message):
     except ValueError:
         await context.edit("出错了呜呜呜 ~ 无效的参数。")
         return
-    req = get("https://tenapi.cn/tel?tel=" + message)
+    req = get(f"https://tenapi.cn/tel?tel={message}")
     if req.status_code == 200:
         data = json.loads(req.text)
-        if not 'msg' in data:
-            res = '电话号码：' + str(data['tel']) + '\n' + str(data['local']) + '\n' + str(data['duan']) + '\n' + str(
-                data['type']) + '\n' + str(data['yys']) + '\n' + str(data['bz'])
-        else:
-            res = data['msg']
+        res = (
+            data['msg']
+            if 'msg' in data
+            else '电话号码：'
+            + str(data['tel'])
+            + '\n'
+            + str(data['local'])
+            + '\n'
+            + str(data['duan'])
+            + '\n'
+            + str(data['type'])
+            + '\n'
+            + str(data['yys'])
+            + '\n'
+            + str(data['bz'])
+        )
+
         await context.edit(res)
     else:
         await context.edit("出错了呜呜呜 ~ 无法访问到 API 服务器 。")
