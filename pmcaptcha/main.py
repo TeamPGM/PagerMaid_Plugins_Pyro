@@ -185,6 +185,10 @@ async def pm_captcha(client: Client, message: Message):
             await message.edit(
                 '当前验证等待时间(秒): ' + str(data.get('wait', '无')) + '\n如需编辑，请使用 ,pmcaptcha wait +等待秒数(整数)')
         elif message.parameter[0] == 'h':
+            if message.chat.type != ChatType.PRIVATE:
+                await message.edit('请在私聊时使用此命令')
+                await asyncio.sleep(3)
+                return await message.safe_delete()
             await message.edit(pm_captcha_help_msg)
         elif message.parameter[0] == 'disablepm':
             if data.get('disable', False):
