@@ -62,12 +62,12 @@ async def eat_it(context, user, base, mask, photo, number, layer=0):
     isContinue = len(numberPosition) > 2 and layer == 0
     if isContinue:
         await context._client.download_media(
-            user.photo.big_file_id,
-            f"plugins{sep}eat{sep}" + str(user.id) + ".jpg",
+            user.photo.big_file_id, f"plugins{sep}eat{sep}{str(user.id)}.jpg"
         )
+
         try:
-            markImg = Image.open(f"plugins{sep}eat{sep}" + str(user.id) + ".jpg")
-            maskImg = Image.open(f"plugins{sep}eat{sep}mask" + str(numberPosition[2]) + ".png")
+            markImg = Image.open(f"plugins{sep}eat{sep}{str(user.id)}.jpg")
+            maskImg = Image.open(f"plugins{sep}eat{sep}mask{str(numberPosition[2])}.png")
         except:
             await context.edit(f"图片模版加载出错，请检查并更新配置：mask{str(numberPosition[2])}.png")
             return base
@@ -82,13 +82,11 @@ async def eat_it(context, user, base, mask, photo, number, layer=0):
 
 
 async def updateConfig(context):
-    configFileRemoteUrl = sqlite.get(configFileRemoteUrlKey, "")
-    if configFileRemoteUrl:
-        if downloadFileFromUrl(configFileRemoteUrl, configFilePath) != 0:
-            sqlite[configFileRemoteUrlKey] = configFileRemoteUrl
-            return -1
-        else:
+    if configFileRemoteUrl := sqlite.get(configFileRemoteUrlKey, ""):
+        if downloadFileFromUrl(configFileRemoteUrl, configFilePath) == 0:
             return await loadConfigFile(context, True)
+        sqlite[configFileRemoteUrlKey] = configFileRemoteUrl
+        return -1
     return 0
 
 
@@ -183,9 +181,9 @@ async def downloadFileByIds(ids, context):
                     failSet.add(fileName)
                     await context.edit(f"下载文件异常，url：{file_url}")
             notifyStr = "更新模版完成"
-            if len(sucSet) > 0:
+            if sucSet:
                 notifyStr = f'{notifyStr}\n成功模版如下：{"，".join(sucSet)}'
-            if len(failSet) > 0:
+            if failSet:
                 notifyStr = f'{notifyStr}\n失败模版如下：{"，".join(failSet)}'
             await context.edit(notifyStr)
     except:

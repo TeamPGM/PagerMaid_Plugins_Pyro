@@ -15,7 +15,7 @@ async def zhrs(_: Client, message: Message):
             await message.edit("出错了呜呜呜 ~ API 数据解析失败。")
             return
         res = '知乎实时热搜榜：\n'
-        for i in range(0, 10):
+        for i in range(10):
             res += f'\n{i + 1}.「<a href={data["list"][i]["url"]}>{data["list"][i]["query"]}</a>」'
         await message.edit(res)
     else:
@@ -33,7 +33,7 @@ async def wbrs(_: Client, message: Message):
             await message.edit("出错了呜呜呜 ~ API 数据解析失败。")
             return
         res = '微博实时热搜榜：\n'
-        for i in range(0, 10):
+        for i in range(10):
             res += f'\n{i + 1}.「<a href={data["list"][i]["url"]}>{data["list"][i]["name"]}</a>」  ' \
                    f'热度：{data["list"][i]["hot"]}'
         await message.edit(res)
@@ -52,7 +52,7 @@ async def dyrs(_: Client, message: Message):
             await message.edit("出错了呜呜呜 ~ API 数据解析失败。")
             return
         res = '抖音实时热搜榜：\n'
-        for i in range(0, 10):
+        for i in range(10):
             res += f'\n{i + 1}.「{data["list"][i]["name"]}」  热度：{data["list"][i]["hot"]}'
         await message.edit(res)
     else:

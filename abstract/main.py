@@ -299,21 +299,22 @@ def text_to_emoji(text):
                 # 分词拼音检索
                 if word_py in emoji_py.keys():
                     text_with_emoji += emoji_py[word_py]
-                else:
-                    if len(word) > 0:  # if the two characters or more
+                elif len(word) > 0:  # if the two characters or more
                         # 单字检索
-                        for character in word:
-                            if character in emoji.keys():
-                                text_with_emoji += emoji[character]
-                            else:
-                                # 单字拼音检索
-                                character_py = pinyin.get(character, format="strip")
-                                if character_py in emoji_py.keys():
-                                    text_with_emoji += emoji_py[character_py]
-                                else:
-                                    text_with_emoji += character
-                    else:  # 只有一个汉字，前面已经检测过字和拼音都不在抽象词典中，直接加词
-                        text_with_emoji += word.strip()
+                    for character in word:
+                        if character in emoji.keys():
+                            text_with_emoji += emoji[character]
+                        else:
+                            # 单字拼音检索
+                            character_py = pinyin.get(character, format="strip")
+                            text_with_emoji += (
+                                emoji_py[character_py]
+                                if character_py in emoji_py.keys()
+                                else character
+                            )
+
+                else:  # 只有一个汉字，前面已经检测过字和拼音都不在抽象词典中，直接加词
+                    text_with_emoji += word.strip()
     except Exception as e:
         return f"文本抽象化失败~\n\n{e}"
     return text_with_emoji

@@ -15,9 +15,9 @@ async def guess(_: Client, message: Message):
 
     text = {'text': text}
     guess_json = (await client.post("https://lab.magiconch.com/api/nbnhhsh/guess", json=text)).json()
-    guess_res = []
-    if not len(guess_json) == 0:
-        for num in range(0, len(guess_json)):
+    if len(guess_json) != 0:
+        guess_res = []
+        for num in range(len(guess_json)):
             guess_res1 = json.loads(json.dumps(guess_json[num]))
             guess_res1_name = guess_res1['name']
             try:
@@ -27,7 +27,7 @@ async def guess(_: Client, message: Message):
                     guess_res1_ans = ", ".join(guess_res1['inputting'])
                 except:
                     guess_res1_ans = "尚未录入"
-            guess_res.extend(["词组：" + guess_res1_name + "\n释义：" + guess_res1_ans])
+            guess_res.extend([f"词组：{guess_res1_name}" + "\n释义：" + guess_res1_ans])
         await message.edit("\n\n".join(guess_res))
     else:
         await message.edit("没有匹配到拼音首字母缩写")
@@ -42,19 +42,29 @@ async def wiki(_: Client, message: Message):
         return await message.edit("请先输入一个关键词。")
     message = await message.edit("获取中 . . .")
     try:
-        req = await client.get("https://zh.wikipedia.org/w/api.php?action=query&list=search&format=json&formatversion=2&srsearch=" + text)
+        req = await client.get(
+            f"https://zh.wikipedia.org/w/api.php?action=query&list=search&format=json&formatversion=2&srsearch={text}"
+        )
+
         wiki_json = json.loads(req.content.decode("utf-8"))
     except:
         return await message.edit("出错了呜呜呜 ~ 无法访问到维基百科。")
     try:
-        if not len(wiki_json['query']['search']) == 0:
+        if len(wiki_json['query']['search']) != 0:
             wiki_title = wiki_json['query']['search'][0]['title']
             wiki_content = wiki_json['query']['search'][0]['snippet'].replace('<span class=\"searchmatch\">',
                                                                               '**').replace(
                 '</span>', '**')
             wiki_time = wiki_json['query']['search'][0]['timestamp'].replace('T', ' ').replace('Z', ' ')
-            text = '词条： [' + wiki_title + '](https://zh.wikipedia.org/zh-cn/' + wiki_title + ')\n\n' + \
-                      wiki_content + '...\n\n此词条最后修订于 ' + wiki_time
+            text = (
+                (
+                    f'词条： [{wiki_title}](https://zh.wikipedia.org/zh-cn/{wiki_title}'
+                    + ')\n\n'
+                    + wiki_content
+                )
+                + '...\n\n此词条最后修订于 '
+            ) + wiki_time
+
         else:
             text = "没有匹配到相关词条"
     except KeyError:
