@@ -159,6 +159,16 @@
             "supported": true,
             "des-short": "儒雅随和版祖安语录。",
             "des": "儒雅随和版祖安语录。"
+        },
+        {
+            "name": "vip",
+            "version": "0.72",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "14.4 kb",
+            "supported": true,
+            "des-short": "vip 捐赠用户功能",
+            "des": "命令：天气：weather weather_pic weather_he\nDuckduckgo：duckduckgo\n彩云翻译：caiyun\n文本转语音：tts_nan tts_nv tts_tw tts_ne tts_en。与 weather 插件冲突"
         }
     ]
 }
