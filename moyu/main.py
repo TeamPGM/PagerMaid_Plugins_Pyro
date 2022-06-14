@@ -16,7 +16,7 @@ moyu_sub = Sub("moyu")
 
 
 async def get_calendar() -> None:
-    resp = await client.get("https://api.j4u.ink/proxy/remote/moyu.json")
+    resp = await client.get("https://api.j4u.ink/v1/store/other/proxy/remote/moyu.json")
     if resp.is_error:
         raise ValueError(f"摸鱼日历获取失败，错误码：{resp.status_code}")
     content = resp.json()
