@@ -17,11 +17,9 @@ async def get_api(api: str) -> str:
     resp = await client.get(api)
     if resp.status_code == 200:
         data = resp.json()
-        tmp = "ip:{}\r\nasn:{}\r\norganization:{}\r\ncountry:{}\r\ndescription:{}\r\ntype:{}".format(data["ip"], data["asn"]["number"], data["asn"]["organization"], data["country"]["name"], data["description"], data["type"]["is"])
-    if tmp:
-        return tmp
-    else:
-    	return "😂 No Response ~"
+        tmp = f'ip:{data["ip"]}\r\nasn:{data["asn"]["number"]}\r\norganization:{data["asn"]["organization"]}\r\ncountry:{data["country"]["name"]}\r\ndescription:{data["description"]}\r\ntype:{data["type"]["is"]}'
+
+    return tmp or "😂 No Response ~"
 
 
 @listener(
@@ -37,7 +35,7 @@ async def ip(_: Client, msg: Message):
         return await msg.edit("请输入要查询的ip")
     elif address == "me":
         address = ""
-    api = "https://ip.186526.xyz/{}?type=json&format=true".format(address)
+    api = f"https://ip.186526.xyz/{address}?type=json&format=true"
     text = await get_api(api)
     await msg.edit(f"`{text}`")
 
@@ -103,8 +101,7 @@ async def dc(_: Client, msg: Message):
     if not reply:
         user = await _.get_me()
 
-    dc = user.dc_id
-    if dc:
+    if dc := user.dc_id:
         await msg.edit(f"[dc] 所在数据中心为: **DC{dc}**")
     else:
         await msg.edit("[dc] 需要先设置头像并且对我可见。")
