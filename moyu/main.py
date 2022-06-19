@@ -28,11 +28,13 @@ async def get_calendar() -> None:
         f.write(resp.content)
 
 
-async def push_moyu(gid: int) -> None:
-    await bot.send_photo(
+async def push_moyu(gid: int, delete: bool = False) -> None:
+    msg: Message = await bot.send_photo(
         gid,
         f"data{sep}moyu.png",
     )
+    if delete:
+        await msg.delay_delete()
 
 
 @scheduler.scheduled_job("cron", hour="8", id="moyu.push")
@@ -56,7 +58,7 @@ async def moyu(_: Client, message: Message):
         except ValueError as e:
             return await message.edit(e.__str__())
         await message.safe_delete()
-        await push_moyu(message.chat.id)
+        await push_moyu(message.chat.id, delete=True)
     elif message.arguments == "订阅":
         if from_self(message) or enforce_permission(from_msg_get_sudo_uid(message), "modules.manage_subs"):
             if moyu_sub.check_id(message.chat.id):
