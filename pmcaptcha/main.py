@@ -103,7 +103,7 @@ async def process_pm_captcha(client: Client, message: Message):
     cid = message.chat.id
     data = sqlite.get("pmcaptcha", {})
     if data.get('disable', False) and not captcha_success.check_id(cid):
-        await message.reply('对方已设置禁止私聊，您已被封禁\n\nYou are not allowed to send private messages to me and been banned')
+        await message.reply('对方已设置禁止私聊，您已被封禁\n\nThe recipient has blocked you from messaging them.')
         await do_action_and_read(client, cid, data)
         return
     if (
@@ -114,7 +114,7 @@ async def process_pm_captcha(client: Client, message: Message):
         if data.get("blacklist", False) and message.text is not None:
             for i in data.get("blacklist", "").split(","):
                 if i in message.text:
-                    await message.reply('您触犯了黑名单规则，已被封禁\n\nYou have violated the blacklist rules and been banned')
+                    await message.reply('您触犯了黑名单规则，已被封禁\n\nYou are blocked because of a blacklist violation')
                     await do_action_and_read(client, cid, data)
         try:
             await client.invoke(UpdateNotifySettings(peer=InputNotifyPeer(peer=await client.resolve_peer(cid)),
@@ -130,14 +130,14 @@ async def process_pm_captcha(client: Client, message: Message):
         sqlite[f'pmcaptcha.{str(cid)}'] = str(key1 + key2)
         msg = await message.reply(
             '已启用私聊验证。请发送 \"' + str(key1) + '+' + str(key2) + '\" 的答案(阿拉伯数字)来与我私聊\n请在' + str(wait) +
-            '秒内完成验证。您只有一次验证机会\n\nHuman verification is enabled.Please send the answer of this question \"' +
-            str(key1) + '+' + str(key2) + '\" (numbers only) first.\nYou have ' + str(wait) +
-            ' seconds to complete the verification.')
+            '秒内完成验证。您只有一次验证机会\n\nPlease answer the following question to prove you are human: \"' +
+            str(key1) + '+' + str(key2) + '\"\nYou have ' + str(wait) +
+            ' seconds and only one chance to answer.')
         await asyncio.sleep(wait)
         await msg.safe_delete()  # noqa
         if sqlite.get(f'pmcaptcha.{str(cid)}') is not None:
             del sqlite[f'pmcaptcha.{str(cid)}']
-            await message.reply('验证超时,您已被封禁\n\nVerification timeout.You have been banned.')
+            await message.reply('验证超时,您已被封禁\n\nYou failed provide an answer in time. You are now blocked.')
             await do_action_and_read(client, cid, data)
     elif sqlite.get(f"pmcaptcha.{str(cid)}"):
         if message.text == sqlite.get(f"pmcaptcha.{str(cid)}"):
@@ -150,14 +150,14 @@ async def process_pm_captcha(client: Client, message: Message):
             except:  # noqa
                 pass
             await asyncio.sleep(random.randint(0, 100) / 1000)
-            await message.reply(data.get("welcome", "验证通过\n\nVerification Passed"))
+            await message.reply(data.get("Welcome", "验证通过\n\nYou have passed the captcha."))
             await asyncio.sleep(random.randint(0, 100) / 1000)
             await client.unarchive_chats(chat_ids=cid)
             data['pass'] = data.get('pass', 0) + 1
             sqlite['pmcaptcha'] = data
         else:
             del sqlite[f'pmcaptcha.{str(cid)}']
-            await message.reply('验证错误，您已被封禁\n\nVerification failed.You have been banned.')
+            await message.reply('验证错误，您已被封禁\n\nYou provided an incorrect answer. You are now blocked.')
             await do_action_and_read(client, cid, data)
 
 
