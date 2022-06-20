@@ -169,6 +169,16 @@
             "supported": true,
             "des-short": "vip 捐赠用户功能",
             "des": "命令：天气：weather weather_pic weather_he\nDuckduckgo：duckduckgo\n彩云翻译：caiyun\n文本转语音：tts_nan tts_nv tts_tw tts_ne tts_en。与 weather 插件冲突"
+        },
+        {
+            "name": "shift",
+            "version": "1.031",
+            "section": "daily",
+            "maintainer": "xtaodada",
+            "size": "5.3 kb",
+            "supported": true,
+            "des-short": "自动转发/备份频道消息",
+            "des": "自动转发频道新消息或者从零开始备份频道。\n指令：-shift\n查看帮助：-help shift"
         }
     ]
 }
