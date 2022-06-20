@@ -103,7 +103,7 @@ async def process_pm_captcha(client: Client, message: Message):
     cid = message.chat.id
     data = sqlite.get("pmcaptcha", {})
     if data.get('disable', False) and not captcha_success.check_id(cid):
-        await message.reply('对方已设置禁止私聊，您已被封禁\n\nThe recipient has blocked you from messaging them.')
+        await message.reply('对方已设置禁止私聊，您已被封禁\n\nThe recipient is blocking all private messages. You are now blocked.')
         await do_action_and_read(client, cid, data)
         return
     if (
