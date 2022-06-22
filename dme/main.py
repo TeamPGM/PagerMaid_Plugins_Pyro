@@ -1,4 +1,5 @@
 """ Module to automate message deletion. """
+from pyrogram import Client
 from pagermaid.listener import listener
 from pagermaid.utils import Message, lang, alias_command
 from pagermaid.modules.prune import self_prune
