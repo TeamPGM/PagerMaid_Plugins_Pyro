@@ -179,6 +179,16 @@
             "supported": true,
             "des-short": "自动转发/备份频道消息",
             "des": "自动转发频道新消息或者从零开始备份频道。\n指令：-shift\n查看帮助：-help shift"
+        },
+        {
+            "name": "dme",
+            "version": "1.21",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "490 b",
+            "supported": true,
+            "des-short": "删除当前对话您发送的特定数量的消息。",
+            "des": "删除当前对话您发送的特定数量的消息。\n指令：-dme"
         }
     ]
 }
