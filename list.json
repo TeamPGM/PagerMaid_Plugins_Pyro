@@ -182,10 +182,10 @@
         },
         {
             "name": "dme",
-            "version": "1.21",
+            "version": "1.22",
             "section": "chat",
             "maintainer": "xtaodada",
-            "size": "490 b",
+            "size": "506 b",
             "supported": true,
             "des-short": "删除当前对话您发送的特定数量的消息。",
             "des": "删除当前对话您发送的特定数量的消息。\n指令：-dme"
