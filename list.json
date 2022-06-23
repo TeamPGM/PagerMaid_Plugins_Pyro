@@ -199,5 +199,6 @@
             "supported": true,
             "des-short": "列出本群premium用户数量 列出本群dc分布",
             "des": "列出本群premium用户数量(指令: ,premium) \n列出本群dc分布/查看某个人所在的dc服务器(指令: ,dc)"
+        }
     ]
 }
