@@ -15,7 +15,7 @@ from pyrogram.enums import ChatMemberStatus, ParseMode
           description="分遗产咯")
 async def premium(bot: Client, context: Message):
     context = await context.edit("Please wait...")
-    premium_users = users = admins = premium_admins = bots_deleted = 0
+    premium_users = users = admins = premium_admins = bots = deleted = 0
     dc_ids = {"1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "failed": 0}
     count = await bot.get_chat_members_count(context.chat.id)
     if count >= 10000 and context.arguments != "force":
@@ -33,8 +33,10 @@ async def premium(bot: Client, context: Message):
                     premium_admins += 1
             if m.status in [ChatMemberStatus.OWNER, ChatMemberStatus.ADMINISTRATOR]:
                 admins += 1
+        elif m.user.is_bot:
+            bots += 1
         else:
-            bots_deleted += 1
+            deleted += 1
     await context.edit(f"""**分遗产咯**
 
 管理员:
@@ -43,6 +45,6 @@ async def premium(bot: Client, context: Message):
 用户:
 > 大会员: **{premium_users}** / 总用户数: **{users}** 分遗产占比: **{round((premium_users/users)*100, 2)}%**
 
-> 已自动过滤掉 **{bots_deleted}** 个 Bot / 死号
+> 已自动过滤掉 **{bots}** 个 Bot, **{deleted}** 个 死号
 
 {'***请注意: 由于tg限制 我们只能遍历前10k人 此次获得到的数据并不完整***' if count >= 10000 else ''}""", parse_mode = ParseMode.MARKDOWN)
