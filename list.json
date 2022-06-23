@@ -199,6 +199,16 @@
             "supported": true,
             "des-short": "列出本群premium用户数量 列出本群dc分布",
             "des": "列出本群premium用户数量(指令: ,premium) \n列出本群dc分布/查看某个人所在的dc服务器(指令: ,dc)"
+        },
+        {
+            "name": "autochangename",
+            "version": "1.111",
+            "section": "profile",
+            "maintainer": "xtaodada、xiluo",
+            "size": "1.6 kb",
+            "supported": true,
+            "des-short": "自动更新 last_name 为时间等。",
+            "des": "每 30 秒自动更新 last_name 为时间等小玩意。"
         }
     ]
 }

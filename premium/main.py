@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 '''
-@File    ：premium.py
+@File    ：main.py
 @Author  ：汐洛 @guimc233
 @Date    ：2022/6/23 2:49
 '''
