@@ -38,7 +38,7 @@ async def premium(bot: Client, context: Message):
     await context.edit(f"""**分遗产咯**
 
 管理员:
-> 大会员: **{premium_admins}** / 总管理数: **{admins}** 分遗产占比: **{round((premium_admins/admins)*100, 2) if admins != 0 else '你群管理员全死号?',}%**
+> 大会员: **{premium_admins}** / 总管理数: **{admins}** 分遗产占比: **{round((premium_admins/admins)*100, 2) if admins != 0 else '你群管理员全死号?'}%**
 
 用户:
 > 大会员: **{premium_users}** / 总用户数: **{users}** 分遗产占比: **{round((premium_users/users)*100, 2)}%**
