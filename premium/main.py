@@ -52,10 +52,11 @@ async def premium(bot: Client, context: Message):
 async def dc(bot: Client, context: Message):
     await context.edit("Please wait...")
     if context.reply_to_message:
-        if context.reply_to_message.from_user:
-            user = context.reply_to_message.from_user
-        else:
-            user = context.reply_to_message.sender_chat
+        user = (
+            context.reply_to_message.from_user
+            or context.reply_to_message.sender_chat
+        )
+
         if not user:
             return await context.edit("出错啦！")
         try:
