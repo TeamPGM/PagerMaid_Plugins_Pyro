@@ -189,6 +189,15 @@
             "supported": true,
             "des-short": "删除当前对话您发送的特定数量的消息。",
             "des": "删除当前对话您发送的特定数量的消息。\n指令：-dme"
-        }
+        },
+        {
+            "name": "premium",
+            "version": "1.001",
+            "section": "chat",
+            "maintainer": "xiluo",
+            "size": "3.2 kb",
+            "supported": true,
+            "des-short": "列出本群premium用户数量 列出本群dc分布",
+            "des": "列出本群premium用户数量(指令: ,premium) \n列出本群dc分布/查看某个人所在的dc服务器(指令: ,dc)"
     ]
 }
