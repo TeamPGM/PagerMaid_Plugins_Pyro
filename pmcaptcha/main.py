@@ -115,8 +115,7 @@ async def process_pm_captcha(client: Client, message: Message):
         await message.reply('对方已设置禁止私聊，您已被封禁\n\nThe recipient is blocking all private messages. You are now blocked.')
         await do_action_and_read(client, cid, data)
         return
-    premium = data.get("premium",False) #premium
-    if premium:
+    if premium := data.get("premium", False):
         if premium=="only" and message.from_user.is_premium==False:
             await message.reply('对方已设置仅Telegram Premium用户可私聊，您已被封禁\n\nThe recipient is that only Telegram Premium user can send private messages. You are now blocked.')
             await do_action_and_read(client, cid, data)
