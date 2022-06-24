@@ -1,6 +1,6 @@
 # pmcaptcha - a pagermaid-pyro plugin by cloudreflection
 # https://t.me/cloudreflection_channel/268
-# ver 2022/06/13
+# ver 2022/06/24
 
 from pyrogram import Client
 from pyrogram.enums.chat_type import ChatType
@@ -36,10 +36,11 @@ pm_captcha_help_msg = '''```,pmcaptcha```
 
 ```,pmcaptcha bl [list]```
 查看或设置关键词黑名单列表（英文逗号分隔）
-使用 ```,pmcaptcha bl -clear``` 可恢复默认规则
+使用 ```,pmcaptcha bl -clear``` 可清空列表
 
 ```,pmcaptcha wait [int]```
-查看或设置超时时间
+查看或设置超时时间，默认为 30 秒
+使用```,pmcaptcha wait off```可关闭验证时间限制
 
 ```,pmcaptcha disablepm [true/false]```
 启用/禁止陌生人私聊
@@ -53,6 +54,14 @@ pm_captcha_help_msg = '''```,pmcaptcha```
 ```,pmcaptcha action [ban/delete/archive/none]```
 选择验证失败的处理方式，默认为 archive
 
+```,pmcaptcha premium [allow/ban/only/none]```
+选择对premium用户的操作，默认为 none
+
+```,pmcaptcha wl [list]```
+查看或设置关键词白名单列表（英文逗号分隔）
+使用 ```,pmcaptcha wl -clear``` 可清空列表
+
+设置优先级: disablepm>premium>wl>bl
 遇到任何问题请先 ```,apt update``` 更新后复现再反馈
 捐赠: cloudreflection.eu.org/donate'''
 
@@ -106,12 +115,26 @@ async def process_pm_captcha(client: Client, message: Message):
         await message.reply('对方已设置禁止私聊，您已被封禁\n\nThe recipient is blocking all private messages. You are now blocked.')
         await do_action_and_read(client, cid, data)
         return
+    if premium := data.get("premium", False):
+        if premium=="only" and message.from_user.is_premium==False:
+            await message.reply('对方已设置仅Telegram Premium用户可私聊，您已被封禁\n\nThe recipient is that only Telegram Premium user can send private messages. You are now blocked.')
+            await do_action_and_read(client, cid, data)
+            return
+        if premium=="ban" and message.from_user.is_premium==True:
+            await message.reply('对方已设置禁止Telegram Premium用户私聊，您已被封禁\n\nThe recipient is blocking all private messages from Telegram Premium users. You are now blocked.')
+            await do_action_and_read(client, cid, data)
+            return
+        if premium=="allow" and message.from_user.is_premium==True:
+            return
     if (
         not captcha_success.check_id(cid)
         and sqlite.get(f"pmcaptcha.{str(cid)}") is None
     ):
-        await client.read_chat_history(cid)
-        if data.get("blacklist", False) and message.text is not None:
+        if data.get("whitelist", False) and message.text is not None: #白名单
+            for i in data.get("whitelist", "").split(","):
+                if i in message.text:
+                    return captcha_success.add_id(cid)
+        if data.get("blacklist", False) and message.text is not None: #黑名单
             for i in data.get("blacklist", "").split(","):
                 if i in message.text:
                     await message.reply('您触犯了黑名单规则，已被封禁\n\nYou are blocked because of a blacklist violation')
@@ -122,23 +145,30 @@ async def process_pm_captcha(client: Client, message: Message):
         except:  # noqa
             pass
         await asyncio.sleep(random.randint(0, 100) / 1000)
+        await client.read_chat_history(cid)
+        await asyncio.sleep(random.randint(0, 100) / 1000)
         await client.archive_chats(chat_ids=cid)
-        wait = data.get("wait", 20)
+        wait = data.get("wait", 30)
         key1 = random.randint(1, 10)
         key2 = random.randint(1, 10)
-        await asyncio.sleep(random.randint(0, 100) / 1000)
         sqlite[f'pmcaptcha.{str(cid)}'] = str(key1 + key2)
-        msg = await message.reply(
-            '已启用私聊验证。请发送 \"' + str(key1) + '+' + str(key2) + '\" 的答案(阿拉伯数字)来与我私聊\n请在' + str(wait) +
-            '秒内完成验证。您只有一次验证机会\n\nPlease answer the following question to prove you are human: \"' +
-            str(key1) + '+' + str(key2) + '\"\nYou have ' + str(wait) +
-            ' seconds and only one chance to answer.')
-        await asyncio.sleep(wait)
-        await msg.safe_delete()  # noqa
-        if sqlite.get(f'pmcaptcha.{str(cid)}') is not None:
-            del sqlite[f'pmcaptcha.{str(cid)}']
-            await message.reply('验证超时,您已被封禁\n\nYou failed provide an answer in time. You are now blocked.')
-            await do_action_and_read(client, cid, data)
+        if wait!="已关闭":
+            msg = await message.reply(
+                '已启用私聊验证。请发送 \"' + str(key1) + '+' + str(key2) + '\" 的答案(阿拉伯数字)来与我私聊\n请在' + str(wait) +
+                '秒内完成验证。您只有一次验证机会\n\nPlease answer the following question to prove you are human: \"' +
+                str(key1) + '+' + str(key2) + '\"\nYou have ' + str(wait) +
+                ' seconds and only one chance to answer.')
+            await asyncio.sleep(wait)
+            await msg.safe_delete()  # noqa
+            if sqlite.get(f'pmcaptcha.{str(cid)}') is not None:
+                del sqlite[f'pmcaptcha.{str(cid)}']
+                await message.reply('验证超时,您已被封禁\n\nYou failed provide an answer in time. You are now blocked.')
+                await do_action_and_read(client, cid, data)
+        else:
+            await message.reply(
+                '已启用私聊验证。请发送 \"' + str(key1) + '+' + str(key2) + '\" 的答案(阿拉伯数字)来与我私聊。\
+                您只有一次验证机会\n\nPlease answer the following question to prove you are human: \"' +
+                str(key1) + '+' + str(key2) + '\"\nYou have only one chance to answer.')
     elif sqlite.get(f"pmcaptcha.{str(cid)}"):
         if message.text == sqlite.get(f"pmcaptcha.{str(cid)}"):
             await message.safe_delete()
@@ -178,18 +208,20 @@ async def pm_captcha(client: Client, message: Message):
         if message.parameter[0] == "bl":
             await message.edit(
                 '当前黑名单规则:\n' + str(data.get('blacklist', '无')) + '\n如需编辑，请使用 ,pmcaptcha bl +关键词（英文逗号分隔）')
+        if message.parameter[0] == "wl":
+            await message.edit(
+                '当前白名单规则:\n' + str(data.get('whitelist', '无')) + '\n如需编辑，请使用 ,pmcaptcha wl +关键词（英文逗号分隔）')
         elif message.parameter[0] == 'wel':
             await message.edit(
                 '当前通过时消息规则:\n' + str(data.get('welcome', '无')) + '\n如需编辑，请使用 ,pmcaptcha wel +要发送的消息')
         elif message.parameter[0] == 'wait':
             await message.edit(
-                '当前验证等待时间(秒): ' + str(data.get('wait', '无')) + '\n如需编辑，请使用 ,pmcaptcha wait +等待秒数(整数)')
+                '当前验证等待时间(秒): ' + str(data.get('wait', '30')) + '\n如需编辑，请使用 ,pmcaptcha wait +等待秒数(整数)或使用 ,pmcaptcha wait off 关闭该功能')
         elif message.parameter[0] == 'h':
-            if message.chat.type != ChatType.PRIVATE:
-                await message.edit('请在私聊时使用此命令')
-                await asyncio.sleep(3)
-                return await message.safe_delete()
             await message.edit(pm_captcha_help_msg)
+            if message.chat.type != ChatType.PRIVATE:
+                await asyncio.sleep(5)
+                return await message.safe_delete()
         elif message.parameter[0] == 'disablepm':
             status = '开启' if data.get('disable', False) else '关闭'
             await message.edit(
@@ -205,6 +237,10 @@ async def pm_captcha(client: Client, message: Message):
         elif message.parameter[0] == 'stats':
             await message.edit('自上次重置起，已进行验证 ' + str(data.get('pass', 0) + data.get('banned', 0)) +
                                ' 次\n其中，通过验证 ' + str(data.get('pass', 0)) + ' 次，拦截 ' + str(data.get('banned', 0)) + ' 次')
+        elif message.parameter[0] == 'premium':
+            premium_action={"allow":"不验证Premium用户私聊","ban":"禁止Premium用户私聊","only":"仅允许Premium用户私聊","none":"无操作"}
+            await message.edit(
+                '当前对Premium用户的操作为: '+ premium_action.get(data.get("premium","none"))+'\n如需编辑，请使用 ,pmcaptcha premium [allow/ban/only/none] 修改')
         elif message.chat.type != ChatType.PRIVATE:
             await message.edit('请在私聊时使用此命令，或添加id参数执行')
             await asyncio.sleep(3)
@@ -245,7 +281,11 @@ async def pm_captcha(client: Client, message: Message):
         sqlite["pmcaptcha"] = data
         await message.edit('规则已更新')
     elif message.parameter[0] == 'wait':
-        if message.parameter[1].isnumeric():
+        if message.parameter[1]=="off":
+            data["wait"] = "已关闭"
+            sqlite["pmcaptcha"] = data
+            await message.edit('已关闭验证时间限制')
+        elif message.parameter[1].isnumeric():
             data["wait"] = int(message.parameter[1])
             sqlite["pmcaptcha"] = data
             await message.edit('等待时间已更新')
@@ -256,9 +296,19 @@ async def pm_captcha(client: Client, message: Message):
             if data.get("blacklist", False):
                 del data["blacklist"]
                 sqlite["pmcaptcha"] = data
-            await message.edit('已恢复至默认规则')
+            await message.edit('规则列表已清空')
             return
         data["blacklist"] = " ".join(message.parameter[1:])
+        sqlite["pmcaptcha"] = data
+        await message.edit('规则已更新')
+    elif message.parameter[0] == 'wl':
+        if message.parameter[1] == '-clear':
+            if data.get("whitelist", False):
+                del data["whitelist"]
+                sqlite["pmcaptcha"] = data
+            await message.edit('规则列表已清空')
+            return
+        data["whitelist"] = " ".join(message.parameter[1:])
         sqlite["pmcaptcha"] = data
         await message.edit('规则已更新')
     elif message.parameter[0] == 'check':
@@ -302,3 +352,20 @@ async def pm_captcha(client: Client, message: Message):
             await message.edit('验证失败后将不执行任何操作')
         else:
             await message.edit('参数错误。')
+    elif message.parameter[0]=="premium":
+        if message.parameter[1] == "allow":
+            data["premium"] = 'allow'
+            sqlite["pmcaptcha"] = data
+            await message.edit('将不对 Telegram Premium 用户发起验证')
+        if message.parameter[1] == "ban":
+            data["premium"] = 'ban'
+            sqlite["pmcaptcha"] = data
+            await message.edit('将禁止 Telegram Premium 用户私聊')
+        if message.parameter[1] == "only":
+            data["premium"] = 'only'
+            sqlite["pmcaptcha"] = data
+            await message.edit('将**仅允许** Telegram Premium 用户私聊')
+        if message.parameter[1] == "none":
+            del data["premium"]
+            sqlite["pmcaptcha"] = data
+            await message.edit('将不对 Telegram Premium 用户执行额外操作')
