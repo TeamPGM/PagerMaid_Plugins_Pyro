@@ -95,7 +95,7 @@ async def sticker(app, context):
                         context.parameter[1]
                     ) and m.media in [
                         MessageMediaType.PHOTO,
-                        MessageMediaType.STICKER,
+                        MessageMediaType.STICKER
                     ]:
                         await context.edit(f"找到啦! msg_id={m.id}")
                         message = m
@@ -170,21 +170,12 @@ async def single_sticker(animated, context, custom_emoji, emoji, message, pic_ro
         ):
             pack = int(split_strings[1])
         elif (
-            to_sticker_set
-            and not split_strings[1].isnumeric()
-            or not to_sticker_set
-            and package_name
-            and len(split_strings) != 5
-            and len(split_strings) != 4
-            or not to_sticker_set
-            and not package_name
-            and len(split_strings) != 3
-            and len(split_strings) == 2
-            and not split_strings[1].isnumeric()
-            or not to_sticker_set
-            and not package_name
-            and len(split_strings) != 3
-            and len(split_strings) != 2
+            to_sticker_set and not split_strings[1].isnumeric()
+            or not to_sticker_set and 
+                ((package_name and len(split_strings) != 5 and len(split_strings) != 4) or
+                (not package_name and len(split_strings) != 3 and 
+                    (len(split_strings) == 2 and not split_strings[1].isnumeric() or len(split_strings) != 2)
+                ))
         ):
             pass
         elif package_name and len(split_strings) == 5:
@@ -306,14 +297,14 @@ async def single_sticker(animated, context, custom_emoji, emoji, message, pic_ro
                     # await bot.send_read_acknowledge(429000)
                     break
                 except Exception:
-                    if not sticker_already:
-                        try:
-                            await context.edit("另一个贴纸保存正在运行")
-                        except:
-                            pass
-                        # sticker_already = True
+                    # if not sticker_already:
+                    #     try:
+                    #         await context.edit("另一个贴纸保存正在运行")
+                    #     except:
+                    #         pass
+                    #     sticker_already = True
                     await sleep(.5)
-                    await context.edit(e)
+                    raise
         else:
             try:
                 await context.edit("贴纸包不存在 正在创建")
