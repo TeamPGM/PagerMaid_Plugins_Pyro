@@ -59,7 +59,7 @@ async def sticker(app, context):
     is_batch = False
     to_sticker_set = False
     package_name = ""
-    
+
     user = await bot.get_me()
     if not user.username:
         user.username = user.first_name
@@ -82,35 +82,38 @@ async def sticker(app, context):
                 to_sticker_set = context.parameter[1]
                 await context.edit(f"成功设置贴纸包为 {to_sticker_set}\n下次只需要 ,s to 即可!")
                 await sleep(.5)
-            else:
-                if "to_sticker_set" not in config:
-                    return await context.edit("你过去没有指定过贴纸包! 请使用 ,s to <sticker_package>")
+            elif "to_sticker_set" in config:
                 to_sticker_set = config["to_sticker_set"]
+            else:
+                return await context.edit("你过去没有指定过贴纸包! 请使用 ,s to <sticker_package>")
             config["to_sticker_set"] = to_sticker_set
         elif context.parameter[0] == "void_steal" and is_int(context.parameter[1]):
             await context.edit(f"正在运行 Anti-AntiSticker \ntarget={context.parameter[0]}  chat_id={context.chat.id}")
             try:
                 async for m in app.get_chat_history(context.chat.id, limit = 5000):
-                    if m.from_user.id == int(context.parameter[1]):
-                        if m.media == MessageMediaType.PHOTO or m.media == MessageMediaType.STICKER:
-                            await context.edit(f"找到啦! msg_id={m.id}")
-                            message = m
-                            break
+                    if m.from_user.id == int(
+                        context.parameter[1]
+                    ) and m.media in [
+                        MessageMediaType.PHOTO,
+                        MessageMediaType.STICKER,
+                    ]:
+                        await context.edit(f"找到啦! msg_id={m.id}")
+                        message = m
+                        break
             except Exception as e:
                 traceback_msg = "\n".join(traceback.format_exception(e))
-                return await context.reply(f"失败了... 是否输入了正确的参数?\n\n{traceback_msg}") 
+                return await context.reply(f"失败了... 是否输入了正确的参数?\n\n{traceback_msg}")
         elif context.parameter[0].isnumeric():
             pass
         elif isEmoji(context.parameter[0]) or len(context.parameter[0]) == 1:
             await log(f"emoji：{context.parameter[0]}")
-            pass
         else:
             try:
                 await context.reply("命令参数错误")
             except:
                 pass
             return
-    
+
     # 单张收集图片
     if not message:
         message = context.reply_to_message
@@ -123,8 +126,7 @@ async def sticker(app, context):
 async def single_sticker(animated, context, custom_emoji, emoji, message, pic_round, user, package_name,
                          to_sticker_set):
     try:
-        if not False:
-            await context.edit("正在处理")
+        await context.edit("正在处理")
     except:
         pass
     if message and message.media:
@@ -136,12 +138,6 @@ async def single_sticker(animated, context, custom_emoji, emoji, message, pic_ro
         elif message.media == MessageMediaType.VIDEO:
             try:
                 await context.reply("不支持此类型!")
-            except:
-                pass
-            return
-        elif message.media == MessageMediaType.WEB_PAGE:
-            try:
-                await context.reply("不支持此类型")
             except:
                 pass
             return
@@ -163,28 +159,41 @@ async def single_sticker(animated, context, custom_emoji, emoji, message, pic_ro
         if not custom_emoji:
             emoji = "👀"
         pack = 1
-        sticker_already = False
-        if to_sticker_set:
-            # 指定贴纸包
-            if split_strings[1].isnumeric():
-                pack = int(split_strings[1])
+        if (
+            to_sticker_set
+            and split_strings[1].isnumeric()
+            or not to_sticker_set
+            and not package_name
+            and len(split_strings) != 3
+            and len(split_strings) == 2
+            and split_strings[1].isnumeric()
+        ):
+            pack = int(split_strings[1])
+        elif (
+            to_sticker_set
+            and not split_strings[1].isnumeric()
+            or not to_sticker_set
+            and package_name
+            and len(split_strings) != 5
+            and len(split_strings) != 4
+            or not to_sticker_set
+            and not package_name
+            and len(split_strings) != 3
+            and len(split_strings) == 2
+            and not split_strings[1].isnumeric()
+            or not to_sticker_set
+            and not package_name
+            and len(split_strings) != 3
+            and len(split_strings) != 2
+        ):
+            pass
+        elif package_name and len(split_strings) == 5:
+            pack = split_strings[4]
         elif package_name:
-            # 批量处理贴纸无法指定emoji，只获取第几个pack
-            # s merge png <package_name> <number>
-            if len(split_strings) == 5:
-                pack = split_strings[4]
-            # s merge <package_name> <number>
-            elif len(split_strings) == 4:
-                pack = split_strings[3]
+            pack = split_strings[3]
         else:
-            if len(split_strings) == 3:
-                # s png <number|emoji>
-                pack = split_strings[2]
-            elif len(split_strings) == 2:
-                # s <number|emoji>
-                if split_strings[1].isnumeric():
-                    pack = int(split_strings[1])
-
+            # s png <number|emoji>
+            pack = split_strings[2]
         if not isinstance(pack, int):
             pack = 1
 
@@ -203,15 +212,13 @@ async def single_sticker(animated, context, custom_emoji, emoji, message, pic_ro
 
         if not animated and message.media != MessageMediaType.STICKER:
             try:
-                if not False:
-                    await context.edit("缩放中")
+                await context.edit("缩放中")
             except:
                 pass
             image = await resize_image(photo)
             if pic_round:
                 try:
-                    if not False:
-                        await context.edit("圆角处理中")
+                    await context.edit("圆角处理中")
                 except:
                     pass
                 image = await rounded_image(image)
@@ -226,11 +233,11 @@ async def single_sticker(animated, context, custom_emoji, emoji, message, pic_ro
         try:
             response = await client.get(f'https://t.me/addstickers/{pack_name}')
         except UnicodeEncodeError:
-            pack_name = 's' + hex(context.sender_id)[2:]
+            pack_name = f's{hex(context.sender_id)[2:]}'
             if animated:
-                pack_name = 's' + hex(context.sender_id)[2:] + '_animated'
+                pack_name = f's{hex(context.sender_id)[2:]}_animated'
             response = await client.get(f'https://t.me/addstickers/{pack_name}')
-        if not response.status_code == 200:
+        if response.status_code != 200:
             try:
                 await context.reply("服务器错误")
             except:
@@ -240,6 +247,7 @@ async def single_sticker(animated, context, custom_emoji, emoji, message, pic_ro
 
         if "  A <strong>Telegram</strong> user has created the <strong>Sticker&nbsp;Set</strong>." not in \
                 http_response:
+            sticker_already = False
             for _ in range(20):  # 最多重试20次
                 try:
                     await context.bot.ask("Stickers", '/cancel', timeout = 60)
@@ -263,15 +271,12 @@ async def single_sticker(animated, context, custom_emoji, emoji, message, pic_ro
                             pack_name = f"{user.username}_{pack}"
                             pack_title = f"@{user.username}  的私藏 ({pack})"
                         try:
-                            if not False:
-                                if package_name:
-                                    await context.edit(
-                                        "切换到私藏"  + str(package_name) + str(pack) + " 贴纸包满了")
-                                else:
-                                    await context.edit(
-                                        "切换到私藏 " + str(pack) + " 贴纸包满了")
+                            if package_name:
+                                await context.edit(f"切换到私藏{str(package_name)}{pack} 贴纸包满了")
+                            else:
+                                await context.edit(f"切换到私藏 {pack} 贴纸包满了")
                         except:
-                            pass 
+                            pass
                         chat_response = await context.bot.ask("Stickers", pack_name)
                         if chat_response.text == "Invalid set selected.":
                             await add_sticker(conversation, command, pack_title, pack_name, animated, message,
@@ -301,24 +306,19 @@ async def single_sticker(animated, context, custom_emoji, emoji, message, pic_ro
                     # await bot.send_read_acknowledge(429000)
                     break
                 except Exception:
-                    if not sticker_already and not False:
+                    if not sticker_already:
                         try:
                             await context.edit("另一个贴纸保存正在运行")
                         except:
                             pass
                         # sticker_already = True
-                    else:
-                        pass
                     await sleep(.5)
                     await context.edit(e)
-                except:
-                    raise
         else:
-            if not False:
-                try:
-                    await context.edit("贴纸包不存在 正在创建")
-                except:
-                    pass
+            try:
+                await context.edit("贴纸包不存在 正在创建")
+            except:
+                pass
             conversation = await bot.get_chat('Stickers')
             await add_sticker(conversation, command, pack_title, pack_name, animated, message,
                                  context, file, emoji)
@@ -363,26 +363,23 @@ async def add_sticker(conversation, command, pack_title, pack_name, animated, me
 
 async def upload_sticker(animated, message, context, file):
     if animated:
-        if not False:
-            try:
-                await context.edit("上传中...")
-            except:
-                pass
+        try:
+            await context.edit("上传中...")
+        except:
+            pass
         await bot.send_document(429000, "AnimatedSticker.tgs", force_document=True)
         remove("AnimatedSticker.tgs")
     else:
         file.seek(0)
-        if not False:
-            try:
-                await context.edit("上传中")
-            except:
-                pass
+        try:
+            await context.edit("上传中")
+        except:
+            pass
         await bot.send_document(429000, file, force_document=True)
 
 
 async def resize_image(photo):
     image = Image.open(photo)
-    maxsize = (512, 512)
     if (image.width and image.height) < 512:
         size1 = image.width
         size2 = image.height
@@ -399,6 +396,7 @@ async def resize_image(photo):
         size_new = (size1new, size2new)
         image = image.resize(size_new)
     else:
+        maxsize = (512, 512)
         image.thumbnail(maxsize)
 
     return image
@@ -409,10 +407,7 @@ async def rounded_image(image):
     h = image.height
     resize_size = 0
     # 比较长宽
-    if w > h:
-        resize_size = h
-    else:
-        resize_size = w
+    resize_size = h if w > h else w
     half_size = floor(resize_size / 2)
 
     # 获取圆角模版，切割成4个角
@@ -452,15 +447,11 @@ async def rounded_image(image):
 
 
 def isEmoji(content):
-    if not content:
-        return False
-    if u"\U0001F600" <= content <= u"\U0001F64F":
-        return True
-    elif u"\U0001F300" <= content <= u"\U0001F5FF":
-        return True
-    elif u"\U0001F680" <= content <= u"\U0001F6FF":
-        return True
-    elif u"\U0001F1E0" <= content <= u"\U0001F1FF":
-        return True
-    else:
-        return False
+    return (
+        u"\U0001F600" <= content <= u"\U0001F64F"
+        or u"\U0001F300" <= content <= u"\U0001F5FF"
+        or u"\U0001F680" <= content <= u"\U0001F6FF"
+        or u"\U0001F1E0" <= content <= u"\U0001F1FF"
+        if content
+        else False
+    )
