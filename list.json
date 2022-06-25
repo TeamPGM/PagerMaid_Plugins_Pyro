@@ -219,6 +219,16 @@
             "supported": true,
             "des-short": "列出本群dc分布/查看某个人所在的dc服务器",
             "des": "列出本群dc分布/查看某个人所在的dc服务器(指令: ,dc)"
+        },
+        {
+            "name": "sticker",
+            "version": "0.02",
+            "section": "chat",
+            "maintainer": "xiluo",
+            "size": "16.9 kb",
+            "supported": true,
+            "des-short": "Sticker Tools",
+            "des": "Sticker Tools"
         }
     ]
 }
