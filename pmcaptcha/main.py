@@ -2,6 +2,7 @@
 # https://t.me/cloudreflection_channel/268
 # ver 2022/06/24
 
+import contextlib
 from pyrogram import Client
 from pyrogram.enums.chat_type import ChatType
 from pyrogram.raw.functions.account import UpdateNotifySettings
@@ -68,15 +69,13 @@ pm_captcha_help_msg = '''```,pmcaptcha```
 
 @listener(is_plugin=False, incoming=False, outgoing=True, ignore_edited=True, privates_only=True)
 async def process_pm_captcha_self(_: Client, message: Message):
-    if message.chat.id == 777000 or message.chat.type == ChatType.BOT:
+    if message.chat.is_verified or message.chat.type == ChatType.BOT:
         return
     cid = message.chat.id
     if message.text:
-        try:
+        with contextlib.suppress(UnicodeDecodeError):
             if message.text[0] == ",":  # 忽略命令
                 return
-        except UnicodeDecodeError:
-            pass
     if captcha_success.check_id(cid):
         return
     else:
@@ -94,10 +93,8 @@ async def do_action_and_read(client, cid, data):
     if action in ["archive"]:
         await client.archive_chats(chat_ids=cid)
     if action in ["delete"]:
-        try:
+        with contextlib.suppress(Exception):
             await client.invoke(DeleteHistory(max_id=0, peer=await client.resolve_peer(cid)))
-        except Exception as e:
-            pass
     # log
     await log(f"(pmcaptcha) 已对 [{cid}](tg://openmessage?user_id={cid}) 执行 {action} 操作")
     data['banned'] = data.get('banned', 0) + 1
@@ -106,8 +103,8 @@ async def do_action_and_read(client, cid, data):
 
 @listener(is_plugin=False, incoming=True, outgoing=False, ignore_edited=True, privates_only=True)
 async def process_pm_captcha(client: Client, message: Message):
-    # 忽略联系人、服务消息、机器人消息
-    if message.from_user.is_contact or message.from_user.id == 777000 or message.chat.type == ChatType.BOT:
+    # 忽略联系人、认证消息、机器人消息
+    if message.from_user.is_contact or message.from_user.is_verified or message.chat.type == ChatType.BOT:
         return
     cid = message.chat.id
     data = sqlite.get("pmcaptcha", {})
@@ -139,11 +136,9 @@ async def process_pm_captcha(client: Client, message: Message):
                 if i in message.text:
                     await message.reply('您触犯了黑名单规则，已被封禁\n\nYou are blocked because of a blacklist violation')
                     await do_action_and_read(client, cid, data)
-        try:
+        with contextlib.suppress(Exception):
             await client.invoke(UpdateNotifySettings(peer=InputNotifyPeer(peer=await client.resolve_peer(cid)),
                                                      settings=InputPeerNotifySettings(silent=True)))
-        except:  # noqa
-            pass
         await asyncio.sleep(random.randint(0, 100) / 1000)
         await client.read_chat_history(cid)
         await asyncio.sleep(random.randint(0, 100) / 1000)
@@ -174,11 +169,9 @@ async def process_pm_captcha(client: Client, message: Message):
             await message.safe_delete()
             del sqlite[f'pmcaptcha.{str(cid)}']
             captcha_success.add_id(cid)
-            try:
+            with contextlib.suppress(Exception):
                 await client.invoke(UpdateNotifySettings(peer=InputNotifyPeer(peer=await client.resolve_peer(cid)),
                                                          settings=InputPeerNotifySettings(silent=False)))
-            except:  # noqa
-                pass
             await asyncio.sleep(random.randint(0, 100) / 1000)
             await message.reply(data.get("Welcome", "验证通过\n\nYou have passed the captcha."))
             await asyncio.sleep(random.randint(0, 100) / 1000)
