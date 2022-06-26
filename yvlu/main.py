@@ -13,7 +13,6 @@ from pagermaid.utils import alias_command
 
 WAITING = 0
 MSG = None
-converstation = await bot.get_chat('PagerMaid_QuotLy_bot')
 
 
 @listener(is_plugin=False, incoming=True, outgoing=False, igonre_edited=True, privates_only=False)
@@ -132,10 +131,10 @@ async def yv_lu_process_sticker(name, photo, sticker, path):
 @listener(is_plugin=True, outgoing=True, command=alias_command("yvlu"),
           description="将回复的消息或者输入的字符串转换成语录")
 async def yv_lu(app, context):
-    global converstation
+    converstation = await bot.get_chat('PagerMaid_QuotLy_bot')
     reply = await context.get_reply_message()
     if not reply:
-        message = context.arguments
+        message = context.parameter
         if message:
             await context.edit(message)
             reply = context
