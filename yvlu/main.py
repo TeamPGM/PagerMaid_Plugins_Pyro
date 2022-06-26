@@ -1,3 +1,4 @@
+import contextlib
 from asyncio import sleep
 from doctest import OutputChecker
 from io import BytesIO
@@ -5,27 +6,11 @@ from math import floor
 from os.path import exists
 from os import makedirs, remove
 from PIL import Image, ImageFont, ImageDraw
-from requests import get
 from asyncio import TimeoutError
 from pagermaid import bot
 from pagermaid.listener import listener
+from pagermaid.single_utils import Message
 from pagermaid.utils import alias_command
-
-WAITING = 0
-MSG = None
-
-@listener(is_plugin=False, incoming=True, outgoing=False, igonre_edited=True, privates_only=False)
-async def wait(_, message):
-    global WAITING, MSG
-    if message.from_user.id == 429000:
-        WAITING = 0
-        MSG = message
-
-async def wait_for_message():
-    global WAITING, MSG
-    while WAITING:
-        await sleep(0.1)
-    return MSG
 
 
 def font(path, size):
@@ -38,7 +23,7 @@ def cut(obj, sec):
 
 def yv_lu_process_image(name, text, photo, path):
     if len(name) > 16:
-        name = name[:16] + '...'
+        name = f'{name[:16]}...'
     text = cut(text, 17)
     # 用户不存在头像时
     if not photo:
@@ -128,27 +113,24 @@ async def yv_lu_process_sticker(name, photo, sticker, path):
 
 @listener(is_plugin=True, outgoing=True, command=alias_command("yvlu"),
           description="将回复的消息或者输入的字符串转换成语录")
-async def yv_lu(app, context):
-    converstation = await bot.get_chat('PagerMaid_QuotLy_bot')
-    reply = await context.get_reply_message()
-    if not reply:
-        message = context.parameter
-        if message:
-            await context.edit(message)
-            reply = context
-        else:
-            return await context.edit('你需要回复一条消息或者输入一串字符。')
-    try:
-        app.unblock_user(converstation.id)
-    except:
-        pass
-    await app.forward_messages(converstation.id, reply.chat.id, reply.id)
-    try:
-        chat_response = await wait_for_message()
-    except TimeoutError:
-        return await context.edit("未收到服务器回应。")
-    await app.forward_messages(context.chat.id, converstation.id, chat_response.id)
-    await context.delete()
+async def yv_lu(message: Message):
+    bot_username = "PagerMaid_QuotLy_bot"
+    if message.reply_to_message:
+        reply = message.reply_to_message
+    elif message.parameter:
+        reply = await message.edit(message.arguments)
+    else:
+        return await message.edit('你需要回复一条消息或者输入一串字符。')
+    with contextlib.suppress(Exception):
+        await message.bot.unblock_user(bot_username)
+    async with message.bot.conversation(bot_username) as conv:
+        await reply.forward(bot_username)
+        chat_response = await conv.get_response()
+        await conv.mark_as_read()
+    await chat_response.copy(
+        message.chat.id,
+        reply_to_message_id=message.reply_to_message_id if message.reply_to_message else None)
+    await message.delete()
 
 
 # @listener(is_plugin=True, outgoing=True, command=alias_command("yvlu_"),
