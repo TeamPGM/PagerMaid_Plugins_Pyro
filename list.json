@@ -229,6 +229,16 @@
             "supported": true,
             "des-short": "Sticker Tools",
             "des": "Sticker Tools"
+        },
+        {
+            "name": "yvlu",
+            "version": "1.22",
+            "section": "chat",
+            "maintainer": "xtaodada, xiluo",
+            "size": "10.4 kb",
+            "supported": true,
+            "des-short": "将回复的消息转换成语录图片",
+            "des": "将回复的消息或者输入字符串转换成语录图片。\n指令：-yvlu -yvlu_"
         }
     ]
 }

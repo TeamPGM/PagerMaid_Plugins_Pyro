@@ -9,7 +9,6 @@ pip_install("emoji")
 
 from emoji import emojize
 from pagermaid import logs, scheduler, bot
-from pagermaid.listener import listener
 
 
 
@@ -24,7 +23,7 @@ time_emoji_symb = [
 ]
 
 
-@scheduler.scheduled_job("interval", seconds=30, id="autochangename")
+@scheduler.scheduled_job("cron", second=0, id="autochangename")
 async def change_name_auto():
     try:
         time_cur = datetime.utcnow().replace(tzinfo=timezone.utc).astimezone(timezone(
