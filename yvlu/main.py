@@ -14,7 +14,6 @@ from pagermaid.utils import alias_command
 WAITING = 0
 MSG = None
 
-
 @listener(is_plugin=False, incoming=True, outgoing=False, igonre_edited=True, privates_only=False)
 async def wait(_, message):
     global WAITING, MSG
@@ -22,7 +21,6 @@ async def wait(_, message):
         WAITING = 0
         MSG = message
 
-# Wait until WAITING is 0, return MSG
 async def wait_for_message():
     global WAITING, MSG
     while WAITING:
