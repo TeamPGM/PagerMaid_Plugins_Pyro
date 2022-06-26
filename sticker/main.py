@@ -12,7 +12,7 @@ from pagermaid.listener import listener
 from pagermaid.utils import alias_command, client, pip_install
 from pyrogram.enums import MessageMediaType
 
-pip_install("beautifulsoup4")
+pip_install("beautifulsoup4", alias = "bs4")
 
 from bs4 import BeautifulSoup
 
