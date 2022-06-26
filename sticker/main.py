@@ -293,7 +293,7 @@ async def single_sticker(animated, context, custom_emoji, emoji, message, pic_ro
                     await get_response()
                     await context.bot.ask("Stickers", emoji, timeout = 60)
                     # await bot.send_read_acknowledge(429000)
-                    await context.bot.ask("Stickers", '/done', timeout = 60)
+                    await bot.send_message("Stickers", '/done')
                     # await bot.send_read_acknowledge(429000)
                     break
                 except Exception:
@@ -313,11 +313,6 @@ async def single_sticker(animated, context, custom_emoji, emoji, message, pic_ro
             conversation = await bot.get_chat('Stickers')
             await add_sticker(conversation, command, pack_title, pack_name, animated, message,
                                  context, file, emoji)
-
-        try:
-            await context.delete()
-        except:
-            pass
 
 
 async def add_sticker(conversation, command, pack_title, pack_name, animated, message, context, file, emoji):
@@ -348,7 +343,7 @@ async def add_sticker(conversation, command, pack_title, pack_name, animated, me
     # await bot.send_read_acknowledge(429000)
     await context.bot.ask("Stickers", "/skip", timeout = 60)
     # wait bot.send_read_acknowledge(429000)
-    await context.bot.ask("Stickers", pack_name, timeout = 60)
+    await bot.send_message("Stickers", '/done')
     # await bot.send_read_acknowledge(429000)
 
 
