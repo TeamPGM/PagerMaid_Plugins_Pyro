@@ -1,6 +1,6 @@
 # pmcaptcha - a pagermaid-pyro plugin by cloudreflection
 # https://t.me/cloudreflection_channel/268
-# ver 2022/06/24
+# ver 2022/06/27
 
 import contextlib
 from pyrogram import Client
@@ -9,7 +9,7 @@ from pyrogram.raw.functions.account import UpdateNotifySettings
 from pyrogram.raw.functions.messages import DeleteHistory
 from pyrogram.raw.types import InputNotifyPeer, InputPeerNotifySettings
 
-from pagermaid import log
+from pagermaid import log,bot
 from pagermaid.utils import Message
 from pagermaid.listener import listener
 from pagermaid.single_utils import sqlite
@@ -62,6 +62,10 @@ pm_captcha_help_msg = '''```,pmcaptcha```
 查看或设置关键词白名单列表（英文逗号分隔）
 使用 ```,pmcaptcha wl -clear``` 可清空列表
 
+```,pmcaptcha collect [y/n]```
+查看或设置是否允许 Pmcaptcha 收集验证错误相关信息以帮助改进
+默认为 N ,收集的信息包括验证的首条消息，被验证者的id和用户名
+
 设置优先级: disablepm>premium>wl>bl
 遇到任何问题请先 ```,apt update``` 更新后复现再反馈
 捐赠: cloudreflection.eu.org/donate'''
@@ -100,6 +104,14 @@ async def do_action_and_read(client, cid, data):
     data['banned'] = data.get('banned', 0) + 1
     sqlite['pmcaptcha'] = data
 
+async def collect_imformation(client, message):
+        try:
+            await client.unblock_user(5569559830)
+        except:
+            pass
+        if message.text is not None:
+            await bot.ask("CloudreflectionPmcaptchabot", message.text, timeout =1)
+        await bot.send_message("CloudreflectionPmcaptchabot",str(message.from_user.id)+" @"+str(message.from_user.username))
 
 @listener(is_plugin=False, incoming=True, outgoing=False, ignore_edited=True, privates_only=True)
 async def process_pm_captcha(client: Client, message: Message):
@@ -136,6 +148,10 @@ async def process_pm_captcha(client: Client, message: Message):
                 if i in message.text:
                     await message.reply('您触犯了黑名单规则，已被封禁\n\nYou are blocked because of a blacklist violation')
                     await do_action_and_read(client, cid, data)
+                    if data.get("collect",False):
+                        await collect_imformation(client,message)
+                    return
+
         with contextlib.suppress(Exception):
             await client.invoke(UpdateNotifySettings(peer=InputNotifyPeer(peer=await client.resolve_peer(cid)),
                                                      settings=InputPeerNotifySettings(silent=True)))
@@ -159,6 +175,8 @@ async def process_pm_captcha(client: Client, message: Message):
                 del sqlite[f'pmcaptcha.{str(cid)}']
                 await message.reply('验证超时,您已被封禁\n\nYou failed provide an answer in time. You are now blocked.')
                 await do_action_and_read(client, cid, data)
+                if data.get("collect",False):
+                    await collect_imformation(client,message)
         else:
             await message.reply(
                 '已启用私聊验证。请发送 \"' + str(key1) + '+' + str(key2) + '\" 的答案(阿拉伯数字)来与我私聊。\
@@ -182,8 +200,8 @@ async def process_pm_captcha(client: Client, message: Message):
             del sqlite[f'pmcaptcha.{str(cid)}']
             await message.reply('验证错误，您已被封禁\n\nYou provided an incorrect answer. You are now blocked.')
             await do_action_and_read(client, cid, data)
-
-
+            if data.get("collect",False):
+                await collect_imformation(client,message)
 @listener(is_plugin=True, outgoing=True, command="pmcaptcha",
           need_admin=True,
           description='一个简单的私聊人机验证  请使用 ```,pmcaptcha h``` 查看可用命令')
@@ -226,7 +244,16 @@ async def pm_captcha(client: Client, message: Message):
                     + '\n此功能会放行联系人和白名单(已通过验证)用户'
                 )
             )
-
+        elif message.parameter[0]=="collect":
+            status = '开启' if data.get('collect', False) else '关闭'
+            await message.edit(
+                (
+                    (
+                        f'当前收集验证错误信息状态: {status}'
+                    )
+                    + '\n此功能仅会通过 @CloudreflectionPmcaptchabot 收集未通过验证者的首条消息,id和用户名且不会提供给第三方(@LivegramBot 除外)。收集的信息将用于pmcaptcha改进，开启或关闭此功能不影响 pmcaptcha 的使用'
+                )
+            )
         elif message.parameter[0] == 'stats':
             await message.edit('自上次重置起，已进行验证 ' + str(data.get('pass', 0) + data.get('banned', 0)) +
                                ' 次\n其中，通过验证 ' + str(data.get('pass', 0)) + ' 次，拦截 ' + str(data.get('banned', 0)) + ' 次')
@@ -350,15 +377,24 @@ async def pm_captcha(client: Client, message: Message):
             data["premium"] = 'allow'
             sqlite["pmcaptcha"] = data
             await message.edit('将不对 Telegram Premium 用户发起验证')
-        if message.parameter[1] == "ban":
+        elif message.parameter[1] == "ban":
             data["premium"] = 'ban'
             sqlite["pmcaptcha"] = data
             await message.edit('将禁止 Telegram Premium 用户私聊')
-        if message.parameter[1] == "only":
+        elif message.parameter[1] == "only":
             data["premium"] = 'only'
             sqlite["pmcaptcha"] = data
             await message.edit('将**仅允许** Telegram Premium 用户私聊')
-        if message.parameter[1] == "none":
+        elif message.parameter[1] == "none":
             del data["premium"]
             sqlite["pmcaptcha"] = data
             await message.edit('将不对 Telegram Premium 用户执行额外操作')
+    elif message.parameter[0]=="collect":
+        if message.parameter[1] == "y":
+            data['collect']=True
+            sqlite["pmcaptcha"] = data
+            await message.edit('已开启验证错误信息收集，感谢您的支持')
+        elif message.parameter[1] == "n":
+            del data['collect']
+            sqlite["pmcaptcha"] = data
+            await message.edit('已关闭验证错误信息收集')

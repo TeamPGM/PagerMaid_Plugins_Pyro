@@ -241,11 +241,11 @@ async def single_sticker(animated, context, custom_emoji, emoji, message, pic_ro
             sticker_already = False
             for _ in range(20):  # 最多重试20次
                 try:
-                    await context.bot.ask("Stickers", '/cancel', timeout = 60)
+                    await bot.ask("Stickers", '/cancel', timeout = 60)
                     # await bot.send_read_acknowledge(429000)
-                    await context.bot.ask("Stickers", '/addsticker', timeout = 60)
+                    await bot.ask("Stickers", '/addsticker', timeout = 60)
                     # await bot.send_read_acknowledge(429000)
-                    chat_response = await context.bot.ask("Stickers", pack_name, timeout = 60)
+                    chat_response = await bot.ask("Stickers", pack_name, timeout = 60)
                     while chat_response.text == "Whoa! That's probably enough stickers for one set, " \
                                                 "give it a break. " \
                                                 "A set can't have more than 120 stickers at the moment.":
@@ -268,7 +268,7 @@ async def single_sticker(animated, context, custom_emoji, emoji, message, pic_ro
                                 await context.edit(f"切换到私藏 {pack} 贴纸包满了")
                         except:
                             pass
-                        chat_response = await context.bot.ask("Stickers", pack_name)
+                        chat_response = await bot.ask("Stickers", pack_name)
                         if chat_response.text == "Invalid set selected.":
                             await add_sticker(conversation, command, pack_title, pack_name, animated, message,
                                               context, file, emoji)
@@ -291,7 +291,7 @@ async def single_sticker(animated, context, custom_emoji, emoji, message, pic_ro
                                 pass
                             return
                     await get_response()
-                    await context.bot.ask("Stickers", emoji, timeout = 60)
+                    await bot.ask("Stickers", emoji, timeout = 60)
                     # await bot.send_read_acknowledge(429000)
                     await bot.send_message("Stickers", '/done')
                     # await bot.send_read_acknowledge(429000)
@@ -316,11 +316,11 @@ async def single_sticker(animated, context, custom_emoji, emoji, message, pic_ro
 
 
 async def add_sticker(conversation, command, pack_title, pack_name, animated, message, context, file, emoji):
-    await context.bot.ask("Stickers", "/cancel", timeout = 60)
+    await bot.ask("Stickers", "/cancel", timeout = 60)
     # await bot.send_read_acknowledge(429000)
-    await context.bot.ask("Stickers", command, timeout = 60)
+    await bot.ask("Stickers", command, timeout = 60)
     # await bot.send_read_acknowledge(429000)
-    await context.bot.ask("Stickers", pack_title, timeout = 60)
+    await bot.ask("Stickers", pack_title, timeout = 60)
     # await bot.send_read_acknowledge(429000)
     if message.media == MessageMediaType.STICKER:
         await context.edit(f"转发中 id={message.id}")
@@ -335,13 +335,13 @@ async def add_sticker(conversation, command, pack_title, pack_name, animated, me
                 pass
             return
     await get_response()
-    await context.bot.ask("Stickers", emoji, timeout = 60)
+    await bot.ask("Stickers", emoji, timeout = 60)
     # await bot.send_read_acknowledge(429000)
-    awaitcontext.bot.ask("Stickers", "/publish", timeout = 60)
+    await bot.ask("Stickers", "/publish", timeout = 60)
     if animated:
-        await context.bot.ask("Stickers", f"<{pack_title}>", timeout = 60)
+        await bot.ask("Stickers", f"<{pack_title}>", timeout = 60)
     # await bot.send_read_acknowledge(429000)
-    await context.bot.ask("Stickers", "/skip", timeout = 60)
+    await bot.ask("Stickers", "/skip", timeout = 60)
     # wait bot.send_read_acknowledge(429000)
     await bot.send_message("Stickers", '/done')
     # await bot.send_read_acknowledge(429000)

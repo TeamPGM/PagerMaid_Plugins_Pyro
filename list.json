@@ -72,7 +72,7 @@
         },
         {
             "name": "pmcaptcha",
-            "version": "1.201",
+            "version": "1.21",
             "section": "chat",
             "maintainer": "cloudreflection",
             "size": "18 kb",
@@ -222,7 +222,7 @@
         },
         {
             "name": "sticker",
-            "version": "0.04",
+            "version": "0.041",
             "section": "chat",
             "maintainer": "xiluo",
             "size": "16.9 kb",
