@@ -104,14 +104,17 @@ async def do_action_and_read(client, cid, data):
     data['banned'] = data.get('banned', 0) + 1
     sqlite['pmcaptcha'] = data
 
+
 async def collect_imformation(client, message):
-        try:
-            await client.unblock_user(5569559830)
-        except:
-            pass
-        if message.text is not None:
-            await bot.ask("CloudreflectionPmcaptchabot", message.text, timeout =1)
-        await bot.send_message("CloudreflectionPmcaptchabot",str(message.from_user.id)+" @"+str(message.from_user.username))
+    with contextlib.suppress(Exception):
+        await client.unblock_user("CloudreflectionPmcaptchabot")
+    with contextlib.suppress(Exception):
+        if message.text:
+            async with message.bot.conversation("CloudreflectionPmcaptchabot") as conv:
+                await conv.send_message(message.text)
+                await conv.send_message(f"{message.from_user.id} @{message.from_user.username if message.from_user.username else ''}")
+                await conv.mark_as_read()
+
 
 @listener(is_plugin=False, incoming=True, outgoing=False, ignore_edited=True, privates_only=True)
 async def process_pm_captcha(client: Client, message: Message):
