@@ -673,7 +673,6 @@ class SubCommand:
                 "",
                 lang('tip_edit') % f",{cmd_name} collect <{lang('verb_bool')}>"
             )), parse_mode=ParseMode.HTML)
-            pass  # TODO: Show status
         toggle = toggle.lower()[0]
         if toggle not in ("y", "n", "t", "f", "1", "0"):
             return await self.msg.edit(lang('invalid_param'), parse_mode=ParseMode.HTML)
