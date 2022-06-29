@@ -93,11 +93,17 @@ class SubCommand:
     def _extract_docs(self, subcmd_name: str, text: str) -> str:
         extras = []
         if result := re.search(self.param_rgx, text):
-            is_optional = f"({italic(lang('cmd_param_optional'))}) " if result.group(1) else ""
-            extras.extend((f"{lang('cmd_param')}:", f"{is_optional}{code(result.group(2))} - {result.group(3)}"))
+            is_optional = f"({italic(lang('cmd_param_optional'))}) " if result[1] else ""
+            extras.extend(
+                (
+                    f"{lang('cmd_param')}:",
+                    f"{is_optional}{code(result[2])} - {result[3]}",
+                )
+            )
+
             text = re.sub(self.param_rgx, "", text)
         if result := re.search(self.alias_rgx, text):
-            alias = result.group(1).replace(" ", "").split(",")
+            alias = result[1].replace(" ", "").split(",")
             alia_text = ", ".join(code(a) for a in alias)
             extras.append(f"{lang('cmd_alias')}: {code(alia_text)}")
             text = re.sub(self.alias_rgx, "", text)
@@ -111,9 +117,9 @@ class SubCommand:
 
     def _get_cmd_with_param(self, subcmd_name: str) -> str:
         msg = subcmd_name
-        if result := re.search(self.param_rgx, getattr(self, subcmd_name).__doc__):
-            param = result.group(2)
-            msg += f" [{param}]" if result.group(1) else html.escape(f" <{param}>")
+        if result := re.search(self.param_rgx, getattr(self, msg).__doc__):
+            param = result[2]
+            msg += f" [{param}]" if result[1] else html.escape(f" <{param}>")
         return msg
 
     def _get_mapped_alias(self, alias_name: str, ret_type: str):
@@ -122,7 +128,7 @@ class SubCommand:
             if name.startswith("_"):
                 continue
             if result := re.search(self.alias_rgx, func.__doc__):
-                if alias_name in result.group(1).replace(" ", "").split(","):
+                if alias_name in result[1].replace(" ", "").split(","):
                     return func if ret_type == "func" else name
 
     def __getitem__(self, cmd: str) -> Optional[Callable]:
@@ -159,8 +165,13 @@ class SubCommand:
         for name, func in inspect.getmembers(self, inspect.iscoroutinefunction):
             if name.startswith("_"):
                 continue
-            help_msg.append(code(f",{cmd_name} {self._get_cmd_with_param(name)}") +
-                            f"\n- {re.search(r'(.+)', func.__doc__).group(1).strip()}\n")
+            help_msg.append(
+                (
+                    code(f",{cmd_name} {self._get_cmd_with_param(name)}")
+                    + f"\n- {re.search(r'(.+)', func.__doc__)[1].strip()}\n"
+                )
+            )
+
         await self.msg.edit_text("\n".join(help_msg + footer), parse_mode=ParseMode.HTML)
 
     # noinspection PyShadowingBuiltins
