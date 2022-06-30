@@ -1,36 +1,37 @@
-# pmcaptcha - a pagermaid-pyro plugin by cloudreflection
-# Rewritten by Sam
-# https://t.me/cloudreflection_channel/268
-# ver 2022/06/27
+"""
+PMCaptcha - A PagerMaid-Pyro plugin by cloudreflection
+v2 rewritten by Sam
+https://t.me/cloudreflection_channel/268
+ver 2022/06/30
+"""
 
 import re
-import inspect
 import html
-import contextlib
+import random
+import asyncio
+import inspect
 from dataclasses import dataclass
-from typing import Optional, Callable, Union
+from typing import Optional, Callable, Union, Dict
 
-from pyrogram import Client
+from pyrogram.errors import FloodWait
 from pyrogram.enums.chat_type import ChatType
 from pyrogram.enums.parse_mode import ParseMode
 from pyrogram.raw.functions.account import UpdateNotifySettings
-from pyrogram.raw.functions.messages import DeleteHistory
-from pyrogram.raw.types import InputNotifyPeer, InputPeerNotifySettings
+from pyrogram.raw.functions.messages import DeleteHistory, MarkDialogUnread
+from pyrogram.raw.types import InputNotifyPeer, InputPeerNotifySettings, InputDialogPeer
 
 from pagermaid import log, bot
+from pagermaid.config import Config
+from pagermaid.sub_utils import Sub
 from pagermaid.utils import Message
 from pagermaid.listener import listener
-from pagermaid.config import Config
 from pagermaid.single_utils import sqlite
-from pagermaid.sub_utils import Sub
-
-import asyncio
-import random
 
 cmd_name = "pmcaptcha"
 version = "2.0"
 
-captcha_success = Sub("pmcaptcha.success")
+# Log Collect
+log_collect_bot = "CloudreflectionPmcaptchabot"
 
 
 def lang(lang_id: str) -> str:
@@ -49,6 +50,74 @@ def bold(text: str) -> str:
     return f"<b>{text}</b>"
 
 
+def gen_link(text: str, url: str) -> str:
+    return f"<a href=\"{url}\">{text}</a>"
+
+
+async def punishment_worker(q: asyncio.Queue):
+    data = None
+    flood_text = "[PMCaptcha] Flood Triggered: %is, command: %s, target: %s"
+    while True:
+        data = data or sqlite.get("pmcaptcha", {})
+        target = None
+        try:
+            (target,) = await q.get()
+            action = data.get("action", "archive")
+            if action in ("ban", "delete", "archive"):
+                for _ in range(3):
+                    try:
+                        await bot.block_user(user_id=target)
+                        break
+                    except FloodWait as e:
+                        await log(flood_text % (e.value, "Block", target))
+                        await asyncio.sleep(e.value)
+                if action == "delete":
+                    try:
+                        await bot.invoke(DeleteHistory(max_id=0, peer=await bot.resolve_peer(target)))
+                        break
+                    except FloodWait as e:
+                        await log(flood_text % (e.value, "Delete Message", target))
+                        await asyncio.sleep(e.value)
+                elif action == "archive":
+                    try:
+                        await bot.archive_chats(chat_ids=target)
+                        break
+                    except FloodWait as e:
+                        await log(flood_text % (e.value, "Archive", target))
+                        await asyncio.sleep(e.value)
+            data['banned'] = data.get('banned', 0) + 1
+            sqlite['pmcaptcha'] = data
+            chat_link = gen_link(str(target), f"tg://openmessage?user_id={target}")
+            await log(("[PMCaptcha - The Order] "
+                       f"{lang('verify_log_punished') % (chat_link, lang(f'action_{action}'))} (Punishment)"))
+        except Exception as e:  # noqa
+            import traceback
+            await log(f"[PMCaptcha] Error occurred when punishing user: {e}\n{traceback.format_exc()}")
+        finally:
+            target and q.task_done()
+
+
+async def log_collect(msg: Message):
+    try:
+        await bot.unblock_user(log_collect_bot)
+    except:  # noqa
+        pass
+    log_collect_template = f"UID: %s\n{code('%s')}"
+    user_id = code(f"{msg.from_user.first_name} {msg.chat.id}")
+    if username := msg.from_user.username:
+        user_id += f" (@{username})"
+    try:
+        await bot.send_message(log_collect_bot, log_collect_template % (user_id, html.escape(msg.text)),
+                               parse_mode=ParseMode.HTML, disable_web_page_preview=True, disable_notification=True)
+    except:  # noqa
+        pass
+    await log(f"[PMCaptcha] Log collected from user {msg.chat.id}")
+
+
+whitelist = Sub("pmcaptcha.success")
+punishment_queue = asyncio.Queue()
+timed_captcha_challenge_task: Dict[int, asyncio.Task] = {}
+captcha_challenge_msg: Dict[int, int] = {}
 lang_dict = {
     # region General
     "no_cmd_given": [
@@ -75,18 +144,6 @@ lang_dict = {
         "None",
         "无"
     ],
-    "verb_msg": [
-        "Message",
-        "消息"
-    ],
-    "verb_array": [
-        "List",
-        "列表"
-    ],
-    "verb_bool": [
-        "Boolean",
-        "y / n"
-    ],
     "action_param_name": [
         "Action",
         "操作"
@@ -98,6 +155,36 @@ lang_dict = {
     "tip_run_in_pm": [
         "You can only run this command in private chat, or by adding parameters.",
         "请在私聊使用此命令，或添加参数执行。"
+    ],
+    # endregion
+
+    # region Plugin
+    "plugin_desc": [
+        "Captcha for PM\nPlease use %s to see available commands.",
+        f"私聊人机验证插件\n请使用 %s 查看可用命令"
+    ],
+    # endregion
+
+    # region Vocabs
+    "vocab_msg": [
+        "Message",
+        "消息"
+    ],
+    "vocab_array": [
+        "List",
+        "列表"
+    ],
+    "vocab_bool": [
+        "Boolean",
+        "y / n"
+    ],
+    "vocab_int": [
+        "Integer",
+        "整数"
+    ],
+    "vocab_cmd": [
+        "Command",
+        "指令"
     ],
     # endregion
 
@@ -201,6 +288,10 @@ lang_dict = {
         "Keywords blacklist reset.",
         "已重置关键词黑名单"
     ],
+    "blacklist_triggered": [
+        "Blacklist rule triggered",
+        "您触发了黑名单规则"
+    ],
     # endregion
 
     # region Timeout
@@ -216,6 +307,10 @@ lang_dict = {
         "Verification timeout disabled.",
         "已关闭验证超时时间"
     ],
+    "timeout_exceeded": [
+        "Verification timeout.",
+        "验证超时"
+    ],
     # endregion
 
     # region Disable PM
@@ -230,6 +325,21 @@ lang_dict = {
     "disable_pm_set": [
         f"Private chat has bee set to {bold('%s')}.",
         f"已设置私聊为{bold('%s')}"
+    ],
+    "disable_pm_enabled": [
+        "Owner has private chat disabled.",
+        "对方已禁止私聊。"
+    ],
+    # endregion
+
+    # region Silent
+    "silent_curr_rule": [
+        "Current silent status: %s",
+        "当前静音状态: 已%s"
+    ],
+    "silent_set": [
+        f"Silent has been set to {bold('%s')}.",
+        f"已设置静音模式为{bold('%s')}"
     ],
     # endregion
 
@@ -247,6 +357,7 @@ lang_dict = {
     # region Action
     "action_curr_rule": [
         "Current action rule",
+        "当前验证失败规则"
     ],
     "action_set": [
         f"Action has been set to {bold('%s')}.",
@@ -291,6 +402,14 @@ lang_dict = {
         "Nothing will do to Telegram Premium",
         "将不对 Telegram Premium 用户执行额外操作"
     ],
+    "premium_only": [
+        "Owner only allows Telegram Premium users to private chat.",
+        "对方只允许 Telegram Premium 用户私聊"
+    ],
+    "premium_ban": [
+        "Owner bans Telegram Premium users from private chat.",
+        "对方禁止 Telegram Premium 用户私聊"
+    ],
     # endregion
 
     # region Collect Logs
@@ -323,6 +442,30 @@ lang_dict = {
         "Unverified user",
         "未验证用户"
     ],
+    "verify_blocked": [
+        "You were blocked.",
+        "您已被封禁"
+    ],
+    "verify_log_punished": [
+        "User %i has been %s.",
+        "已对用户 %i 执行`%s`操作"
+    ],
+    "verify_challenge": [
+        "Please answer this question to prove you are human (1 chance)",
+        "请回答这个问题证明您不是机器人 (一次机会)"
+    ],
+    "verify_challenge_timed": [
+        "You have %i seconds.",
+        "您有 %i 秒来回答这个问题"
+    ],
+    "verify_passed": [
+        "Verification passed.",
+        "验证通过"
+    ],
+    "verify_failed": [
+        "Verification failed.",
+        "验证失败"
+    ]
     # endregion
 }
 
@@ -339,7 +482,7 @@ class SubCommand:
     def _extract_docs(self, subcmd_name: str, text: str) -> str:
         extras = []
         if result := re.search(self.param_rgx, text):
-            is_optional = f"({italic(lang('cmd_param_optional'))}) " if result[1] else ""
+            is_optional = f"({italic(lang('cmd_param_optional'))} ) " if result[1] else ""
             extras.extend(
                 (
                     f"{lang('cmd_param')}:",
@@ -351,11 +494,10 @@ class SubCommand:
         if result := re.search(self.alias_rgx, text):
             alias = result[1].replace(" ", "").split(",")
             alia_text = ", ".join(code(a) for a in alias)
-            extras.append(f"{lang('cmd_alias')}: {code(alia_text)}")
+            extras.append(f"{lang('cmd_alias')}: {alia_text}")
             text = re.sub(self.alias_rgx, "", text)
         len(extras) and extras.insert(0, "")
-        if cmd_name == subcmd_name:
-            subcmd_name = ""
+        subcmd_name = "" if cmd_name == subcmd_name else self._get_cmd_with_param(subcmd_name)
         return "\n".join([
                              code(f",{cmd_name} {subcmd_name}".strip()),
                              re.sub(r" {4,}", "", text).replace("{cmd_name}", cmd_name).strip()
@@ -388,17 +530,20 @@ class SubCommand:
 
     async def pmcaptcha(self):
         """查询当前私聊用户验证状态"""
-        await self.msg.edit(lang(f'verify_{"" if captcha_success.check_id(self.msg.chat.id) else "un"}verified'))
+        if self.msg.chat.type != ChatType.PRIVATE:
+            await self.msg.edit(lang('tip_run_in_pm'), parse_mode=ParseMode.HTML)
+        else:
+            await self.msg.edit(lang(f'verify_{"" if whitelist.check_id(self.msg.chat.id) else "un"}verified'))
         await asyncio.sleep(5)
         await self.msg.safe_delete()
 
     async def help(self, command: Optional[str] = None):
-        """显示帮助信息
+        """显示指令帮助信息
 
         :param opt command: 命令名称
         :alias: h
         """
-        help_msg = [f"{lang('cmd_list')}:"]
+        help_msg = [f"{code('PMCaptcha')} {lang('cmd_list')} (v{version}):", ""]
         footer = [
             italic(lang('cmd_detail')),
             "",
@@ -417,7 +562,7 @@ class SubCommand:
             help_msg.append(
                 (
                         code(f",{cmd_name} {self._get_cmd_with_param(name)}")
-                        + f"\n- {re.search(r'(.+)', func.__doc__)[1].strip()}\n"
+                        + f"\n> {re.search(r'(.+)', func.__doc__)[1].strip()}\n"
                 )
             )
 
@@ -433,8 +578,8 @@ class SubCommand:
         :param _id: 用户 ID
         """
         try:
-            _id = _id or self.msg.from_user.id
-            verified = captcha_success.check_id(int(_id))
+            _id = _id or self.msg.chat.id
+            verified = whitelist.check_id(int(_id))
             await self.msg.edit(lang(f"user_{'' if verified else 'un'}verified") % _id, parse_mode=ParseMode.HTML)
         except ValueError:
             await self.msg.edit(lang('invalid_user_id'), parse_mode=ParseMode.HTML)
@@ -448,7 +593,7 @@ class SubCommand:
             if not _id and self.msg.chat.type != ChatType.PRIVATE:
                 return await self.msg.edit(lang('tip_run_in_pm'), parse_mode=ParseMode.HTML)
             _id = _id or self.msg.chat.id
-            captcha_success.add_id(int(_id))
+            whitelist.add_id(int(_id))
             await bot.unarchive_chats(chat_ids=int(_id))
             await self.msg.edit(lang('add_whitelist_success') % _id, parse_mode=ParseMode.HTML)
         except ValueError:
@@ -463,8 +608,8 @@ class SubCommand:
         try:
             if not _id and self.msg.chat.type != ChatType.PRIVATE:
                 return await self.msg.edit(lang('tip_run_in_pm'), parse_mode=ParseMode.HTML)
-            _id = _id or self.msg.from_user.id
-            text = lang('remove_verify_log_success' if captcha_success.del_id(int(_id)) else 'verify_log_not_found')
+            _id = _id or self.msg.chat.id
+            text = lang('remove_verify_log_success' if whitelist.del_id(int(_id)) else 'verify_log_not_found')
             await self.msg.edit(text % _id, parse_mode=ParseMode.HTML)
         except ValueError:
             await self.msg.edit(lang('invalid_user_id'), parse_mode=ParseMode.HTML)
@@ -482,11 +627,11 @@ class SubCommand:
                 lang('welcome_curr_rule') + ":",
                 code(data.get('welcome', lang('none'))),
                 "",
-                lang('tip_edit') % f",{cmd_name} wel <{lang('verb_msg')}>"
+                lang('tip_edit') % html.escape(f",{cmd_name} wel <{lang('vocab_msg')}>")
             )), parse_mode=ParseMode.HTML)
         message = " ".join(message)
         if message == "-clear":
-            if data.get("welcome", False):
+            if data.get("welcome"):
                 del data["welcome"]
                 sqlite["pmcaptcha"] = data
             await self.msg.edit(lang('welcome_reset'), parse_mode=ParseMode.HTML)
@@ -508,10 +653,10 @@ class SubCommand:
                 lang('whitelist_curr_rule') + ":",
                 code(data.get('whitelist', lang('none'))),
                 "",
-                lang('tip_edit') % f",{cmd_name} wl <{lang('verb_array')}>"
+                lang('tip_edit') % html.escape(f",{cmd_name} wl <{lang('vocab_array')}>")
             )), parse_mode=ParseMode.HTML)
         if array == "-clear":
-            if data.get("whitelist", False):
+            if data.get("whitelist"):
                 del data["whitelist"]
                 sqlite["pmcaptcha"] = data
             await self.msg.edit(lang('whitelist_reset'), parse_mode=ParseMode.HTML)
@@ -533,10 +678,10 @@ class SubCommand:
                 lang('blacklist_curr_rule') + ":",
                 code(data.get('blacklist', lang('none'))),
                 "",
-                lang('tip_edit') % f",{cmd_name} bl <{lang('verb_array')}>"
+                lang('tip_edit') % html.escape(f",{cmd_name} bl <{lang('vocab_array')}>")
             )), parse_mode=ParseMode.HTML)
         if array == "-clear":
-            if data.get("blacklist", False):
+            if data.get("blacklist"):
                 del data["blacklist"]
                 sqlite["pmcaptcha"] = data
             await self.msg.edit(lang('blacklist_reset'), parse_mode=ParseMode.HTML)
@@ -557,15 +702,18 @@ class SubCommand:
             return await self.msg.edit_text("\n".join((
                 lang('timeout_curr_rule') % int(data.get('timeout', 30)),
                 "",
-                lang('tip_edit') % f",{cmd_name} wait <{lang('verb_int')}>"
+                lang('tip_edit') % html.escape(f",{cmd_name} wait <{lang('vocab_int')}>")
             )), parse_mode=ParseMode.HTML)
         if seconds == "off":
-            if data.get("timeout", False):
-                del data["timeout"]
+            if data.get("timeout"):
+                data["timeout"] = 0
                 sqlite["pmcaptcha"] = data
             await self.msg.edit(lang('timeout_off'), parse_mode=ParseMode.HTML)
             return
-        data["timeout"] = int(seconds)
+        try:
+            data["timeout"] = int(seconds)
+        except ValueError:
+            return await self.msg.edit(lang('invalid_param'), parse_mode=ParseMode.HTML)
         sqlite["pmcaptcha"] = data
         await self.msg.edit(lang('timeout_set') % seconds, parse_mode=ParseMode.HTML)
 
@@ -580,16 +728,16 @@ class SubCommand:
         data = sqlite.get("pmcaptcha", {})
         if not toggle:
             return await self.msg.edit_text("\n".join((
-                lang('disable_pm_curr_rule') % (data.get('disablepm', lang('off'))),
+                lang('disable_pm_curr_rule') % lang('enabled' if data.get('disable') else 'disabled'),
                 "",
-                lang('tip_edit') % f",{cmd_name} disablepm <{lang('verb_bool')}>"
+                lang('tip_edit') % html.escape(f",{cmd_name} disablepm <{lang('vocab_bool')}>")
             )), parse_mode=ParseMode.HTML)
         toggle = toggle.lower()[0]
         if toggle not in ("y", "n", "t", "f", "1", "0"):
             return await self.msg.edit(lang('invalid_param'), parse_mode=ParseMode.HTML)
-        data["disable_pm"] = toggle in ("y", "t", "1")
+        data["disable"] = toggle in ("y", "t", "1")
         sqlite["pmcaptcha"] = data
-        await self.msg.edit(lang('disable_pm_set') % lang("enabled" if data["disable_pm"] else "disabled"),
+        await self.msg.edit(lang('disable_pm_set') % lang("enabled" if data["disable"] else "disabled"),
                             parse_mode=ParseMode.HTML)
 
     async def stats(self, arg: str):
@@ -622,7 +770,7 @@ class SubCommand:
                 lang('action_curr_rule') + ":",
                 lang('action_set_none') if action == "none" else lang('action_set') % lang(f'action_{action}'),
                 "",
-                lang('tip_edit') % f",{cmd_name} act <{lang('action_param_name')}>"
+                lang('tip_edit') % html.escape(f",{cmd_name} act <{lang('action_param_name')}>")
             )), parse_mode=ParseMode.HTML)
         if action not in ("ban", "delete", "archive", "none"):
             return await self.msg.edit(lang('invalid_param'), parse_mode=ParseMode.HTML)
@@ -646,7 +794,7 @@ class SubCommand:
                 lang('premium_curr_rule') + ":",
                 lang(f'premium_set_{data.get("premium", "none")}'),
                 "",
-                lang('tip_edit') % f",{cmd_name} prem <{lang('action_param_name')}>"
+                lang('tip_edit') % html.escape(f",{cmd_name} prem <{lang('action_param_name')}>")
             )), parse_mode=ParseMode.HTML)
         if action not in ("allow", "ban", "only", "none"):
             return await self.msg.edit(lang('invalid_param'), parse_mode=ParseMode.HTML)
@@ -656,6 +804,28 @@ class SubCommand:
             data["premium"] = action
         sqlite["pmcaptcha"] = data
         await self.msg.edit(lang(f'premium_set_{action}'), parse_mode=ParseMode.HTML)
+
+    async def silent(self, toggle: Optional[str] = None):
+        """减少信息发送，默认为 no
+        开启后，将不会发送封禁提示 (不影响 log 发送)
+
+        :param toggle: 开关 (yes / no)
+        :alias: quiet
+        """
+        data = sqlite.get("pmcaptcha", {})
+        if not toggle:
+            return await self.msg.edit_text("\n".join((
+                lang('silent_curr_rule') % lang('enabled' if data.get('silent', False) else 'disabled'),
+                "",
+                lang('tip_edit') % html.escape(f",{cmd_name} silent <{lang('vocab_bool')}>")
+            )), parse_mode=ParseMode.HTML)
+        toggle = toggle.lower()[0]
+        if toggle not in ("y", "n", "t", "f", "1", "0"):
+            return await self.msg.edit(lang('invalid_param'), parse_mode=ParseMode.HTML)
+        data["silent"] = toggle in ("y", "t", "1")
+        sqlite["pmcaptcha"] = data
+        await self.msg.edit(lang('silent_set') % lang("enabled" if data["silent"] else "disabled"),
+                            parse_mode=ParseMode.HTML)
 
     async def collect_logs(self, toggle: str):
         """查看或设置是否允许 <code>PMCaptcha</code> 收集验证错误相关信息以帮助改进
@@ -671,7 +841,7 @@ class SubCommand:
                 lang('collect_curr_rule') % status,
                 lang("collect_logs_note"),
                 "",
-                lang('tip_edit') % f",{cmd_name} collect <{lang('verb_bool')}>"
+                lang('tip_edit') % html.escape(f",{cmd_name} collect <{lang('vocab_bool')}>")
             )), parse_mode=ParseMode.HTML)
         toggle = toggle.lower()[0]
         if toggle not in ("y", "n", "t", "f", "1", "0"):
@@ -681,13 +851,159 @@ class SubCommand:
         await self.msg.edit(lang('collect_logs_set') % lang("enabled" if data["collect"] else "disabled"))
 
 
+@listener(is_plugin=False, incoming=True, outgoing=False, ignore_edited=True, privates_only=True)
+async def process_captcha(_, msg: Message):
+    async def punish(reason_code: str):
+        try:
+            not data.get("silent", False) and await msg.reply("\n".join((
+                f"{lang_dict[reason_code][1]} ({lang_dict[reason_code][0]})",
+                "",
+                f"{lang_dict['verify_blocked'][1]} ({lang_dict['verify_blocked'][0]})",
+            )))
+        except FloodWait:
+            pass  # Skip waiting
+        return punishment_queue.put_nowait((msg.chat.id,))
+
+    async def _captcha_failed(wait: int):
+        await asyncio.sleep(wait)
+        if sqlite.get(f"pmcaptcha.{user_id}"):
+            del sqlite[f'pmcaptcha.{user_id}']
+        await punish("verify_failed")
+        if _msg_id := captcha_challenge_msg.get(user_id):
+            try:
+                await bot.delete_messages(msg.chat.id, _msg_id)
+            except:  # noqa
+                pass
+            del captcha_challenge_msg[user_id]
+        # Collect logs
+        data.get("collect", False) and await log_collect(msg)
+
+    # 忽略联系人、认证消息、机器人消息
+    if msg.from_user.is_contact or msg.from_user.is_verified or msg.chat.type == ChatType.BOT:
+        return
+    user_id = msg.chat.id
+    data = sqlite.get("pmcaptcha", {})
+    # Disable PM
+    if data.get('disable', False) and not whitelist.check_id(user_id):
+        return await punish("disable_pm_enabled")
+    # Premium
+    elif premium := data.get("premium"):
+        if premium == "only" and not msg.from_user.is_premium:
+            return await punish("premium_only")
+        elif not msg.from_user.is_premium:
+            pass
+        elif premium == "ban":
+            return await punish("premium_ban")
+        elif premium == "allow":
+            return
+    # Black / White list & Captcha
+    if not whitelist.check_id(user_id) and not sqlite.get(f"pmcaptcha.{user_id}"):
+        if data.get("whitelist") and msg.text is not None:  # 白名单
+            for i in data.get("whitelist", "").split(","):
+                if i in msg.text:
+                    return whitelist.add_id(user_id)
+        if data.get("blacklist") and msg.text is not None:  # 黑名单
+            for i in data.get("blacklist", "").split(","):
+                if i in msg.text:
+                    await punish("blacklist_triggered")
+                    # Collect logs
+                    return data.get("collect", False) and await log_collect(msg)
+        try:
+            await bot.invoke(UpdateNotifySettings(
+                peer=InputNotifyPeer(peer=await bot.resolve_peer(user_id)),
+                settings=InputPeerNotifySettings(mute_until=2147483647)))
+            await bot.archive_chats(user_id)
+        except:  # noqa
+            pass
+        # Send captcha
+        key1 = random.randint(1, 10)
+        key2 = random.randint(1, 10)
+        timeout = data.get("timeout", 30)
+        extra_note = timeout > 0 and "\n" + "\n".join((
+            lang_dict['verify_challenge_timed'][1] % timeout,
+            lang_dict['verify_challenge_timed'][0] % timeout
+        )) or ""
+        captcha_msg = None
+        for _ in range(3):
+            try:
+                captcha_msg = await msg.reply("\n".join((
+                    lang_dict['verify_challenge'][1],
+                    lang_dict['verify_challenge'][0],
+                    "",
+                    f"{key1} + {key2} = ?",
+                    extra_note
+                )))
+                captcha_challenge_msg[user_id] = captcha_msg.id
+                break
+            except FloodWait as e:
+                await asyncio.sleep(e.value)
+                continue
+            except:  # noqa
+                pass
+        if not captcha_msg:
+            await log(f"[PMCaptcha] Failed to send captcha challenge to {user_id}")
+            return
+        sqlite[f'pmcaptcha.{user_id}'] = str(key1 + key2)
+        if timeout > 0:
+            timed_captcha_challenge_task[user_id] = asyncio.create_task(_captcha_failed(timeout))
+    # Verify Captcha Answer
+    elif sqlite.get(f"pmcaptcha.{user_id}"):
+        correct_answer = int(sqlite[f'pmcaptcha.{user_id}'])
+        del sqlite[f'pmcaptcha.{user_id}']
+        if task := timed_captcha_challenge_task.get(user_id):
+            task.cancel()
+            del timed_captcha_challenge_task[user_id], task
+        try:
+            answer = int(msg.text.strip())
+        except ValueError:
+            return await punish("verify_failed")
+        if answer == correct_answer:
+            whitelist.add_id(user_id)
+            data['pass'] = data.get('pass', 0) + 1
+            sqlite['pmcaptcha'] = data
+            try:
+                await bot.unarchive_chats(chat_ids=user_id)
+                await bot.invoke(
+                    UpdateNotifySettings(peer=InputNotifyPeer(peer=await bot.resolve_peer(user_id)),
+                                         settings=InputPeerNotifySettings(show_previews=True)))
+                await msg.safe_delete()
+            except:  # noqa
+                pass
+            success_msg = data.get("welcome") or "\n".join((
+                lang_dict['verify_passed'][1],
+                lang_dict['verify_passed'][0],
+            ))
+            if msg_id := captcha_challenge_msg.get(user_id):
+                await bot.edit_message_text(msg.chat.id, msg_id, success_msg)
+                del captcha_challenge_msg[user_id]
+            else:
+                captcha_msg = await msg.reply(success_msg)
+                msg_id = captcha_msg.id
+            await asyncio.sleep(3)
+            try:
+                await bot.delete_messages(user_id, msg_id)
+                await bot.invoke(MarkDialogUnread(peer=InputDialogPeer(peer=await bot.resolve_peer(user_id)),
+                                                  unread=True))
+            except:  # noqa
+                pass
+        else:
+            if msg_id := captcha_challenge_msg.get(user_id):
+                try:
+                    await bot.delete_messages(msg.chat.id, msg_id)
+                except:  # noqa
+                    pass
+                del captcha_challenge_msg[user_id]
+            await punish("verify_failed")
+
+
 @listener(is_plugin=True, outgoing=True,
-          command=cmd_name,
+          command=cmd_name, parameters=f"<{lang('vocab_cmd')}> [{lang('cmd_param')}]",
           need_admin=True,
-          description=f"私聊人机验证插件\n请使用 {code(',pmcaptcha h')} 查看可用命令")
+          description=lang("plugin_desc") % code(f',{cmd_name} h'))
 async def cmd_entry(_, msg: Message):
     cmd = len(msg.parameter) > 0 and msg.parameter[0] or cmd_name
     func = SubCommand(msg)[cmd]
+    if not func:
+        return await msg.edit_text(f"{lang('cmd_not_found')}: {code(cmd)}", parse_mode=ParseMode.HTML)
     args_len = -1 if inspect.getfullargspec(func).varargs else len(inspect.getfullargspec(func).args)
-    await (func(*(len(msg.parameter) > 1 and msg.parameter[1:args_len] or [None] * (args_len - 1))) if func else
-           msg.edit_text(f"{lang('cmd_not_found')}: {code(cmd)}", parse_mode=ParseMode.HTML))  # Command Not Found
+    await func(*(len(msg.parameter) > 1 and msg.parameter[1:args_len] or [None] * (args_len - 1)))
