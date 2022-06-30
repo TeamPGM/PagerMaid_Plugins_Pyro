@@ -8,7 +8,7 @@
             "size": "12.9 kb",
             "supported": true,
             "des-short": "一大堆便民功能。",
-            "des": "超多功能 例如 -ip"
+            "des": "超多功能 例如 ,ip"
         },
         {
             "name": "eat",
@@ -98,7 +98,7 @@
             "size": "2.09 kb",
             "supported": true,
             "des-short": "查询信用卡bin信息。",
-            "des": "使用binlist api查询，1分钟限额10次否则报错。使用方法：-bin xxx （xxx为信用卡卡号前4-8位，推荐6位）"
+            "des": "使用binlist api查询，1分钟限额10次否则报错。使用方法：,bin xxx （xxx为信用卡卡号前4-8位，推荐6位）"
         },
         {
             "name": "tel",
@@ -118,7 +118,7 @@
             "size": "1.3 kb",
             "supported": true,
             "des-short": "每日新闻、历史上的今天、天天成语、慧语香风、诗歌天地",
-            "des": "每日新闻、历史上的今天、天天成语、慧语香风、诗歌天地。\n指令：-news"
+            "des": "每日新闻、历史上的今天、天天成语、慧语香风、诗歌天地。\n指令：,news"
         },
         {
             "name": "whois",
@@ -178,7 +178,7 @@
             "size": "5.3 kb",
             "supported": true,
             "des-short": "自动转发/备份频道消息",
-            "des": "自动转发频道新消息或者从零开始备份频道。\n指令：-shift\n查看帮助：-help shift"
+            "des": "自动转发频道新消息或者从零开始备份频道。\n指令：,shift\n查看帮助：,help shift"
         },
         {
             "name": "dme",
@@ -188,7 +188,7 @@
             "size": "506 b",
             "supported": true,
             "des-short": "删除当前对话您发送的特定数量的消息。",
-            "des": "删除当前对话您发送的特定数量的消息。\n指令：-dme"
+            "des": "删除当前对话您发送的特定数量的消息。\n指令：,dme"
         },
         {
             "name": "premium",
@@ -238,7 +238,17 @@
             "size": "10.0 kb",
             "supported": true,
             "des-short": "将回复的消息转换成语录图片",
-            "des": "将回复的消息或者输入字符串转换成语录图片。\n指令：-yvlu"
+            "des": "将回复的消息或者输入字符串转换成语录图片。\n指令：,yvlu"
+        },
+        {
+            "name": "netease",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "2.91 kb",
+            "supported": true,
+            "des-short": "网易云音乐",
+            "des": "网易云音乐。\n指令：,netease"
         }
     ]
 }
