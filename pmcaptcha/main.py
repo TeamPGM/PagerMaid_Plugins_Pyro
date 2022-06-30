@@ -20,7 +20,7 @@ from pyrogram.raw.functions.account import UpdateNotifySettings
 from pyrogram.raw.functions.messages import DeleteHistory, MarkDialogUnread
 from pyrogram.raw.types import InputNotifyPeer, InputPeerNotifySettings, InputDialogPeer
 
-from pagermaid import log, bot
+from pagermaid import bot
 from pagermaid.config import Config
 from pagermaid.sub_utils import Sub
 from pagermaid.utils import Message
@@ -32,6 +32,16 @@ version = "2.0"
 
 # Log Collect
 log_collect_bot = "CloudreflectionPmcaptchabot"
+
+
+async def log(message: str):
+    if not Config.LOG:
+        return
+    try:
+        await bot.send_message(Config.LOG_ID, message, ParseMode.HTML)
+    except Exception as e:  # noqa
+        import traceback
+        print(f"Err: {e}\n{traceback.format_exc()}")
 
 
 def lang(lang_id: str) -> str:
@@ -72,26 +82,31 @@ async def punishment_worker(q: asyncio.Queue):
                         await log(flood_text % (e.value, "Block", target))
                         await asyncio.sleep(e.value)
                 if action == "delete":
-                    try:
-                        await bot.invoke(DeleteHistory(max_id=0, peer=await bot.resolve_peer(target)))
-                        break
-                    except FloodWait as e:
-                        await log(flood_text % (e.value, "Delete Message", target))
-                        await asyncio.sleep(e.value)
+                    for _ in range(3):
+                        try:
+                            await bot.invoke(DeleteHistory(peer=await bot.resolve_peer(target), max_id=0))
+                            break
+                        except FloodWait as e:
+                            await log(flood_text % (e.value, "Delete Message", target))
+                            await asyncio.sleep(e.value)
                 elif action == "archive":
-                    try:
-                        await bot.archive_chats(chat_ids=target)
-                        break
-                    except FloodWait as e:
-                        await log(flood_text % (e.value, "Archive", target))
-                        await asyncio.sleep(e.value)
+                    for _ in range(3):
+                        try:
+                            await bot.archive_chats(chat_ids=target)
+                            break
+                        except FloodWait as e:
+                            await log(flood_text % (e.value, "Archive", target))
+                            await asyncio.sleep(e.value)
             data['banned'] = data.get('banned', 0) + 1
             sqlite['pmcaptcha'] = data
             chat_link = gen_link(str(target), f"tg://openmessage?user_id={target}")
             await log(("[PMCaptcha - The Order] "
                        f"{lang('verify_log_punished') % (chat_link, lang(f'action_{action}'))} (Punishment)"))
+        except asyncio.CancelledError:
+            break
         except Exception as e:  # noqa
             import traceback
+            print(f"Error: {e}\n{traceback.format_exc()}")
             await log(f"[PMCaptcha] Error occurred when punishing user: {e}\n{traceback.format_exc()}")
         finally:
             target and q.task_done()
@@ -116,8 +131,10 @@ async def log_collect(msg: Message):
 
 whitelist = Sub("pmcaptcha.success")
 punishment_queue = asyncio.Queue()
+asyncio.create_task(punishment_worker(punishment_queue))
 timed_captcha_challenge_task: Dict[int, asyncio.Task] = {}
 captcha_challenge_msg: Dict[int, int] = {}
+captcha_write_lock: asyncio.Lock = asyncio.Lock()
 lang_dict = {
     # region General
     "no_cmd_given": [
@@ -323,8 +340,8 @@ lang_dict = {
         "此功能会自动放行联系人与白名单用户"
     ],
     "disable_pm_set": [
-        f"Private chat has bee set to {bold('%s')}.",
-        f"已设置私聊为{bold('%s')}"
+        f"Disable private chat has been set to {bold('%s')}.",
+        f"已设置禁止私聊为{bold('%s')}"
     ],
     "disable_pm_enabled": [
         "Owner has private chat disabled.",
@@ -447,8 +464,8 @@ lang_dict = {
         "您已被封禁"
     ],
     "verify_log_punished": [
-        "User %i has been %s.",
-        "已对用户 %i 执行`%s`操作"
+        "User %s has been %s.",
+        "已对用户 %s 执行`%s`操作"
     ],
     "verify_challenge": [
         "Please answer this question to prove you are human (1 chance)",
@@ -765,7 +782,7 @@ class SubCommand:
         """
         data = sqlite.get("pmcaptcha", {})
         if not action:
-            action = data.get("action", "none")
+            action = data.get("action", "archive")
             return await self.msg.edit_text("\n".join((
                 lang('action_curr_rule') + ":",
                 lang('action_set_none') if action == "none" else lang('action_set') % lang(f'action_{action}'),
@@ -878,13 +895,14 @@ async def process_captcha(_, msg: Message):
         # Collect logs
         data.get("collect", False) and await log_collect(msg)
 
-    # 忽略联系人、认证消息、机器人消息
-    if msg.from_user.is_contact or msg.from_user.is_verified or msg.chat.type == ChatType.BOT:
-        return
     user_id = msg.chat.id
+    # 忽略联系人、认证消息、机器人消息、已验证用户
+    if (msg.from_user.is_contact or msg.from_user.is_verified or
+            msg.chat.type == ChatType.BOT or whitelist.check_id(user_id)):
+        return
     data = sqlite.get("pmcaptcha", {})
     # Disable PM
-    if data.get('disable', False) and not whitelist.check_id(user_id):
+    if data.get('disable', False):
         return await punish("disable_pm_enabled")
     # Premium
     elif premium := data.get("premium"):
@@ -897,7 +915,7 @@ async def process_captcha(_, msg: Message):
         elif premium == "allow":
             return
     # Black / White list & Captcha
-    if not whitelist.check_id(user_id) and not sqlite.get(f"pmcaptcha.{user_id}"):
+    if not sqlite.get(f"pmcaptcha.{user_id}"):
         if data.get("whitelist") and msg.text is not None:  # 白名单
             for i in data.get("whitelist", "").split(","):
                 if i in msg.text:
@@ -943,7 +961,8 @@ async def process_captcha(_, msg: Message):
         if not captcha_msg:
             await log(f"[PMCaptcha] Failed to send captcha challenge to {user_id}")
             return
-        sqlite[f'pmcaptcha.{user_id}'] = str(key1 + key2)
+        async with captcha_write_lock:
+            sqlite[f'pmcaptcha.{user_id}'] = str(key1 + key2)
         if timeout > 0:
             timed_captcha_challenge_task[user_id] = asyncio.create_task(_captcha_failed(timeout))
     # Verify Captcha Answer
