@@ -1260,11 +1260,13 @@ class MathChallenge(CaptchaChallenge):
             return
         async with self.captcha_write_lock:
             try:
-                answer = int("".join(re.findall(r"\d+", answer)))
+                user_answer = int("".join(re.findall(r"\d+", answer)))
+                if "-" in answer:
+                    user_answer = -user_answer
             except ValueError:
                 return await punish(self.user.id, "verify_failed")
-        await self.action(answer == self.answer)
-        return answer == self.answer
+        await self.action(user_answer == self.answer)
+        return user_answer == self.answer
 
 
 class ImageChallenge(CaptchaChallenge):
