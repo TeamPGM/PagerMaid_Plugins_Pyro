@@ -37,6 +37,14 @@ version = "2.01"
 log_collect_bot = "CloudreflectionPmcaptchabot"
 img_captcha_bot = "PagerMaid_Sam_Bot"
 
+whitelist = Sub("pmcaptcha.success")
+
+punishment_queue = asyncio.Queue()
+punishment_task: Optional[asyncio.Task] = None
+
+challenge_task: Dict[int, asyncio.Task] = {}
+curr_captcha: Dict[int, Union["MathChallenge", "ImageChallenge"]] = {}
+
 
 async def log(message: str, remove_prefix: bool = False):
     if not Config.LOG:
@@ -68,60 +76,6 @@ def bold(text: str) -> str:
 def gen_link(text: str, url: str) -> str:
     return f"<a href=\"{url}\">{text}</a>"
 
-
-async def punishment_worker(q: asyncio.Queue):
-    data = None
-    flood_text = "Flood Triggered: %is, command: %s, target: %s"
-    while True:
-        data = data or sqlite.get("pmcaptcha", {})
-        target = None
-        try:
-            (target,) = await q.get()
-            action = data.get("action", "archive")
-            if action in ("ban", "delete", "archive"):
-                for _ in range(3):
-                    try:
-                        await bot.block_user(user_id=target)
-                        break
-                    except FloodWait as e:
-                        await log(flood_text % (e.value, "Block", target))
-                        await asyncio.sleep(e.value)
-                if action == "delete":
-                    for _ in range(3):
-                        try:
-                            await bot.invoke(DeleteHistory(peer=await bot.resolve_peer(target), max_id=0))
-                            break
-                        except FloodWait as e:
-                            await log(flood_text % (e.value, "Delete Message", target))
-                            await asyncio.sleep(e.value)
-                elif action == "archive":
-                    for _ in range(3):
-                        try:
-                            await bot.archive_chats(chat_ids=target)
-                            break
-                        except FloodWait as e:
-                            await log(flood_text % (e.value, "Archive", target))
-                            await asyncio.sleep(e.value)
-            data['banned'] = data.get('banned', 0) + 1
-            sqlite['pmcaptcha'] = data
-            chat_link = gen_link(str(target), f"tg://openmessage?user_id={target}")
-            await log(("[PMCaptcha - The Order] "
-                       f"{lang('verify_log_punished') % (chat_link, lang(f'action_{action}'))} (Punishment)"), True)
-        except asyncio.CancelledError:
-            break
-        except Exception as e:  # noqa
-            await log(f"Error occurred when punishing user: {e}\n{traceback.format_exc()}")
-        finally:
-            target and q.task_done()
-
-
-whitelist = Sub("pmcaptcha.success")
-
-punishment_queue = asyncio.Queue()
-punishment_task: Optional[asyncio.Task] = None
-
-challenge_task: Dict[int, asyncio.Task] = {}
-curr_captcha: Dict[int, Union["MathChallenge", "ImageChallenge"]] = {}
 
 lang_dict = {
     # region General
@@ -649,7 +603,7 @@ class SubCommand:
         :param _id: 用户 ID
         """
         try:
-            _id = int(_id) or self.msg.chat.id
+            _id = _id and int(_id) or self.msg.chat.id
             verified = whitelist.check_id(_id)
             await self.msg.edit(lang(f"user_{'' if verified else 'un'}verified") % _id, parse_mode=ParseMode.HTML)
         except ValueError:
@@ -663,7 +617,7 @@ class SubCommand:
         try:
             if not _id and self.msg.chat.type != ChatType.PRIVATE:
                 return await self.msg.edit(lang('tip_run_in_pm'), parse_mode=ParseMode.HTML)
-            _id = int(_id) or self.msg.chat.id
+            _id = _id and int(_id) or self.msg.chat.id
             whitelist.add_id(_id)
             await bot.unarchive_chats(chat_ids=_id)
             await self.msg.edit(lang('add_whitelist_success') % _id, parse_mode=ParseMode.HTML)
@@ -679,7 +633,7 @@ class SubCommand:
         try:
             if not _id and self.msg.chat.type != ChatType.PRIVATE:
                 return await self.msg.edit(lang('tip_run_in_pm'), parse_mode=ParseMode.HTML)
-            _id = int(_id) or self.msg.chat.id
+            _id = _id and int(_id) or self.msg.chat.id
             text = lang('remove_verify_log_success' if whitelist.del_id(_id) else 'verify_log_not_found')
             await self.msg.edit(text % _id, parse_mode=ParseMode.HTML)
         except ValueError:
@@ -693,7 +647,7 @@ class SubCommand:
         try:
             if not _id and self.msg.chat.type != ChatType.PRIVATE:
                 return await self.msg.edit(lang('tip_run_in_pm'), parse_mode=ParseMode.HTML)
-            _id = int(_id) or self.msg.chat.id
+            _id = _id and int(_id) or self.msg.chat.id
             if sqlite.get(f"pmcaptcha.challenge.{_id}"):
                 del sqlite[f"pmcaptcha.challenge.{_id}"]
                 return await self.msg.edit(lang('unstuck_success') % _id, parse_mode=ParseMode.HTML)
@@ -1029,6 +983,52 @@ class SubCommand:
 
 
 # region Captcha
+async def punishment_worker(q: asyncio.Queue):
+    data = None
+    flood_text = "Flood Triggered: %is, command: %s, target: %s"
+    while True:
+        data = data or sqlite.get("pmcaptcha", {})
+        target = None
+        try:
+            (target,) = await q.get()
+            action = data.get("action", "archive")
+            if action in ("ban", "delete", "archive"):
+                for _ in range(3):
+                    try:
+                        await bot.block_user(user_id=target)
+                        break
+                    except FloodWait as e:
+                        await log(flood_text % (e.value, "Block", target))
+                        await asyncio.sleep(e.value)
+                if action == "delete":
+                    for _ in range(3):
+                        try:
+                            await bot.invoke(DeleteHistory(peer=await bot.resolve_peer(target), max_id=0))
+                            break
+                        except FloodWait as e:
+                            await log(flood_text % (e.value, "Delete Message", target))
+                            await asyncio.sleep(e.value)
+                elif action == "archive":
+                    for _ in range(3):
+                        try:
+                            await bot.archive_chats(chat_ids=target)
+                            break
+                        except FloodWait as e:
+                            await log(flood_text % (e.value, "Archive", target))
+                            await asyncio.sleep(e.value)
+            data['banned'] = data.get('banned', 0) + 1
+            sqlite['pmcaptcha'] = data
+            chat_link = gen_link(str(target), f"tg://openmessage?user_id={target}")
+            await log(("[PMCaptcha - The Order] "
+                       f"{lang('verify_log_punished') % (chat_link, lang(f'action_{action}'))} (Punishment)"), True)
+        except asyncio.CancelledError:
+            break
+        except Exception as e:  # noqa
+            await log(f"Error occurred when punishing user: {e}\n{traceback.format_exc()}")
+        finally:
+            target and q.task_done()
+
+
 async def punish(user_id: int, reason_code: str):
     try:
         user = await bot.get_users(user_id)
