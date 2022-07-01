@@ -597,13 +597,15 @@ class Command:
             try:
                 if getattr(arg_type, "__origin__", None) == Union:
                     NoneType = type(None)
-                    if len(arg_type.__args__) == 2 and arg_type.__args__[1] is NoneType:  # Optional
-                        if len(cmd_args) > index and not cmd_args[index] or not len(cmd_args):
-                            func_args.append(None)
-                            continue
-                        arg_type = arg_type.__args__[0]
-                    else:  # Other are not supported yet, skip checking this arg
+                    if (
+                        len(arg_type.__args__) != 2
+                        or arg_type.__args__[1] is not NoneType
+                    ):
                         continue
+                    if len(cmd_args) > index and not cmd_args[index] or not len(cmd_args):
+                        func_args.append(None)
+                        continue
+                    arg_type = arg_type.__args__[0]
                 func_args.append(arg_type(cmd_args[index]))
             except ValueError:
                 return False, "INVALID_PARAM", tuple(full_arg_spec.annotations.keys())[index]
@@ -709,11 +711,11 @@ class Command:
 
     async def pmcaptcha(self):
         """查询当前私聊用户验证状态"""
-        if self.msg.chat.type != ChatType.PRIVATE and not self.msg.reply_to_message_id:
-            text = lang('tip_run_in_pm')
-        else:
+        if self.msg.chat.type == ChatType.PRIVATE or self.msg.reply_to_message_id:
             user_id = self.msg.reply_to_message_id or self.user.id
             text = lang(f'verify_{"" if setting.is_verified(user_id) else "un"}verified')
+        else:
+            text = lang('tip_run_in_pm')
         await self.msg.edit(text, parse_mode=ParseMode.HTML)
         await asyncio.sleep(5)
         await self.msg.safe_delete()
@@ -1770,7 +1772,7 @@ if __name__ == "plugins.pmcaptcha":
     }
     curr_captcha: Dict[int, Union["MathChallenge", "ImageChallenge"]] = globals().get("curr_captcha", {})
     setting = globals().get("setting", Setting("pmcaptcha"))
-    if not ((resume_task := globals().get("resume_task")) and not resume_task.done()):
+    if not (resume_task := globals().get("resume_task")) or resume_task.done():
         resume_task = asyncio.create_task(resume_states())
     the_order = globals().get("the_order", TheOrder())
     captcha_task = globals().get("captcha_task", CaptchaTask())
