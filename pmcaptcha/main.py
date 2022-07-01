@@ -1005,8 +1005,8 @@ class SubCommand:
         data["img_type"] = _type
         sqlite["pmcaptcha"] = data
         await self.msg.edit(
-            lang(f'type_set') % lang(f'img_captcha_type_{_type}'),
-            parse_mode=ParseMode.HTML
+            lang('type_set') % lang(f'img_captcha_type_{_type}'),
+            parse_mode=ParseMode.HTML,
         )
 
     async def img_retry_chance(self, number: str):
@@ -1207,11 +1207,8 @@ class MathChallenge(CaptchaChallenge):
         captcha.challenge_msg_id = state['msg_id']
         now = int(time.time())
         timeout = sqlite.get("pmcaptcha", {}).get("timeout", 30)
-        if timeout > 0:
-            if now - state['start'] > timeout:
-                return await captcha.action(False)
-            # TODO(Sam): Restore timeout
-            # challenge_task[user.id] = asyncio.create_task(captcha.challenge_timeout(timeout - (now - state['start'])))
+        if timeout > 0 and now - state['start'] > timeout:
+            return await captcha.action(False)
         captcha.answer = state['answer']
         await captcha.verify(msg.text)
 
@@ -1238,8 +1235,6 @@ class MathChallenge(CaptchaChallenge):
                     break
                 except FloodWait as e:
                     await asyncio.sleep(e.value)
-                except:  # noqa
-                    pass
             if not challenge_msg:
                 return await log(f"Failed to send math captcha challenge to {self.user.id}")
             self.challenge_msg_id = challenge_msg.id
