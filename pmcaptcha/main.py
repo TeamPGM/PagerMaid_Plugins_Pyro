@@ -1326,6 +1326,7 @@ class ImageChallenge(CaptchaChallenge):
                             self.save_state({"try_count": self.try_count})
                             await bot.block_user(self.user.id)
                             return
+                    break
                 except TimeoutError:
                     break  # Fallback
                 except FloodWait as e:
