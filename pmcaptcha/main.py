@@ -2,7 +2,7 @@
 PMCaptcha - A PagerMaid-Pyro plugin by cloudreflection
 v2 rewritten by Sam
 https://t.me/cloudreflection_channel/268
-ver 2022/06/30
+ver 2022/07/01
 """
 
 import re
@@ -31,10 +31,10 @@ from pagermaid.listener import listener
 from pagermaid.single_utils import sqlite
 
 cmd_name = "pmcaptcha"
-version = "2.0"
+version = "2.01"
 
 # Log Collect
-log_collect_bot = "PagerMaid_Sam_Bot"  # "CloudreflectionPmcaptchabot"
+log_collect_bot = "CloudreflectionPmcaptchabot"
 img_captcha_bot = "PagerMaid_Sam_Bot"
 
 
@@ -115,32 +115,10 @@ async def punishment_worker(q: asyncio.Queue):
             target and q.task_done()
 
 
-async def log_collect(msg: Message):
-    try:
-        await bot.unblock_user(log_collect_bot)
-    except:  # noqa
-        pass
-    log_collect_template = f"UID: %s\n{code('%s')}"
-    user_id = code(f"{msg.from_user.first_name} {msg.chat.id}")
-    if username := msg.from_user.username:
-        user_id += f" (@{username})"
-    try:
-        await bot.send_message(log_collect_bot, log_collect_template % (user_id, html.escape(msg.text)),
-                               parse_mode=ParseMode.HTML, disable_web_page_preview=True, disable_notification=True)
-    except:  # noqa
-        pass
-    await log(f"Log collected from user {msg.chat.id}")
-
-
 whitelist = Sub("pmcaptcha.success")
 
 punishment_queue = asyncio.Queue()
 punishment_task: Optional[asyncio.Task] = None
-
-timed_captcha_challenge_task: Dict[int, asyncio.Task] = {}
-captcha_first_msg: Dict[int, Message] = {}
-captcha_challenge_msg: Dict[int, int] = {}
-captcha_write_lock: asyncio.Lock = asyncio.Lock()
 
 challenge_task: Dict[int, asyncio.Task] = {}
 curr_captcha: Dict[int, Union["MathChallenge", "ImageChallenge"]] = {}
@@ -985,6 +963,8 @@ class SubCommand:
         """切换验证码类型，默认为 <code>math</code>
         目前只有基础计算和图形辨识
 
+        注意：如果图像验证不能使用将回退到计算验证
+
         :param _type: 验证码类型 (<code>img</code> / <code>math</code>)
         :alias: type, typ
         """
@@ -1024,9 +1004,12 @@ class SubCommand:
             return await self.msg.edit(lang('invalid_param'), parse_mode=ParseMode.HTML)
         data["img_type"] = _type
         sqlite["pmcaptcha"] = data
-        await self.msg.edit(lang(f'type_set') % lang(f'img_captcha_type_{_type}'), parse_mode=ParseMode.HTML)
+        await self.msg.edit(
+            lang(f'type_set') % lang(f'img_captcha_type_{_type}'),
+            parse_mode=ParseMode.HTML
+        )
 
-    async def img_retry_chance(self, number: int):
+    async def img_retry_chance(self, number: str):
         """图形验证码最大可重试次数，默认为 <code>3</code>
 
         :param number: 重试次数
@@ -1088,7 +1071,7 @@ class CaptchaChallenge:
         log_file = BytesIO(json.dumps(self.logs, indent=4).encode())
         log_file.name = f"{user.id}_{self.captcha_start}.json"
         caption = [f"UID: {code(str(user.id))}" + (f" @{user.username}" if self.user.username else ""),
-                   f"Mention: {user.mention(style='html')}"]
+                   f"Mention: {gen_link(str(user.id), f'tg://openmessage?user_id={user.id}')}"]
         if user.first_name or user.last_name:
             user_full_name = []
             user.first_name and user_full_name.append(user.first_name)
@@ -1124,7 +1107,7 @@ class CaptchaChallenge:
         if not send and last_exp:
             return await log(f"Error occurred when sending log: {last_exp}")
         elif not send:
-            return await log(f"Failed to send log")
+            return await log("Failed to send log")
         await log(f"Log collected from user {user.id}")
 
     # endregion
@@ -1163,11 +1146,11 @@ class CaptchaChallenge:
         sqlite['pmcaptcha'] = data
         success_msg = data.get("welcome") or lang("verify_passed", self.user.language_code)
         welcome_msg: Optional[Message] = None
-        if self.challenge_msg_id:
-            try:
+        try:
+            if self.challenge_msg_id:
                 welcome_msg = await bot.edit_message_text(self.user.id, self.challenge_msg_id, success_msg)
-            except:  # noqa
-                pass
+        except:  # noqa
+            pass
         else:
             try:
                 welcome_msg = await bot.send_message(self.user.id, success_msg)
@@ -1227,7 +1210,7 @@ class MathChallenge(CaptchaChallenge):
         if timeout > 0:
             if now - state['start'] > timeout:
                 return await captcha.action(False)
-            # Restore timeout
+            # TODO(Sam): Restore timeout
             # challenge_task[user.id] = asyncio.create_task(captcha.challenge_timeout(timeout - (now - state['start'])))
         captcha.answer = state['answer']
         await captcha.verify(msg.text)
@@ -1315,8 +1298,7 @@ class ImageChallenge(CaptchaChallenge):
             while True:
                 try:
                     if not (result := await bot.get_inline_bot_results(
-                            img_captcha_bot, sqlite.get("pmcaptcha", {}).get("img_type", "func"))
-                    ):
+                            img_captcha_bot, sqlite.get("pmcaptcha", {}).get("img_type", "func"))):
                         break  # Fallback
                     # From now on, wait for bot result
                     updates = await bot.send_inline_bot_result(self.user.id, result.query_id, result.results[0].id)
