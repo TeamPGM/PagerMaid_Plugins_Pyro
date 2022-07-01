@@ -20,7 +20,7 @@ from pyrogram.enums.chat_type import ChatType
 from pyrogram.enums.parse_mode import ParseMode
 from pyrogram.raw.functions.account import UpdateNotifySettings, ReportPeer
 from pyrogram.raw.functions.messages import DeleteHistory
-from pyrogram.raw.types import InputNotifyPeer, InputPeerNotifySettings, InputReportReasonSpam
+from pyrogram.raw.types import InputNotifyPeer, InputPeerNotifySettings, InputReportReasonSpam, UpdateMessageID
 from pyrogram.types import User
 
 from pagermaid import bot
@@ -648,8 +648,19 @@ class SubCommand:
             if not _id and self.msg.chat.type != ChatType.PRIVATE:
                 return await self.msg.edit(lang('tip_run_in_pm'), parse_mode=ParseMode.HTML)
             _id = _id and int(_id) or self.msg.chat.id
-            if sqlite.get(f"pmcaptcha.challenge.{_id}"):
-                del sqlite[f"pmcaptcha.challenge.{_id}"]
+            if sqlite.get(f"pmcaptcha.challenge.{_id}") or curr_captcha.get(_id):
+                if sqlite.get(f"pmcaptcha.challenge.{_id}"):
+                    del sqlite[f"pmcaptcha.challenge.{_id}"]
+                if curr_captcha.get(_id):
+                    del curr_captcha[_id]
+                try:
+                    await bot.unarchive_chats(chat_ids=_id)
+                    await bot.invoke(UpdateNotifySettings(
+                        peer=InputNotifyPeer(peer=await bot.resolve_peer(_id)),
+                        settings=InputPeerNotifySettings(show_previews=True, silent=False)))
+                    await bot.unblock_user(_id)
+                except:  # noqa
+                    pass
                 return await self.msg.edit(lang('unstuck_success') % _id, parse_mode=ParseMode.HTML)
             await self.msg.edit(lang('not_stuck') % _id, parse_mode=ParseMode.HTML)
         except ValueError:
@@ -759,7 +770,7 @@ class SubCommand:
         await self.msg.edit(lang('timeout_set') % int(seconds), parse_mode=ParseMode.HTML)
 
     async def disable_pm(self, toggle: str):
-        """启用 / 禁止陌生人私聊
+        """启用 / 禁止陌生人私聊，默认为 <code>N</code> （允许私聊）
         此功能会放行联系人和白名单(<i>已通过验证</i>)用户
         您可以使用 <code>,{cmd_name} add</code> 将用户加入白名单
 
@@ -776,9 +787,12 @@ class SubCommand:
         toggle = toggle.lower()[0]
         if toggle not in ("y", "n", "t", "f", "1", "0"):
             return await self.msg.edit(lang('invalid_param'), parse_mode=ParseMode.HTML)
-        data["disable"] = toggle in ("y", "t", "1")
+        if toggle not in ("y", "t", "1") and data.get("disable"):
+            del data["disable"]
+        else:
+            data["disable"] = True
         sqlite["pmcaptcha"] = data
-        await self.msg.edit(lang('disable_pm_set') % lang("enabled" if data["disable"] else "disabled"),
+        await self.msg.edit(lang('disable_pm_set') % lang("enabled" if data.get("disable") else "disabled"),
                             parse_mode=ParseMode.HTML)
 
     async def stats(self, arg: str):
@@ -836,13 +850,16 @@ class SubCommand:
         toggle = toggle.lower()[0]
         if toggle not in ("y", "n", "t", "f", "1", "0"):
             return await self.msg.edit(lang('invalid_param'), parse_mode=ParseMode.HTML)
-        data["report"] = toggle in ("y", "t", "1")
+        if toggle not in ("y", "t", "1") and data.get("report"):
+            del data["report"]
+        else:
+            data["report"] = True
         sqlite["pmcaptcha"] = data
-        await self.msg.edit(lang('report_set') % lang("enabled" if data["report"] else "disabled"),
+        await self.msg.edit(lang('report_set') % lang("enabled" if data.get("report") else "disabled"),
                             parse_mode=ParseMode.HTML)
 
     async def premium(self, action: str):
-        """选择对 <b>Premium</b> 用户的操作，默认为 <code>archive</code>
+        """选择对 <b>Premium</b> 用户的操作，默认为 <code>none</code>
 
         :param action: 操作方式 (<code>allow</code> / <code>ban</code> / <code>only</code> / <code>none</code>)
         :alias: vip, prem
@@ -857,7 +874,7 @@ class SubCommand:
             )), parse_mode=ParseMode.HTML)
         if action not in ("allow", "ban", "only", "none"):
             return await self.msg.edit(lang('invalid_param'), parse_mode=ParseMode.HTML)
-        if action == "none":
+        if action == "none" and data.get("premium"):
             del data["premium"]
         else:
             data["premium"] = action
@@ -881,9 +898,12 @@ class SubCommand:
         toggle = toggle.lower()[0]
         if toggle not in ("y", "n", "t", "f", "1", "0"):
             return await self.msg.edit(lang('invalid_param'), parse_mode=ParseMode.HTML)
-        data["silent"] = toggle in ("y", "t", "1")
+        if toggle not in ("y", "t", "1") and data.get("silent"):
+            del data["silent"]
+        else:
+            data["silent"] = True
         sqlite["pmcaptcha"] = data
-        await self.msg.edit(lang('silent_set') % lang("enabled" if data["silent"] else "disabled"),
+        await self.msg.edit(lang('silent_set') % lang("enabled" if data.get('silent') else "disabled"),
                             parse_mode=ParseMode.HTML)
 
     async def collect_logs(self, toggle: str):
@@ -905,9 +925,12 @@ class SubCommand:
         toggle = toggle.lower()[0]
         if toggle not in ("y", "n", "t", "f", "1", "0"):
             return await self.msg.edit(lang('invalid_param'), parse_mode=ParseMode.HTML)
-        data["collect"] = toggle in ("y", "t", "1")
+        if toggle not in ("y", "t", "1") and data.get("collect"):
+            del data["collect"]
+        else:
+            data["collect"] = True
         sqlite["pmcaptcha"] = data
-        await self.msg.edit(lang('collect_logs_set') % lang("enabled" if data["collect"] else "disabled"))
+        await self.msg.edit(lang('collect_logs_set') % lang("enabled" if data.get("collect") else "disabled"))
 
     # Image Captcha
 
@@ -1059,7 +1082,7 @@ class CaptchaChallenge:
     # region Logging
 
     def log_msg(self, msg: str):
-        self.logs.append(msg.strip())
+        msg.strip() and self.logs.append(msg.strip())
 
     async def send_log(self, ban_code: Optional[str] = None):
         if not sqlite.get("pmcaptcha", {}).get("collect", False):
@@ -1158,10 +1181,9 @@ class CaptchaChallenge:
         await asyncio.sleep(3)
         welcome_msg and await welcome_msg.safe_delete()
         try:
-            peer = await bot.resolve_peer(self.user.id)
             await bot.unarchive_chats(chat_ids=self.user.id)
             await bot.invoke(UpdateNotifySettings(
-                peer=InputNotifyPeer(peer=peer),
+                peer=InputNotifyPeer(peer=await bot.resolve_peer(self.user.id)),
                 settings=InputPeerNotifySettings(show_previews=True, silent=False)))
         except:  # noqa
             pass
@@ -1292,15 +1314,18 @@ class ImageChallenge(CaptchaChallenge):
         async with self.captcha_write_lock:
             while True:
                 try:
-                    if not (result := await bot.get_inline_bot_results(
-                            img_captcha_bot, sqlite.get("pmcaptcha", {}).get("img_type", "func"))):
+                    if (not (result := await bot.get_inline_bot_results(
+                            img_captcha_bot, sqlite.get("pmcaptcha", {}).get("img_type", "func"))) or
+                            not result.results):
                         break  # Fallback
                     # From now on, wait for bot result
                     updates = await bot.send_inline_bot_result(self.user.id, result.query_id, result.results[0].id)
-                    self.challenge_msg_id = updates.updates[0].id
-                    self.save_state({"try_count": self.try_count})
-                    await bot.block_user(self.user.id)
-                    return
+                    for update in updates.updates:
+                        if isinstance(update, UpdateMessageID):
+                            self.challenge_msg_id = update.id
+                            self.save_state({"try_count": self.try_count})
+                            await bot.block_user(self.user.id)
+                            return
                 except TimeoutError:
                     break  # Fallback
                 except FloodWait as e:
@@ -1419,12 +1444,12 @@ async def chat_listener(msg: Message):
         # Send captcha
         captcha_type = data.get("type", "math")
         captcha = captcha_challenges.get(captcha_type, MathChallenge)(msg.from_user)
-        captcha.log_msg(msg.text)
+        captcha.log_msg(msg.text or msg.caption or "")
         captcha = await captcha.start() or captcha
         curr_captcha[user_id] = captcha
     elif (captcha := curr_captcha.get(user_id)) and captcha.input:  # Verify answer
-        captcha.log_msg(msg.text)
-        if await captcha.verify(msg.text):
+        captcha.log_msg(msg.text or msg.caption or "")
+        if await captcha.verify(msg.text or msg.caption or ""):
             await msg.safe_delete()
         del curr_captcha[user_id]
 
