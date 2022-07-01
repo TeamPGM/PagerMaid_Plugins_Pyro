@@ -189,6 +189,41 @@ lang_dict = {
     ],
     # endregion
 
+    # region Verify
+    "verify_verified": [
+        "Verified user",
+        "已验证用户"
+    ],
+    "verify_unverified": [
+        "Unverified user",
+        "未验证用户"
+    ],
+    "verify_blocked": [
+        "You were blocked.",
+        "您已被封禁"
+    ],
+    "verify_log_punished": [
+        "User %s has been %s.",
+        "已对用户 %s 执行`%s`操作"
+    ],
+    "verify_challenge": [
+        "Please answer this question to prove you are human (1 chance)",
+        "请回答这个问题证明您不是机器人 (一次机会)"
+    ],
+    "verify_challenge_timed": [
+        "You have %i seconds.",
+        "您有 %i 秒来回答这个问题"
+    ],
+    "verify_passed": [
+        "Verification passed.",
+        "验证通过"
+    ],
+    "verify_failed": [
+        "Verification failed.",
+        "验证失败"
+    ],
+    # endregion
+
     # region Help
     "cmd_param": [
         "Parameter",
@@ -231,7 +266,7 @@ lang_dict = {
     ],
     # endregion
 
-    # region Add
+    # region Add / Delete
     "add_whitelist_success": [
         f"User {code('%i')} added to whitelist",
         f"用户 {code('%i')} 已添加到白名单"
@@ -344,17 +379,6 @@ lang_dict = {
     ],
     # endregion
 
-    # region Silent
-    "silent_curr_rule": [
-        "Current silent status: %s",
-        "当前静音状态: 已%s"
-    ],
-    "silent_set": [
-        f"Silent has been set to {bold('%s')}.",
-        f"已设置静音模式为{bold('%s')}"
-    ],
-    # endregion
-
     # region Stats
     "stats_display": [
         "PMCaptcha has verified %i users in total.\n%i users has passed, %i users has been blocked.",
@@ -408,7 +432,7 @@ lang_dict = {
     ],
     # endregion
 
-    # region Premium Set
+    # region Premium
     "premium_curr_rule": [
         "Current premium user rule",
         "当前 Premium 用户规则"
@@ -436,6 +460,17 @@ lang_dict = {
     "premium_ban": [
         "Owner bans Telegram Premium users from private chat.",
         "对方禁止 Telegram Premium 用户私聊"
+    ],
+    # endregion
+
+    # region Silent
+    "silent_curr_rule": [
+        "Current silent status: %s",
+        "当前静音状态: 已%s"
+    ],
+    "silent_set": [
+        f"Silent has been set to {bold('%s')}.",
+        f"已设置静音模式为{bold('%s')}"
     ],
     # endregion
 
@@ -502,43 +537,6 @@ lang_dict = {
         "Max retry for image captcha has been set to %s.",
         "已设置图像验证码最大重试次数为 %s"
     ],
-    # endregion
-
-    # Functional
-
-    # region Verify
-    "verify_verified": [
-        "Verified user",
-        "已验证用户"
-    ],
-    "verify_unverified": [
-        "Unverified user",
-        "未验证用户"
-    ],
-    "verify_blocked": [
-        "You were blocked.",
-        "您已被封禁"
-    ],
-    "verify_log_punished": [
-        "User %s has been %s.",
-        "已对用户 %s 执行`%s`操作"
-    ],
-    "verify_challenge": [
-        "Please answer this question to prove you are human (1 chance)",
-        "请回答这个问题证明您不是机器人 (一次机会)"
-    ],
-    "verify_challenge_timed": [
-        "You have %i seconds.",
-        "您有 %i 秒来回答这个问题"
-    ],
-    "verify_passed": [
-        "Verification passed.",
-        "验证通过"
-    ],
-    "verify_failed": [
-        "Verification failed.",
-        "验证失败"
-    ]
     # endregion
 }
 
@@ -651,8 +649,8 @@ class SubCommand:
         :param _id: 用户 ID
         """
         try:
-            _id = _id or self.msg.chat.id
-            verified = whitelist.check_id(int(_id))
+            _id = int(_id) or self.msg.chat.id
+            verified = whitelist.check_id(_id)
             await self.msg.edit(lang(f"user_{'' if verified else 'un'}verified") % _id, parse_mode=ParseMode.HTML)
         except ValueError:
             await self.msg.edit(lang('invalid_user_id'), parse_mode=ParseMode.HTML)
@@ -665,9 +663,9 @@ class SubCommand:
         try:
             if not _id and self.msg.chat.type != ChatType.PRIVATE:
                 return await self.msg.edit(lang('tip_run_in_pm'), parse_mode=ParseMode.HTML)
-            _id = _id or self.msg.chat.id
-            whitelist.add_id(int(_id))
-            await bot.unarchive_chats(chat_ids=int(_id))
+            _id = int(_id) or self.msg.chat.id
+            whitelist.add_id(_id)
+            await bot.unarchive_chats(chat_ids=_id)
             await self.msg.edit(lang('add_whitelist_success') % _id, parse_mode=ParseMode.HTML)
         except ValueError:
             await self.msg.edit(lang('invalid_user_id'), parse_mode=ParseMode.HTML)
@@ -681,8 +679,8 @@ class SubCommand:
         try:
             if not _id and self.msg.chat.type != ChatType.PRIVATE:
                 return await self.msg.edit(lang('tip_run_in_pm'), parse_mode=ParseMode.HTML)
-            _id = _id or self.msg.chat.id
-            text = lang('remove_verify_log_success' if whitelist.del_id(int(_id)) else 'verify_log_not_found')
+            _id = int(_id) or self.msg.chat.id
+            text = lang('remove_verify_log_success' if whitelist.del_id(_id) else 'verify_log_not_found')
             await self.msg.edit(text % _id, parse_mode=ParseMode.HTML)
         except ValueError:
             await self.msg.edit(lang('invalid_user_id'), parse_mode=ParseMode.HTML)
@@ -695,7 +693,7 @@ class SubCommand:
         try:
             if not _id and self.msg.chat.type != ChatType.PRIVATE:
                 return await self.msg.edit(lang('tip_run_in_pm'), parse_mode=ParseMode.HTML)
-            _id = _id or self.msg.chat.id
+            _id = int(_id) or self.msg.chat.id
             if sqlite.get(f"pmcaptcha.challenge.{_id}"):
                 del sqlite[f"pmcaptcha.challenge.{_id}"]
                 return await self.msg.edit(lang('unstuck_success') % _id, parse_mode=ParseMode.HTML)
@@ -779,7 +777,7 @@ class SubCommand:
         sqlite["pmcaptcha"] = data
         await self.msg.edit(lang('blacklist_set'), parse_mode=ParseMode.HTML)
 
-    async def timeout(self, seconds: Union[str, int]):
+    async def timeout(self, seconds: str):
         """查看或设置超时时间，默认为 30 秒 (<b>不适用于图像模式</b>)
         使用 <code>,{cmd_name} wait off</code> 可关闭验证时间限制
 
@@ -801,10 +799,10 @@ class SubCommand:
             return
         try:
             data["timeout"] = int(seconds)
+            sqlite["pmcaptcha"] = data
         except ValueError:
             return await self.msg.edit(lang('invalid_param'), parse_mode=ParseMode.HTML)
-        sqlite["pmcaptcha"] = data
-        await self.msg.edit(lang('timeout_set') % seconds, parse_mode=ParseMode.HTML)
+        await self.msg.edit(lang('timeout_set') % int(seconds), parse_mode=ParseMode.HTML)
 
     async def disable_pm(self, toggle: str):
         """启用 / 禁止陌生人私聊
@@ -836,7 +834,7 @@ class SubCommand:
         data = sqlite.get("pmcaptcha", {})
         if not arg:
             data = (data.get('pass', 0) + data.get('banned', 0), data.get('pass', 0), data.get('banned', 0))
-            return await self.msg.edit_text(code("PMCaptcha ") + lang('stats_display') % data,
+            return await self.msg.edit_text(f"{code('PMCaptcha')} {lang('stats_display') % data}",
                                             parse_mode=ParseMode.HTML)
         if arg == "-clear":
             data["pass"] = 0
