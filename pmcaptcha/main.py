@@ -1494,7 +1494,7 @@ class TheWorldEye:
             self.user_ids = state.get("user_ids")
             self.auto_archive_enabled_default = state.get("auto_archive_enabled_default")
             self.reset_timer(300 - (now - self.start))
-            console.debug(f"PMCaptcha restarted, flood state resume")
+            console.debug("PMCaptcha restarted, flood state resume")
         self.watcher = asyncio.create_task(self.sophitia())
 
     # region Timer
@@ -2185,7 +2185,7 @@ class Rule:
             docs = func.__doc__ or ""
             if "no_prio" not in docs:
                 if result := re.search(r"name:\s?(.+)", docs):
-                    name = result.group(1)
+                    name = result[1]
                 prio_list.append(name)
         return tuple(prio_list)
 
