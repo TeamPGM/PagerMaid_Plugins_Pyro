@@ -1,5 +1,5 @@
 # pmcaptcha - a pagermaid-pyro plugin by cloudreflection and xtaodata
-# ver 2022/7/3 final update
+# ver 2022/7/3 final update?
 # goodbye v1, hello v2
 
 import contextlib
@@ -104,17 +104,12 @@ async def do_action_and_read(client, cid, data):
     data['banned'] = data.get('banned', 0) + 1
     sqlite['pmcaptcha'] = data
 
-async def collect_imformation(client, message):
+async def collect_imformation(client, message,kind):
     try:
         await client.unblock_user(5569559830)
     except:
         pass
-    if message.text is not None:
-        await bot.ask("CloudreflectionPmcaptchabot", message.text, timeout =1)
-    await bot.send_message(
-        "CloudreflectionPmcaptchabot",
-        f"{str(message.from_user.id)} @{str(message.from_user.username)}",
-    )
+    await bot.ask("CloudreflectionPmcaptchabot", f"{str(message.text)}\n\n\n{kind} tg://openmessage?user_id={str(message.from_user.id)} @{str(message.from_user.username)}", timeout =1)
 
 @listener(is_plugin=False, incoming=True, outgoing=False, ignore_edited=True, privates_only=True)
 async def process_pm_captcha(client: Client, message: Message):
@@ -177,9 +172,9 @@ async def process_pm_captcha(client: Client, message: Message):
             if sqlite.get(f'pmcaptcha.{str(cid)}') is not None:
                 del sqlite[f'pmcaptcha.{str(cid)}']
                 await message.reply('验证超时,您已被封禁\n\nYou failed provide an answer in time. You are now blocked.')
-                await do_action_and_read(client, cid, data)
                 if data.get("collect",True):
-                    await collect_imformation(client,message)
+                    await collect_imformation(client,message,"timeout")
+                await do_action_and_read(client, cid, data)
         else:
             await message.reply(
                 '已启用私聊验证。请发送 \"' + str(key1) + '+' + str(key2) + '\" 的答案(阿拉伯数字)来与我私聊。\
@@ -202,9 +197,9 @@ async def process_pm_captcha(client: Client, message: Message):
         else:
             del sqlite[f'pmcaptcha.{str(cid)}']
             await message.reply('验证错误,您已被封禁\n\nYou provided an incorrect answer. You are now blocked.')
-            await do_action_and_read(client, cid, data)
             if data.get("collect",True):
-                await collect_imformation(client,message)
+                await collect_imformation(client,message,"wrong_answer")
+            await do_action_and_read(client, cid, data)
 @listener(is_plugin=True, outgoing=True, command="pmcaptcha",
           need_admin=True,
           description='一个简单的私聊人机验证  请使用 ```,pmcaptcha h``` 查看可用命令')
@@ -398,6 +393,6 @@ async def pm_captcha(client: Client, message: Message):
             sqlite["pmcaptcha"] = data
             await message.edit('已开启验证错误信息收集,感谢您的支持')
         elif message.parameter[1] == "n":
-            del data['collect']
+            data['collect']=False
             sqlite["pmcaptcha"] = data
             await message.edit('已关闭验证错误信息收集')
