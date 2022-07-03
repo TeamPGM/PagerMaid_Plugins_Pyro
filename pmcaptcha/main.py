@@ -11,7 +11,7 @@ import asyncio
 import inspect
 import traceback
 from dataclasses import dataclass, field
-from typing import Optional, Callable, Union, Dict, List, Any
+from typing import Optional, Callable, Union, List, Any
 
 from pyrogram.errors import FloodWait, AutoarchiveNotAvailable, ChannelsAdminPublicTooMuch
 from pyrogram.raw.functions.channels import UpdateUsername
@@ -50,7 +50,7 @@ async def log(message: str, remove_prefix: bool = False):
     Config.LOG and logging.send_log(message, remove_prefix)
 
 
-def lang(lang_id: str, lang_code: str = Config.LANGUAGE) -> str:
+def lang(lang_id: str, lang_code: str = Config.LANGUAGE or "en") -> str:
     lang_dict = {
         # region General
         "no_cmd_given": [
@@ -2387,11 +2387,41 @@ if __name__ == "plugins.pmcaptcha":
         "math": MathChallenge,
         "img": ImageChallenge
     }
-    curr_captcha: Dict[int, Union["MathChallenge", "ImageChallenge"]] = globals().get("curr_captcha", {})
-    logging = globals().get("logging", Log())
-    setting = globals().get("setting", Setting("pmcaptcha"))
+
+
+    def _cancel_task(task: asyncio.Task):
+        task and task.cancel()
+
+
+    gbl = globals()
+    for k, v in {
+        "curr_captcha": {},
+        "setting": Setting("pmcaptcha"),
+    }.items():
+        if k in gbl:
+            del gbl[k]
+        gbl[k] = v
+    curr_captcha = globals().get("curr_captcha", {})
+    if setting := globals().get("setting"):
+        del setting
+    # noinspection PyRedeclaration
+    setting = Setting("pmcaptcha")
+    if logging := gbl.get("logging"):
+        _cancel_task(logging.task)
+        del logging
+    # noinspection PyRedeclaration
+    logging = Log()
+    if the_world_eye := gbl.get("the_world_eye"):
+        _cancel_task(the_world_eye.watcher)
+        del the_world_eye
+    gbl["the_world_eye"] = TheWorldEye()
+    if the_order := gbl.get("the_order"):
+        _cancel_task(the_order.task)
+        del the_order
+    gbl["the_order"] = TheOrder()
+    if captcha_task := gbl.get("captcha_task"):
+        _cancel_task(captcha_task.task)
+        del captcha_task
+    gbl["captcha_task"] = TheOrder()
     if not (resume_task := globals().get("resume_task")) or resume_task.done():
         resume_task = asyncio.create_task(resume_states())
-    the_world_eye = globals().get("the_world_eye", TheWorldEye())
-    the_order = globals().get("the_order", TheOrder())
-    captcha_task = globals().get("captcha_task", CaptchaTask())
