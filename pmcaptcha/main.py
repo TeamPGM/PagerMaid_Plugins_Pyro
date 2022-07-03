@@ -813,6 +813,11 @@ class Command:
         if not user_id and not self.msg.reply_to_message_id and self.msg.chat.type != ChatType.PRIVATE:
             await self.msg.edit(lang('tip_run_in_pm'), parse_mode=ParseMode.HTML)
             return
+        try:
+            if int(user_id) < 0:
+                return
+        except ValueError:
+            pass
         user = None
         user_id = user_id or self.msg.reply_to_message_id or (
                 self.msg.chat.type == ChatType.PRIVATE and self.msg.chat.id or 0)
