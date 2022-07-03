@@ -617,7 +617,7 @@ def gen_link(text: str, url: str) -> str:
 class Log:
     task: Optional[asyncio.Task] = None
     queue: asyncio.Queue = field(default_factory=asyncio.Queue)
-    last_send_time: int = field(init=False)
+    last_send_time: int = 0
 
     async def worker(self):
         while True:
@@ -626,7 +626,7 @@ class Log:
                 if int(time.time()) - self.last_send_time < 5:
                     await asyncio.sleep(5 - (int(time.time()) - self.last_send_time))
                     continue
-                (text,) = self.queue.get()
+                (text,) = await self.queue.get()
                 await bot.send_message(Config.LOG_ID, text, ParseMode.HTML)
                 self.last_send_time = int(time.time())
             except asyncio.CancelledError:
@@ -665,9 +665,10 @@ class Setting:
 
     def set(self, key: str, value: Any):
         """Set the value of a key in the database, return value"""
-        if sqlite.get(self.key_name) is None:
-            sqlite[self.key_name] = {}
-        sqlite[self.key_name][key] = value
+        if (data := sqlite.get(self.key_name)) is None:
+            sqlite[self.key_name] = data = {}
+        data.update({key: value})
+        sqlite[self.key_name] = data
         return value
 
     def delete(self, key: str):
@@ -815,7 +816,7 @@ class Command:
         try:
             if int(user_id) < 0:
                 return
-        except ValueError:
+        except (ValueError, TypeError):
             pass
         user = None
         user_id = user_id or self.msg.reply_to_message_id or (
@@ -1050,7 +1051,7 @@ class Command:
         """
         if _type and _type not in ("math", "img"):
             return await self.help("wait")
-        captcha_type: str = _type or setting.get("type")
+        captcha_type: str = _type or setting.get("type", "math")
         key_name: str = {
             "img": "img_timeout",
             "math": "timeout"
@@ -1941,11 +1942,10 @@ class CaptchaChallenge:
         await self.send_log()
 
     async def action(self, success: bool):
-        async with self.captcha_write_lock:
-            self.del_state()
-            self.remove_timer()
-            await getattr(self, f"_verify_{'success' if success else 'failed'}")()
-            console.debug(f"User {self.user.id} verify {'success' if success else 'failed'}")
+        self.del_state()
+        self.remove_timer()
+        await getattr(self, f"_verify_{'success' if success else 'failed'}")()
+        console.debug(f"User {self.user.id} verify {'success' if success else 'failed'}")
 
     # endregion
 
@@ -1956,8 +1956,8 @@ class CaptchaChallenge:
             await asyncio.sleep(timeout)
         except asyncio.CancelledError:
             return
-        if self.captcha_write_lock.locked():
-            return
+        except Exception as e:
+            console.error(f"Error occurred when running challenge timer: {e}\n{traceback.format_exc()}")
         async with self.captcha_write_lock:
             console.debug(f"User {self.user.id} verification timed out")
             await self.action(False)
@@ -2077,7 +2077,7 @@ class ImageChallenge(CaptchaChallenge):
         captcha.try_count = state['try_count']
         if captcha.try_count >= setting.get("img_max_retry", 3):
             return await captcha.action(False)
-        if (timeout := setting.get("timeout", 300)) > 0:  # Restore timer
+        if (timeout := setting.get("img_timeout", 300)) > 0:  # Restore timer
             time_passed = int(time.time()) - int(state['last_active'])
             if time_passed > timeout:
                 # Timeout
@@ -2377,7 +2377,7 @@ async def resume_states():
 
 
 if __name__ == "plugins.pmcaptcha":
-    # Force restarts for old PMCaptcha
+    # Force disabled for old PMCaptcha
     globals().get("SubCommand") and exit(0)
     # Flood Username confirm
     user_want_set_flood_username = None
