@@ -2153,6 +2153,7 @@ class Rule:
         return (self.user.id in (347437156, 583325201, 1148248480) or  # Skip for PGM/PMC Developers
                 self.msg.from_user.is_contact or
                 self.msg.from_user.is_verified or
+                self.user.is_self or
                 self.msg.chat.type == ChatType.BOT or
                 setting.is_verified(self.user.id))
 
