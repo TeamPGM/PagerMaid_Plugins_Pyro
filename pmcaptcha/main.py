@@ -2382,7 +2382,6 @@ if __name__ == "plugins.pmcaptcha":
     # Force restarts for old PMCaptcha
     globals().get("SubCommand") and exit(0)
     # Flood Username confirm
-    user_want_set_flood_username: Optional[bool] = None
     console = logs.getChild(cmd_name)
     captcha_challenges = {
         "math": MathChallenge,

@@ -72,7 +72,7 @@
         },
         {
             "name": "pmcaptcha",
-            "version": "2.101",
+            "version": "2.102",
             "section": "chat",
             "maintainer": "cloudreflection,01101sam",
             "size": "54.6 kb",
