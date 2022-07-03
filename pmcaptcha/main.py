@@ -2414,14 +2414,14 @@ if __name__ == "plugins.pmcaptcha":
     if the_world_eye := gbl.get("the_world_eye"):
         _cancel_task(the_world_eye.watcher)
         del the_world_eye
-    gbl["the_world_eye"] = TheWorldEye()
+    the_world_eye = TheWorldEye()
     if the_order := gbl.get("the_order"):
         _cancel_task(the_order.task)
         del the_order
-    gbl["the_order"] = TheOrder()
+    the_order = TheOrder()
     if captcha_task := gbl.get("captcha_task"):
         _cancel_task(captcha_task.task)
         del captcha_task
-    gbl["captcha_task"] = TheOrder()
+    captcha_task = TheOrder()
     if not (resume_task := globals().get("resume_task")) or resume_task.done():
         resume_task = asyncio.create_task(resume_states())

@@ -72,10 +72,10 @@
         },
         {
             "name": "pmcaptcha",
-            "version": "2.108",
+            "version": "2.109",
             "section": "chat",
             "maintainer": "cloudreflection,01101sam",
-            "size": "54.6 kb",
+            "size": "1 mb",
             "supported": true,
             "des-short": "私聊人机验证插件",
             "des": "私聊人机验证，支持自定义关键词黑白名单，通过后欢迎语，验证超时时间，禁止陌生人私聊，对premium特殊操作"
