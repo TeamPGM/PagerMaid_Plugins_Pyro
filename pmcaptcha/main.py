@@ -11,7 +11,7 @@ import asyncio
 import inspect
 import traceback
 from dataclasses import dataclass, field
-from typing import Optional, Callable, Union, List, Any
+from typing import Optional, Callable, Union, List, Any, Dict
 
 from pyrogram.errors import FloodWait, AutoarchiveNotAvailable, ChannelsAdminPublicTooMuch
 from pyrogram.raw.functions.channels import UpdateUsername
@@ -21,7 +21,7 @@ from pyrogram.enums.chat_type import ChatType
 from pyrogram.enums.parse_mode import ParseMode
 from pyrogram.raw.functions import messages
 from pyrogram.raw.types.messages import PeerSettings
-from pyrogram.types import User
+from pyrogram.types import User, Sticker
 
 from pagermaid import bot, logs
 from pagermaid.config import Config
@@ -31,7 +31,6 @@ from pagermaid.listener import listener
 from pagermaid.single_utils import sqlite
 
 cmd_name = "pmcaptcha"
-version = "2.1"
 
 log_collect_bot = "CloudreflectionPmcaptchabot"
 img_captcha_bot = "PagerMaid_Sam_Bot"
@@ -127,9 +126,13 @@ def lang(lang_id: str, lang_code: str = Config.LANGUAGE or "en") -> str:
             "Command",
             "指令"
         ],
+        "vocab_rule": [
+            "Rule",
+            "规则"
+        ],
         # endregion
 
-        # region Verify
+        # region Captcha Challenge
         "verify_verified": [
             "Verified user",
             "已验证用户"
@@ -161,6 +164,11 @@ def lang(lang_id: str, lang_code: str = Config.LANGUAGE or "en") -> str:
         "verify_failed": [
             "Verification failed.",
             "验证失败"
+        ],
+        # Sticker
+        "verify_send_sticker": [
+            "Please send a sticker to me.",
+            "请发送一个贴纸给我"
         ],
         # endregion
 
@@ -514,6 +522,25 @@ def lang(lang_id: str, lang_code: str = Config.LANGUAGE or "en") -> str:
         ],
         # endregion
 
+        # region Custom Rule
+        "custom_rule_curr_rule": [
+            "Current custom rule",
+            "当前自定义规则"
+        ],
+        "custom_rule_set": [
+            f"Custom rule has been set to\n{code('%s')}.",
+            f"已设置自定义规则为\n{code('%s')}"
+        ],
+        "custom_rule_reset": [
+            "Custom rule has been deleted.",
+            "已删除自定义规则"
+        ],
+        "custom_rule_exec_err": [
+            "Error occurred when executing custom rule",
+            "执行自定义规则时发生错误"
+        ],
+        # endregion
+
         # region Collect Logs
         "collect_logs_curr_rule": [
             "Current collect logs status: %s",
@@ -553,6 +580,10 @@ def lang(lang_id: str, lang_code: str = Config.LANGUAGE or "en") -> str:
         "type_captcha_math": [
             "Math",
             "计算"
+        ],
+        "type_captcha_sticker": [
+            "Sticker",
+            "贴纸"
         ],
         # endregion
 
@@ -731,6 +762,9 @@ class Command:
         cmd_args = self.msg.parameter[1:args_len]
         func_args = []
         for index, arg_type in enumerate(tuple(full_arg_spec.annotations.values())):  # Check arg type
+            if args_len is None:
+                func_args = cmd_args
+                break
             try:
                 if getattr(arg_type, "__origin__", None) == Union:
                     NoneType = type(None)
@@ -1039,8 +1073,13 @@ class Command:
         return await self._set_list("blacklist", array)
 
     async def timeout(self, seconds: Optional[int], _type: Optional[str]):
-        """查看或设置超时时间，默认为 <code>30</code> 秒；图像模式为 <code>5</code> 分钟
+        """查看或设置超时时间，默认为 <code>30</code> 秒、图像模式为 <code>5</code> 分钟
         使用 <code>,{cmd_name} wait off</code> 可关闭验证时间限制
+
+        有关验证超时的默认选项：
+        - <code>math</code> | <code>30</code> 秒
+        - <code>img</code> | <code>5</code> 分钟
+        - <code>sticker</code> | <code>30</code> 秒
 
         在图像模式中，此超时时间会于用户最后活跃而重置，
         建议数值设置大一点让机器人有一个时间可以处理后端操作
@@ -1049,14 +1088,16 @@ class Command:
         :param opt _type: 验证类型，默认为当前类型
         :alias: wait
         """
-        if _type and _type not in ("math", "img"):
+        if _type and _type not in ("math", "img", "sticker"):
             return await self.help("wait")
         captcha_type: str = _type or setting.get("type", "math")
         key_name: str = {
+            "sticker": "sticker_timeout",
             "img": "img_timeout",
             "math": "timeout"
         }.get(captcha_type)
         default_timeout_time: int = {
+            "sticker": 30,
             "img": 300,
             "math": 30
         }.get(captcha_type)
@@ -1304,6 +1345,41 @@ class Command:
         action == "none" and setting.delete("flood_act") or setting.set("flood_act", action)
         await self.msg.edit(lang(f'flood_act_set_{action}'), parse_mode=ParseMode.HTML)
 
+    async def custom_rule(self, *rule: Optional[str]):
+        """用户自定义过滤规则，返回<code>True</code>为白名单，否则继续执行下面的规则
+        使用 <code>,{cmd_name} custom_rule -c</code> 可删除规则
+
+        注意事项：
+        - 返回<code>True</code>并不代表添加到白名单，只是停止继续执行规则
+        - 规则发送错误默认返回<code>False</code>（继续执行规则），并透过<code>log</code>输出错误信息
+
+        可用参数：
+        - <code>msg</code> | 触发验证的信息
+        - <code>text</code> | 触发验证的信息的文本，永远不为<code>None</code>
+        - <code>user</code> | 用户
+        - <code>me</code> | 机器人用户（自己）
+
+        范例：
+        <code>text == "BYPASS"</code>
+
+        解释：
+        当文字为“BYPASS”时，认为是白名单用户，不继续执行规则
+
+        :param rule: 规则
+        """
+        if not rule:
+            return await self._display_value(
+                key="custom_rule",
+                display_text=code(setting.get('custom_rule', lang('none'))),
+                sub_cmd="custom_rule",
+                value_type="vocab_rule")
+        rule = " ".join(rule)
+        if rule.startswith("-c"):
+            setting.delete("welcome")
+            return await self.msg.edit(lang('custom_rule_reset'), parse_mode=ParseMode.HTML)
+        setting.set("custom_rule", rule)
+        await self.msg.edit(lang('custom_rule_set') % rule, parse_mode=ParseMode.HTML)
+
     async def collect_logs(self, toggle: Optional[str]):
         """查看或设置是否允许 <code>PMCaptcha</code> 收集验证错误相关信息以帮助改进
         默认为 <code>Y</code>，收集的信息包括被验证者的信息以及未通过验证的信息记录
@@ -1324,6 +1400,7 @@ class Command:
         验证码类型如下：
         - <code>math</code> | 计算验证
         - <code>img</code> | 图像辨识验证
+        - <code>sticker</code> | 贴纸验证（发送贴纸即可）
 
         <b>注意：如果图像验证不能使用将回退到计算验证</b>
 
@@ -1335,7 +1412,7 @@ class Command:
                 display_text=lang('type_curr_rule') % lang(f'type_captcha_{setting.get("type", "math")}'),
                 sub_cmd="typ",
                 value_type="type_param_name")
-        if _type not in ("img", "math"):
+        if _type not in ("img", "math", "sticker"):
             return await self.help("typ")
         _type == "math" and setting.delete("type") or setting.set("type", _type)
         await self.msg.edit(lang('type_set') % lang(f'type_captcha_{_type}'), parse_mode=ParseMode.HTML)
@@ -2139,6 +2216,66 @@ class ImageChallenge(CaptchaChallenge):
             self.update_state({"try_count": self.try_count})
 
 
+class StickerChallenge(CaptchaChallenge):
+    def __init__(self, user: User, can_report: bool):
+        super().__init__("sticker", user, True, can_report)
+
+    @classmethod
+    async def resume(cls, *, user: User, msg: Optional[Message] = None, state: dict):
+        captcha = cls(user, state['report'])
+        captcha.captcha_start = state['start']
+        captcha.logs = state['logs']
+        captcha.challenge_msg_id = state['msg_id']
+        if (timeout := setting.get("timeout", 30)) > 0:
+            time_passed = int(time.time()) - int(state['start'])
+            if time_passed > timeout:
+                # Timeout
+                return await captcha.action(False)
+            if msg:  # Verify result
+                await captcha.verify(msg.text or msg.caption or "")
+            else:  # Restore timer
+                captcha.reset_timer(timeout - time_passed)
+        await super(StickerChallenge, captcha).resume(user=user, msg=msg, state=state)
+
+    async def start(self):
+        if self.captcha_write_lock.locked():
+            return
+        async with self.captcha_write_lock:
+            full_lang = self.user.language_code
+            timeout = setting.get("timeout", 30)
+            challenge_msg = None
+            for _ in range(3):
+                try:
+                    challenge_msg = await bot.send_message(self.user.id, "\n".join((
+                        lang('verify_challenge', full_lang),
+                        "",
+                        code(lang("verify_send_sticker", full_lang)),
+                        "\n" + lang('verify_challenge_timed', full_lang) % timeout if timeout > 0 else ""
+                    )), parse_mode=ParseMode.HTML)
+                    break
+                except FloodWait as e:
+                    console.debug(f"Sticker captcha triggered flood for {e.value} second(s)")
+                    await asyncio.sleep(e.value)
+                except Exception as e:
+                    console.error(f"Failed to send challenge message to {self.user.id}: {e}\n{traceback.format_exc()}")
+                    await asyncio.sleep(10)
+            if not challenge_msg:
+                return await log(f"Failed to send sticker captcha challenge to {self.user.id}")
+            self.challenge_msg_id = challenge_msg.id
+            self.save_state()
+            self.reset_timer(timeout)
+            await super(StickerChallenge, self).start()
+
+    async def verify(self, response: Optional[Sticker]):
+        if self.captcha_write_lock.locked():
+            return
+        async with self.captcha_write_lock:
+            if not response:
+                return await the_order.active(self.user.id, "verify_failed")
+        await self.action(bool(response))
+        return bool(response)
+
+
 # endregion
 
 @dataclass
@@ -2198,6 +2335,19 @@ class Rule:
         initiative = setting.get("initiative", False)
         initiative and setting.whitelist.add_id(self.user.id)
         return initiative
+
+    async def user_defined(self) -> bool:
+        if custom_rule := setting.get("custom_rule"):
+            pass
+            try:
+                exec("\n".join((
+                    "async def _(msg, text, user, me):",
+                    " " * 4 + f"return {custom_rule}"
+                )))
+                return bool(await locals()["_"](self.msg, self._get_text(), self.user, bot.me))
+            except Exception as e:
+                await log(f"{lang('custom_rule_exec_err')}: {e}\n{traceback.format_exc()}")
+        return False
 
     async def flooding(self) -> bool:
         """name: flood"""
@@ -2285,10 +2435,20 @@ class Rule:
     async def verify_challenge_answer(self) -> bool:
         """no_priority"""
         user_id = self.user.id
-        if (captcha := curr_captcha.get(user_id)) and captcha.input:
+        if (captcha := curr_captcha.get(user_id)) and captcha.input and captcha.type == "math":
             text = self._get_text()
             captcha.log_msg(text)
             await captcha.verify(text) and await self.msg.safe_delete()
+            del curr_captcha[user_id]
+            return True
+        return False
+
+    async def verify_sticker_response(self) -> bool:
+        """no_priority"""
+        user_id = self.user.id
+        if (captcha := curr_captcha.get(user_id)) and captcha.input and captcha.type == "sticker":
+            captcha.log_msg(self._get_text())
+            await captcha.verify(self.msg.sticker) and await self.msg.safe_delete()
             del curr_captcha[user_id]
             return True
         return False
@@ -2385,7 +2545,8 @@ if __name__ == "plugins.pmcaptcha":
     console = logs.getChild(cmd_name)
     captcha_challenges = {
         "math": MathChallenge,
-        "img": ImageChallenge
+        "img": ImageChallenge,
+        "sticker": StickerChallenge
     }
 
 
@@ -2401,7 +2562,7 @@ if __name__ == "plugins.pmcaptcha":
         if k in gbl:
             del gbl[k]
         gbl[k] = v
-    curr_captcha = globals().get("curr_captcha", {})
+    curr_captcha: Dict[int, Union[MathChallenge, ImageChallenge, StickerChallenge]] = globals().get("curr_captcha", {})
     if setting := globals().get("setting"):
         del setting
     # noinspection PyRedeclaration
@@ -2414,14 +2575,17 @@ if __name__ == "plugins.pmcaptcha":
     if the_world_eye := gbl.get("the_world_eye"):
         _cancel_task(the_world_eye.watcher)
         del the_world_eye
+    # noinspection PyRedeclaration
     the_world_eye = TheWorldEye()
     if the_order := gbl.get("the_order"):
         _cancel_task(the_order.task)
         del the_order
+    # noinspection PyRedeclaration
     the_order = TheOrder()
     if captcha_task := gbl.get("captcha_task"):
         _cancel_task(captcha_task.task)
         del captcha_task
-    captcha_task = TheOrder()
-    if not (resume_task := globals().get("resume_task")) or resume_task.done():
+    # noinspection PyRedeclaration
+    captcha_task = CaptchaTask()
+    if not (resume_task := gbl.get("resume_task")) or resume_task.done():
         resume_task = asyncio.create_task(resume_states())
