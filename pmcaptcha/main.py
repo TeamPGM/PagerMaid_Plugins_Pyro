@@ -813,13 +813,11 @@ class Command:
         if not user_id and not self.msg.reply_to_message_id and self.msg.chat.type != ChatType.PRIVATE:
             await self.msg.edit(lang('tip_run_in_pm'), parse_mode=ParseMode.HTML)
             return
-        elif user_id == bot.me.id:
-            return
         user = None
         user_id = user_id or self.msg.reply_to_message_id or (
                 self.msg.chat.type == ChatType.PRIVATE and self.msg.chat.id or 0)
         if not user_id or not (user := await bot.get_users(user_id)) or (
-                user.is_bot or user.is_verified or user.is_deleted or user.is_self):
+                user.is_bot or user.is_verified or user.is_deleted):
             return
         return user.id
 
@@ -876,6 +874,10 @@ class Command:
         :param opt search_str: 搜索的文字，只有 command 为 search 时有效
         :alias: h
         """
+        if not setting.is_verified(self.user.id) and self.msg.chat.type not in (ChatType.PRIVATE, ChatType.BOT):
+            await self.msg.edit_text(lang('tip_run_in_pm'), parse_mode=ParseMode.HTML)
+            await asyncio.sleep(5)
+            return await self.msg.safe_delete()
         help_msg = [f"{code('PMCaptcha')} {lang('cmd_list')}:", ""]
         footer = [
             italic(lang('cmd_detail')),
@@ -934,11 +936,6 @@ class Command:
             help_msg.append(
                 (code(f",{cmd_name} {self._get_cmd_with_param(name)}".strip())
                  + f"\n· {re.search(r'(.+)', func.__doc__ or '')[1].strip()}\n"))
-
-        if not setting.is_verified(self.user.id) and self.msg.chat.type not in (ChatType.PRIVATE, ChatType.BOT):
-            await self.msg.edit_text(lang('tip_run_in_pm'), parse_mode=ParseMode.HTML)
-            await asyncio.sleep(5)
-            return await self.msg.safe_delete()
         await self.msg.edit_text("\n".join(help_msg + footer), parse_mode=ParseMode.HTML, disable_web_page_preview=True)
 
     # region Checking User / Manual update
