@@ -486,6 +486,10 @@ def lang(lang_id: str, lang_code: str = Config.LANGUAGE) -> str:
              f"Please enter {code(f',{cmd_name} flood_username y')} again to confirm."),
             f"此功能有可能回导致您的用户名丢失，您是否确定要开启此功能？\n请再次输入 {code(f',{cmd_name} flood_username y')} 来确认"
         ],
+        "flood_username_set": [
+            f"Change username in flood preiod has been %s.",
+            f"轰炸时切换用户名已%s"
+        ],
         "flood_channel_desc": [
             ("This channel is a placeholder of username, which the owner is being flooded.\n"
              "Please content him later after this channel is gone."),
@@ -496,13 +500,9 @@ def lang(lang_id: str, lang_code: str = Config.LANGUAGE) -> str:
             "Current flood action was set to %s",
             "当前轰炸操作已设置为 %s"
         ],
-        "flood_act_set_ban": [
-            f"All users in flood period will be {bold('blocked')}.",
-            f"所有在轰炸期间的用户将会被{bold('封禁')}"
-        ],
-        "flood_act_set_delete": [
-            f"All users in flood period will be {bold('blocked and deleted')}.",
-            f"所有在轰炸期间的用户将会被{bold('封禁并删除对话')}"
+        "flood_act_set_asia": [
+            f"All users in flood period will be {bold('treat as verify failed')}.",
+            f"所有在轰炸期间的用户将会{bold('与验证失败的处理方式一致')}"
         ],
         "flood_act_set_captcha": [
             f"All users in flood period will be {bold('asked for captcha')}.",
@@ -795,8 +795,7 @@ class Command:
     # region Helpers (Formatting, User ID)
 
     async def _display_value(self, *, key: Optional[str] = None, display_text: str, sub_cmd: str, value_type: str):
-        text = [display_text, "",
-                lang('tip_edit') % html.escape(f",{cmd_name} {sub_cmd} <{lang(value_type)}>")]
+        text = [display_text, "", lang('tip_edit') % html.escape(f",{cmd_name} {sub_cmd} <{lang(value_type)}>")]
         key and text.insert(0, lang(f"{key}_curr_rule") + ":")
         return await self.msg.edit_text("\n".join(text), parse_mode=ParseMode.HTML)
 
@@ -1296,8 +1295,7 @@ class Command:
         """
         if not action:
             return await self._display_value(
-                display_text=lang('flood_act_curr_rule') % lang(
-                    setting.get('flood_act', 'none')),
+                display_text=lang('flood_act_curr_rule') % lang(f"flood_act_set_{setting.get('flood_act', 'none')}"),
                 sub_cmd="flood_act",
                 value_type="vocab_str")
         if action not in ("asis", "captcha", "none"):
