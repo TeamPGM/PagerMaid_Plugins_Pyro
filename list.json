@@ -249,6 +249,16 @@
             "supported": true,
             "des-short": "网易云音乐",
             "des": "网易云音乐。\n指令：,netease"
+        },
+        {
+            "name": "today_in_history",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "2.61 kb",
+            "supported": true,
+            "des-short": "历史上的今天",
+            "des": "历史上的今天。\n指令：,today_in_history"
         }
     ]
 }
