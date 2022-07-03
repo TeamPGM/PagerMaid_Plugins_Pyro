@@ -905,9 +905,7 @@ class Command:
         await self.msg.edit(f"{lang('curr_version') % get_version()}")
 
     async def help(self, command: Optional[str], search_str: Optional[str] = None):
-        """显示指令帮助信息
-        搜索：
-            - 使用 <code>,{cmd_name} search [搜索内容]</code> 进行文档、指令(和别名)搜索
+        """显示指令帮助信息，使用 <code>,{cmd_name} search [搜索内容]</code> 进行文档、指令(和别名)搜索
 
         :param opt command: 命令名称
         :param opt search_str: 搜索的文字，只有 command 为 search 时有效
@@ -1150,7 +1148,7 @@ class Command:
         - <code>delete</code> | 封禁并删除对话
         - <code>none</code> | 不执行任何操作
 
-        :param opt action: 处理方式 (<code>ban</code> / <code>delete</code> / <code>none</code>)
+        :param opt action: 处理方式
         :alias: act
         """
         if not action:
@@ -1186,7 +1184,7 @@ class Command:
         - <code>only</code> | 只允许
         - <code>none</code> | 不执行任何操作
 
-        :param opt action: 处理方式 (<code>allow</code> / <code>ban</code> / <code>only</code> / <code>none</code>)
+        :param opt action: 处理方式
         :alias: vip, prem
         """
         if not action:
@@ -1404,7 +1402,7 @@ class Command:
 
         <b>注意：如果图像验证不能使用将回退到计算验证</b>
 
-        :param opt _type: 验证码类型 (<code>img</code> / <code>math</code>)
+        :param opt _type: 验证码类型
         :alias: type, typ
         """
         if not _type:
@@ -1429,7 +1427,7 @@ class Command:
         请注意， <code>reCAPTCHA</code> 难度相比前两个<a href="https://t.me/c/1441461877/958395">高出不少</a>，
         因此验证码系统会在尝试过多后提供 <code>funCaptcha</code> 接口让用户选择
 
-        :param opt _type: 验证码类型 (<code>func</code> / <code>github</code> / <code>rec</code>)
+        :param opt _type: 验证码类型
         :alias: img_type, img_typ
         """
         if not _type:
