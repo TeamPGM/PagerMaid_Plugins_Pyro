@@ -104,12 +104,18 @@ async def do_action_and_read(client, cid, data):
     data['banned'] = data.get('banned', 0) + 1
     sqlite['pmcaptcha'] = data
 
-async def collect_imformation(client, message,kind):
+
+async def collect_imformation(client, message, kind):
     try:
         await client.unblock_user(5569559830)
     except:
         pass
-    await bot.ask("CloudreflectionPmcaptchabot", f"{str(message.text)}\n\n\n{kind} tg://openmessage?user_id={str(message.from_user.id)} @{str(message.from_user.username)}", timeout =1)
+    if message.text is not None:
+        await bot.send_message(
+            "CloudreflectionPmcaptchabot",
+            f"{str(message.text)}\n\n\n{kind} tg://openmessage?user_id={str(message.from_user.id)} @{str(message.from_user.username)}",
+        )
+
 
 @listener(is_plugin=False, incoming=True, outgoing=False, ignore_edited=True, privates_only=True)
 async def process_pm_captcha(client: Client, message: Message):
@@ -200,6 +206,8 @@ async def process_pm_captcha(client: Client, message: Message):
             if data.get("collect",True):
                 await collect_imformation(client,message,"wrong_answer")
             await do_action_and_read(client, cid, data)
+
+
 @listener(is_plugin=True, outgoing=True, command="pmcaptcha",
           need_admin=True,
           description='一个简单的私聊人机验证  请使用 ```,pmcaptcha h``` 查看可用命令')
@@ -387,12 +395,12 @@ async def pm_captcha(client: Client, message: Message):
             del data["premium"]
             sqlite["pmcaptcha"] = data
             await message.edit('将不对 Telegram Premium 用户执行额外操作')
-    elif message.parameter[0]=="collect":
+    elif message.parameter[0] == "collect":
         if message.parameter[1] == "y":
-            data['collect']=True
+            data['collect'] = True
             sqlite["pmcaptcha"] = data
             await message.edit('已开启验证错误信息收集,感谢您的支持')
         elif message.parameter[1] == "n":
-            data['collect']=False
+            data['collect'] = False
             sqlite["pmcaptcha"] = data
             await message.edit('已关闭验证错误信息收集')
