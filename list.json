@@ -262,10 +262,10 @@
         },
         {
             "name": "sticker_transfer",
-            "version": "1.0",
+            "version": "1.01",
             "section": "chat",
             "maintainer": "xtaodada",
-            "size": "3.24 kb",
+            "size": "3.5 kb",
             "supported": true,
             "des-short": "贴纸迁移",
             "des": "贴纸迁移。\n指令：,sticker_transfer"
