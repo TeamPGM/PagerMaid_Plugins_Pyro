@@ -72,10 +72,10 @@
         },
         {
             "name": "pmcaptcha",
-            "version": "2.12",
+            "version": "1.2",
             "section": "chat",
             "maintainer": "cloudreflection,01101sam",
-            "size": "1 mb",
+            "size": "20 kb",
             "supported": true,
             "des-short": "私聊人机验证插件",
             "des": "私聊人机验证，支持自定义关键词黑白名单，通过后欢迎语，验证超时时间，禁止陌生人私聊，对premium特殊操作"
@@ -259,6 +259,16 @@
             "supported": true,
             "des-short": "历史上的今天",
             "des": "历史上的今天。\n指令：,today_in_history"
+        },
+        {
+            "name": "sticker_transfer",
+            "version": "1.1",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "4.9 kb",
+            "supported": true,
+            "des-short": "贴纸迁移",
+            "des": "贴纸迁移。\n指令：,sticker_transfer"
         }
     ]
 }
