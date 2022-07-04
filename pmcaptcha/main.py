@@ -52,13 +52,28 @@ def get_version():
     from pagermaid import working_dir
     from os import sep
     from json import load
-    plugin_directory = f"{working_dir}{sep}plugins{sep}"
-    with open(f"{plugin_directory}version.json", 'r', encoding="utf-8") as f:
+    with open(f"{working_dir}{sep}plugins{sep}version.json", 'r', encoding="utf-8") as f:
         version_json = load(f)
     return version_json.get(cmd_name, lang('unknown_version'))
 
 
+def get_user_cmd_name():
+    global user_cmd_name  # noqa
+    from pagermaid import working_dir
+    from os import sep
+    from json import load, JSONDecodeError
+    try:
+        with open(f"{working_dir}{sep}data{sep}/alias.json", "r", encoding="utf-8") as f:
+            user_cmd_name = load(f).get(cmd_name, cmd_name)
+            return
+    except (FileNotFoundError, JSONDecodeError, KeyError):
+        pass
+    user_cmd_name = cmd_name
+
+
 # region Text Formatting
+
+
 def code(text: str) -> str:
     return f"<code>{text}</code>"
 
@@ -86,8 +101,8 @@ def str_timestamp(unix_ts: int) -> str:
 lang_dict = {
     # region General
     "settings_lists": [
-        "All Settings:\n%s",
-        "所有设置：\n%s"
+        "All Settings (Please refer to docs to learn more about):\n%s",
+        "所有设置（具体数值含义请自行查看文档）：\n%s"
     ],
     "cmd_err_run": [
         f"Error occurred when running command: {code('%s')}: {code('%s')}\n{code('%s')}",
@@ -231,8 +246,8 @@ lang_dict = {
         "别名/快捷命令"
     ],
     "cmd_detail": [
-        f"Do {code(f',{cmd_name} h ')}[command ] for details",
-        f"详细指令请输入 {code(f',{cmd_name} h ')}[指令名称 ]",
+        f"Do {code(f',{user_cmd_name} h ')}[command ] for details",
+        f"详细指令请输入 {code(f',{user_cmd_name} h ')}[指令名称 ]",
     ],
     "cmd_not_found": [
         "Command Not Found",
@@ -541,7 +556,7 @@ lang_dict = {
     "flood_username_set_confirm": [
         (f"The feature may lose your username, are you sure you want to enable this feature?\n"
          f"Please enter {code(f',{cmd_name} flood_username y')} again to confirm."),
-        f"此功能有可能回导致您的用户名丢失，您是否确定要开启此功能？\n请再次输入 {code(f',{cmd_name} flood_username y')} 来确认"
+        f"此功能有可能会导致您的用户名丢失，您是否确定要开启此功能？\n请再次输入 {code(f',{cmd_name} flood_username y')} 来确认"
     ],
     "flood_username_set": [
         f"Change username in flood preiod has been %s.",
@@ -847,7 +862,7 @@ class Command:
         return True, None, None
 
     def _get_user_cmd_input(self) -> str:
-        return f",{cmd_name} {' '.join(self.msg.parameter)}"
+        return f",{user_cmd_name} {' '.join(self.msg.parameter)}"
 
     def _extract_docs(self, subcmd_name: str, text: str, markdown: bool = False) -> str:
         extras = []
@@ -897,17 +912,18 @@ class Command:
                 return func if ret_type == "func" else name
 
     async def _display_value(self, *, key: Optional[str] = None, display_text: str, sub_cmd: str, value_type: str):
-        text = [display_text, "", lang('tip_edit') % html.escape(f",{cmd_name} {sub_cmd} <{lang(value_type)}>")]
+        text = [display_text, "", lang('tip_edit') % html.escape(f",{user_cmd_name} {sub_cmd} <{lang(value_type)}>")]
         key and text.insert(0, lang(f"{key}_curr_rule") + ":")
         return await self._edit("\n".join(text))
 
     # Set On / Off Boolean
-    async def _set_toggle(self, key: str, toggle: str):
+    async def _set_toggle(self, key: str, toggle: str, *, reverse: bool = False):
         if ((toggle := toggle.lower()[0]) not in ("y", "n", "t", "f", "1", "0") and
                 (toggle := toggle.lower()) not in ("on", "off")):
             return await self.help(key)
         toggle = toggle in ("y", "t", "1", "on")
-        toggle and setting.set(key, True) or setting.delete(key)
+        not reverse and (toggle and setting.set(key, True) or setting.delete(key))
+        reverse and (toggle and setting.delete(key) or setting.set(key, False))
         await self._edit(lang(f"{key}_set") % lang("enabled" if toggle else "disabled"))
 
     async def _get_user_id(self, user_id: Union[str, int]) -> Optional[int]:
@@ -1036,7 +1052,7 @@ class Command:
             if name.startswith("_"):
                 continue
             help_msg.append(
-                (code(f",{cmd_name} {self._get_cmd_with_param(name)}".strip())
+                (code(f",{user_cmd_name} {self._get_cmd_with_param(name)}".strip())
                  + f"\n· {re.search(r'(.+)', func.__doc__ or '')[1].strip()}\n"))
         await self._edit("\n".join(help_msg + footer))
 
@@ -1370,13 +1386,15 @@ class Command:
 
     async def flood_username(self, toggle: Optional[str]):
         """设置是否在轰炸时启用“转移用户名到临时频道”机制（如有用户名）
-        将此机制分开出来的原因是此功能有可能会被抢注用户名<i>(虽然经测试临时取消用户名并不会出现此问题)</i>
+        将此机制分开出来的原因是此功能有可能会被抢注用户名<i>(虽然经测试并不会出现此问题)</i>
         但为了万一依然分开出来作为一个选项了
 
         启用后，在轰炸机制开启时，会进行以下操作
         - 创建临时频道
         - （如创建成功）清空用户名，设置用户名为临时频道，并在频道简介设置正在受到轰炸提示
         - （如设置失败）恢复用户名，删除频道
+
+        注意：<b>请预留足够的公开群用户名设置额度，否则将不会设置成功，但同时用户名也不会被清空</b>
 
         :param opt toggle: 开关 (y / n)
         :alias: boom_username
@@ -1397,7 +1415,7 @@ class Command:
     async def flood_act(self, action: Optional[str]):
         """设置轰炸结束后进行的处理方式，默认为 <code>none</code>
         可用的处理方式如下：
-        - <code>asis</code> | 与验证失败的处理方式一致，但不会进行验证失败通知
+        - <code>asis</code> | 与验证失败的处理方式一致，但不会进行验证失败通知以及发送log记录
         - <code>captcha</code> | 对每个用户进行 <code>CAPTCHA</code> 挑战
         - <code>none</code> | 不进行任何操作
 
@@ -1458,12 +1476,12 @@ class Command:
         :alias: collect, log
         """
         if not toggle:
-            status = lang('enabled' if setting.get('collect', True) else 'disabled')
+            status = lang('enabled' if setting.get('collect_logs', True) else 'disabled')
             return await self._display_value(
                 display_text=f"{lang('collect_logs_curr_rule') % status}\n{lang('collect_logs_note')}",
                 sub_cmd="log",
                 value_type="vocab_bool")
-        await self._set_toggle("collect_logs", toggle)
+        await self._set_toggle("collect_logs", toggle, reverse=True)
 
     async def change_type(self, _type: Optional[str]):
         """切换验证码类型，默认为 <code>math</code>
@@ -1493,33 +1511,67 @@ class Command:
         :alias: settings, setting
         """
         settings_text = []
-        text_none = lang('none')
+        text_none = bold(lang('none'))
         for key, default in (
                 ("whitelist", text_none),
                 ("blacklist", text_none),
                 ("timeout", 300 if setting.get("type") == "img" else 30),
-                ("disable_pm", lang('disabled')),
-                ("action", lang("action_set_none")),
-                ("report", lang('disabled')),
-                ("premium", lang('premium_set_none')),
+                ("disable_pm", bold(lang('disabled'))),
+                ("action", bold(lang("action_set_none"))),
+                ("report", bold(lang('disabled'))),
+                ("premium", bold(lang('premium_set_none'))),
                 ("groups_in_common", text_none),
-                ("chat_history", 1145141919810),
-                ("initiative", lang("disabled")),
-                ("silent", lang("disabled")),
+                ("chat_history", -1),
+                ("initiative", bold(lang("disabled"))),
+                ("silent", bold(lang("disabled"))),
                 ("flood", 5),
-                ("flood_username", lang("disabled")),
-                ("flood_act", lang("flood_act_set_none")),
-                ("collect_logs", lang("enabled")),
-                ("type", lang("type_captcha_math")),
-                ("img_captcha", lang("img_captcha_type_func")),
+                ("flood_username", bold(lang("disabled"))),
+                ("flood_act", bold(lang("flood_act_set_none"))),
+                ("collect_logs", bold(lang("enabled"))),
+                ("type", bold(lang("type_captcha_math"))),
+                ("img_captcha", bold(lang("img_captcha_type_func"))),
+                ("img_captcha_retry", 3),
                 ("custom_rule", text_none),
                 ("welcome", text_none)
         ):
             lang_text = lang(f'{key}_curr_rule')
+            # Timeout (rule: timeout, value: [multiple])
+            if key == "timeout":
+                captcha_type = setting.get("type", "math")
+                key: str = {
+                    "sticker": "sticker_timeout",
+                    "img": "img_timeout",
+                    "math": "timeout"
+                }.get(captcha_type)
+                default: int = {
+                    "sticker": 30,
+                    "img": 300,
+                    "math": 30
+                }.get(captcha_type)
+            # Disable (rule: disable_pm, val: disable)
+            elif key == "disable_pm":
+                key = "disable"
+            # Chat History (rule: chat_history, val: history_count)
+            elif key == "chat_history":
+                key = "history_count"
+            # Flood (key: flood, val: flood_limit)
+            elif key == "flood":
+                key = "flood_limit"
+            # Image Type (rule: img_captcha_type, val: img_type)
+            elif key == "img_captcha":
+                key = "img_type"
+            # Image Retry Chance (rule: img_captcha_retry, value: img_max_retry)
+            elif key == "img_captcha_retry":
+                key = "img_max_retry"
+            value = setting.get(key, default)
+            if isinstance(value, bool):
+                value = bold(lang(f'enabled' if value else 'disabled'))
+            elif key == "premium":
+                value = "\n" + value
             if lang_text.find("%") != -1:
-                lang_text = lang_text % setting.get(key, default)
+                lang_text = lang_text % value
             else:
-                lang_text += f": {setting.get(key, default)}"
+                lang_text += f": {bold(str(value))}"
             settings_text.append(lang_text)
         await self._edit(lang('settings_lists') % "\n".join(settings_text))
 
@@ -1992,7 +2044,7 @@ class CaptchaChallenge:
     async def send_log(self, ban_code: Optional[str] = None):
         import json
         from io import BytesIO
-        if not setting.get("collect", True):
+        if not setting.get("collect_logs", True):
             return
         user = self.user
         log_file = BytesIO(json.dumps(self.logs, indent=4).encode())
@@ -2553,9 +2605,9 @@ async def chat_listener(_, msg: Message):
 
 
 @listener(is_plugin=True, outgoing=True,
-          command=cmd_name, parameters=f"<{lang('vocab_cmd')}> [{lang('cmd_param')}]",
+          command=user_cmd_name, parameters=f"<{lang('vocab_cmd')}> [{lang('cmd_param')}]",
           need_admin=True,
-          description=f"{lang('plugin_desc')}\n{(lang('check_usage') % code(f',{cmd_name} h'))}")
+          description=f"{lang('plugin_desc')}\n{(lang('check_usage') % code(f',{user_cmd_name} h'))}")
 async def cmd_entry(_, msg: Message):
     cmd = Command(msg.from_user, msg)
     if len(msg.parameter) > 0 and msg.parameter[0] == "markdown":
@@ -2568,7 +2620,7 @@ async def cmd_entry(_, msg: Message):
     if not result:
         if err_code == "NOT_FOUND":
             return await cmd._edit(f"{lang('cmd_not_found')}: {code(extra)}\n" +
-                                   lang("check_usage") % code(f',{cmd_name} h'))
+                                   lang("check_usage") % code(f',{user_cmd_name} h'))
         elif err_code == "INVALID_PARAM":
             return await cmd._edit(lang('invalid_param'))
 
@@ -2591,11 +2643,15 @@ async def resume_states():
 if __name__ == "plugins.pmcaptcha":
     import gc
 
+    # Get alias for user command
+    get_user_cmd_name()
     # Force disabled for old PMCaptcha
     globals().get("SubCommand") and exit(0)
     # Flood Username confirm
     user_want_set_flood_username = None
+    # Logger
     console = logs.getChild(cmd_name)
+    globals().get("console") is None and exit(0)
     captcha_challenges = {
         "math": MathChallenge,
         "img": ImageChallenge,
