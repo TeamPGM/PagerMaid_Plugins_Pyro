@@ -20,7 +20,7 @@ async def portball(_, message: Message):
             from_user = reply_to_message.from_user
             chat = reply_to_message.chat
             if from_user.id == bot.me.id:
-                await message.edit('无法禁言自己。')
+                await message.edit_text('无法禁言自己。')
                 return
             seconds: int = -1
             reason: str = ""
