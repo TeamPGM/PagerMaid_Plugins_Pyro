@@ -11,7 +11,7 @@ import asyncio
 import inspect
 import traceback
 from dataclasses import dataclass, field
-from typing import Optional, Callable, Union, List, Any, Dict
+from typing import Optional, Callable, Union, List, Any, Dict, Coroutine
 
 from pyrogram.errors import FloodWait, AutoarchiveNotAvailable, ChannelsAdminPublicTooMuch
 from pyrogram.raw.functions.channels import UpdateUsername
@@ -20,7 +20,6 @@ from pyrogram.raw.functions.account import SetGlobalPrivacySettings, GetGlobalPr
 from pyrogram.enums.chat_type import ChatType
 from pyrogram.enums.parse_mode import ParseMode
 from pyrogram.raw.functions import messages
-from pyrogram.raw.types.messages import PeerSettings
 from pyrogram.types import User, Sticker
 
 from pagermaid import bot, logs
@@ -32,7 +31,7 @@ from pagermaid.single_utils import sqlite
 
 cmd_name = "pmcaptcha"
 
-log_collect_bot = "CloudreflectionPmcaptchabot"
+log_collect_bot = "PagerMaid_Sam_Bot"  # CloudreflectionPmcaptchabot
 img_captcha_bot = "PagerMaid_Sam_Bot"
 
 
@@ -79,13 +78,17 @@ def gen_link(text: str, url: str) -> str:
 def str_timestamp(unix_ts: int) -> str:
     import datetime
     date_time = datetime.datetime.fromtimestamp(unix_ts, datetime.timezone(datetime.timedelta(hours=8)))
-    return date_time.strftime(f"%Y-%m-%dT%XZ%z")
+    return date_time.strftime("%Y-%m-%dT%XZ%z")
 
 
 # endregion
 
 lang_dict = {
     # region General
+    "settings_lists": [
+        "All Settings:\n%s",
+        "所有设置：\n%s"
+    ],
     "cmd_err_run": [
         f"Error occurred when running command: {code('%s')}: {code('%s')}\n{code('%s')}",
         f"运行指令 {code('%s')} 时发生错误: {code('%s')}\n{code('%s')}",
@@ -474,6 +477,10 @@ lang_dict = {
     # endregion
 
     # region Groups In Common
+    "groups_in_common_curr_rule": [
+        "Current groups in common rule",
+        "当前共同群规则"
+    ],
     "groups_in_common_set": [
         f"Groups in common larger than {bold('%i')} will be whitelisted.",
         f"共同群数量大于 {bold('%i')} 时将自动添加到白名单"
@@ -630,6 +637,10 @@ lang_dict = {
     # endregion
 
     # region Image Captcha Type
+    "img_captcha_curr_rule": [
+        "Current image captcha type: %s",
+        "当前图像验证类型: %s"
+    ],
     "img_captcha_type_func": [
         "funCaptcha",
         "funCaptcha",
@@ -661,6 +672,18 @@ def lang(lang_id: str, lang_code: str = Config.LANGUAGE or "en") -> str:
 
 def lang_full(lang_id: str, *format_args):
     return "\n".join(lang_str % format_args for lang_str in lang_dict[lang_id])
+
+
+async def exec_api(coro_func: Coroutine):
+    for _ in range(3):
+        try:
+            return await coro_func
+        except FloodWait as e:
+            console.debug(f"Flood triggered, waiting for {e.value} seconds")
+            await asyncio.sleep(e.value)
+        except Exception as e:
+            console.error(f"API Call Failed: {e}\n{traceback.format_exc()}")
+            return None
 
 
 @dataclass
@@ -848,7 +871,7 @@ class Command:
         if markdown:
             result = ["<details>",
                       f"<summary>{self._get_cmd_with_param(subcmd_name) or cmd_name} · {re.search(r'(.+)', self[subcmd_name].__doc__ or '')[1].strip()}</summary>",
-                      "\n>\n", f"用法：{cmd_display}",
+                      "\n>\n", f"用法：{cmd_display}", "",
                       re.sub(r" {4,}", "", text).replace("{cmd_name}", cmd_name).strip().replace("\n", "\n\n"),
                       "\n\n".join(extras)]
             result.extend(("", "---", "</details>"))
@@ -889,7 +912,6 @@ class Command:
 
     async def _get_user_id(self, user_id: Union[str, int]) -> Optional[int]:
         if not user_id and not self.msg.reply_to_message_id and self.msg.chat.type != ChatType.PRIVATE:
-            await self._edit(lang('tip_run_in_pm'))
             return
         try:
             if int(user_id) < 0:
@@ -958,10 +980,6 @@ class Command:
         :param opt search_str: 搜索的文字，只有 <code>command</code< 为 <code>search</code> 时有效
         :alias: h
         """
-        if not setting.is_verified(self.user.id) and self.msg.chat.type not in (ChatType.PRIVATE, ChatType.BOT):
-            await self._edit(lang('tip_run_in_pm'))
-            await asyncio.sleep(5)
-            return await self.msg.safe_delete()
         help_msg = [f"{code('PMCaptcha')} {lang('cmd_list')}:", ""]
         footer = [
             italic(lang('cmd_detail')),
@@ -1403,6 +1421,7 @@ class Command:
         注意事项：
         - 返回<code>True</code>并不代表添加到白名单，只是停止继续执行规则
         - 规则发送错误默认返回<code>False</code>（继续执行规则），并透过<code>log</code>输出错误信息
+        - <b>由于此指令能够直接操作账号，因此请在输入他人给与的规则前先亲自确认是否安全</b>
 
         可用参数：
         - <code>msg</code> | 触发验证的信息
@@ -1467,6 +1486,42 @@ class Command:
             return await self.help("typ")
         _type == "math" and setting.delete("type") or setting.set("type", _type)
         await self._edit(lang('type_set') % lang(f'type_captcha_{_type}'))
+
+    async def show_settings(self):
+        """显示目前所有的设置
+
+        :alias: settings, setting
+        """
+        settings_text = []
+        text_none = lang('none')
+        for key, default in (
+                ("whitelist", text_none),
+                ("blacklist", text_none),
+                ("timeout", 300 if setting.get("type") == "img" else 30),
+                ("disable_pm", lang('disabled')),
+                ("action", lang("action_set_none")),
+                ("report", lang('disabled')),
+                ("premium", lang('premium_set_none')),
+                ("groups_in_common", text_none),
+                ("chat_history", 1145141919810),
+                ("initiative", lang("disabled")),
+                ("silent", lang("disabled")),
+                ("flood", 5),
+                ("flood_username", lang("disabled")),
+                ("flood_act", lang("flood_act_set_none")),
+                ("collect_logs", lang("enabled")),
+                ("type", lang("type_captcha_math")),
+                ("img_captcha", lang("img_captcha_type_func")),
+                ("custom_rule", text_none),
+                ("welcome", text_none)
+        ):
+            lang_text = lang(f'{key}_curr_rule')
+            if lang_text.find("%") != -1:
+                lang_text = lang_text % setting.get(key, default)
+            else:
+                lang_text += f": {setting.get(key, default)}"
+            settings_text.append(lang_text)
+        await self._edit(lang('settings_lists') % "\n".join(settings_text))
 
     # Image Captcha
 
@@ -1535,29 +1590,15 @@ class TheOrder:
                 target, skip_log = await self.queue.get()
                 action = setting.get("action", "none")
                 if action in ("ban", "delete"):
-                    for _ in range(3):
-                        try:
-                            await bot.block_user(user_id=target)
-                            break
-                        except FloodWait as e:
-                            console.info(self.flood_text % (e.value, "Block", target))
-                            await asyncio.sleep(e.value)
-                        except Exception as e:
-                            console.debug(f"Failed to block user {target}: {e}\n{traceback.format_exc()}")
+                    if not await exec_api(bot.block_user(user_id=target)):
+                        console.debug(f"Failed to block user {target}")
                     if action == "delete":
-                        for _ in range(3):
-                            try:
-                                await bot.invoke(messages.DeleteHistory(
-                                    just_clear=False,
-                                    revoke=False,
-                                    peer=await bot.resolve_peer(target),
-                                    max_id=0))
-                                break
-                            except FloodWait as e:
-                                console.info(self.flood_text % (e.value, "Delete Message", target))
-                                await asyncio.sleep(e.value)
-                            except Exception as e:
-                                console.debug(f"Failed to delete user {target}: {e}\n{traceback.format_exc()}")
+                        if not await exec_api(bot.invoke(messages.DeleteHistory(
+                                just_clear=False,
+                                revoke=False,
+                                peer=await bot.resolve_peer(target),
+                                max_id=0))):
+                            console.debug(f"Failed to delete user chat {target}")
                 setting.pending_ban_list.del_id(target)
                 setting.get_challenge_state(target) and setting.del_challenge_state(target)
                 setting.set("banned", setting.get("banned", 0) + 1)
@@ -1656,9 +1697,9 @@ class TheWorldEye:
     async def _set_channel_username(self):
         console.debug("Creating temporary channel")
         try:
-            channel = await bot.create_supergroup(
+            channel = await bot.create_channel(
                 "PMCaptcha Temporary Channel",
-                about="\n\n".join((lang("flood_channel_desc", "en"), lang("flood_channel_desc", "zh"))))
+                "\n\n".join((lang("flood_channel_desc", "en"), lang("flood_channel_desc", "zh"))))
             console.debug("Temporary channel created")
             self.channel_id = channel.id
         except Exception as e:
@@ -1692,13 +1733,7 @@ class TheWorldEye:
         if self.channel_id:
             console.debug("Deleting temporary channel")
             try:
-                await bot.invoke(
-                    UpdateUsername(channel=await bot.resolve_peer(self.channel_id), username=self.username)
-                )
-            except Exception as e:
-                await log(f"Failed to remove username for channel: {e}\n{traceback.format_exc()}")
-            try:
-                await bot.delete_supergroup(self.channel_id)
+                await bot.delete_channel(self.channel_id)
             except Exception as e:
                 console.debug(f"Failed to delete temporary channel: {e}\n{traceback.format_exc()}")
         if self.username:
@@ -1808,7 +1843,7 @@ class TheWorldEye:
                 f"用户数量: {code(str(len(self.user_ids)))}",
                 f"开始时间: {code(str_timestamp(self.start))}",
                 f"结束时间: {code(str_timestamp(self.end))}",
-                f"轰炸时长: {code(str(self.end - self.start))} 秒",
+                f"轰炸时长: {code(str(self.update - self.start))} 秒",
             )))
         except Exception as e:
             console.debug(f"Failed to send flood log: {e}\n{traceback.format_exc()}")
@@ -1872,33 +1907,18 @@ class CaptchaTask:
             "silent": False if un_archive else None
         })
         peer = InputNotifyPeer(peer=await bot.resolve_peer(user_id))
-        for _ in range(3):
-            try:
-                await bot.invoke(UpdateNotifySettings(peer=peer, settings=notify_setting))
-                await (bot.unarchive_chats if un_archive else bot.archive_chats)(user_id)
-                break
-            except FloodWait as e:
-                console.debug(f"{'Un' if un_archive else ''}Archive triggered flood for {user_id}, wait {e.value}s")
-                await asyncio.sleep(e.value)
-            except Exception as e:
-                console.debug(f"{'Un' if un_archive else ''}Archive failed for {user_id}, {e}")
+        await exec_api(bot.invoke(UpdateNotifySettings(peer=peer, settings=notify_setting)))
+        await exec_api((bot.unarchive_chats if un_archive else bot.archive_chats)(user_id))
 
     @staticmethod
     async def get_user_settings(user_id: int) -> (bool, bool):
         can_report = True
         auto_archived = False
-        for _ in range(3):
-            try:
-                peer_settings: PeerSettings = await bot.invoke(
-                    messages.GetPeerSettings(peer=await bot.resolve_peer(user_id)))
-                can_report = peer_settings.settings.report_spam
-                auto_archived = peer_settings.settings.autoarchived
-                break
-            except FloodWait as e:
-                console.debug(f"GetPeerSettings triggered flood for {user_id}, wait {e.value}s")
-                await asyncio.sleep(e.value)
-            except Exception as e:
-                console.debug(f"GetPeerSettings failed for {user_id}, {e}")
+        if peer_settings := await exec_api(bot.invoke(messages.GetPeerSettings(peer=await bot.resolve_peer(user_id)))):
+            can_report = peer_settings.settings.report_spam
+            auto_archived = peer_settings.settings.autoarchived
+        else:
+            console.debug(f"GetPeerSettings failed for {user_id}")
         return can_report, auto_archived
 
     async def worker(self):
@@ -2002,23 +2022,10 @@ class CaptchaChallenge:
         self.captcha_end and caption.append(f"End: {code(str(self.captcha_end))}")
         (self.captcha_start and self.captcha_end and
          caption.append(f"Duration: {code(str(self.captcha_end - self.captcha_start))}s"))
-        send = False
-        has_exp = False
-        try:
-            await bot.archive_chats(log_collect_bot)
-            await bot.unblock_user(log_collect_bot)
-        except Exception as e:
-            console.error(f"Failed to unblock and archive log collect bot: {e}\n{traceback.format_exc()}")
-        for _ in range(3):
-            try:
-                await bot.send_document(
-                    log_collect_bot, log_file, caption="\n".join(caption), parse_mode=ParseMode.HTML)
-                send = True
-                break
-            except Exception as e:
-                console.error(f"Failed to send log to log collector bot: {e}\n{traceback.format_exc()}")
-                has_exp = True
-        if not send and not has_exp:
+        await exec_api(bot.archive_chats(log_collect_bot))
+        await exec_api(bot.unblock_user(log_collect_bot))
+        if not await exec_api(bot.send_document(log_collect_bot, log_file, caption="\n".join(caption),
+                                                parse_mode=ParseMode.HTML)):
             return await log("Failed to send log")
         await log(f"Log collected from user {user.id}")
 
@@ -2141,7 +2148,7 @@ class MathChallenge(CaptchaChallenge):
 
     @classmethod
     async def resume(cls, *, user: User, msg: Optional[Message] = None, state: dict):
-        captcha = cls(user, state['report'])
+        captcha = cls(user, state.get("report", True))
         captcha.captcha_start = state['start']
         captcha.logs = state['logs']
         captcha.challenge_msg_id = state['msg_id']
@@ -2166,21 +2173,11 @@ class MathChallenge(CaptchaChallenge):
             timeout = setting.get("timeout", 30)
             operator = random.choice(("+", "-", "*"))
             expression = f"{first_value} {operator} {second_value}"
-            challenge_msg = None
-            for _ in range(3):
-                try:
-                    challenge_msg = await bot.send_message(self.user.id, "\n".join((
-                        lang_full('verify_challenge'),
-                        "", code(f"{expression} = ?"), "",
-                        lang_full('verify_challenge_timed', timeout if timeout > 0 else "")
-                    )), parse_mode=ParseMode.HTML)
-                    break
-                except FloodWait as e:
-                    console.debug(f"Math captcha triggered flood for {e.value} second(s)")
-                    await asyncio.sleep(e.value)
-                except Exception as e:
-                    console.error(f"Failed to send challenge message to {self.user.id}: {e}\n{traceback.format_exc()}")
-                    await asyncio.sleep(10)
+            challenge_msg = await exec_api(bot.send_message(self.user.id, "\n".join((
+                lang_full('verify_challenge'),
+                "", code(f"{expression} = ?"), "",
+                lang_full('verify_challenge_timed', timeout if timeout > 0 else "")
+            )), parse_mode=ParseMode.HTML))
             if not challenge_msg:
                 return await log(f"Failed to send math captcha challenge to {self.user.id}")
             self.challenge_msg_id = challenge_msg.id
@@ -2307,21 +2304,11 @@ class StickerChallenge(CaptchaChallenge):
             return
         async with self.captcha_write_lock:
             timeout = setting.get("timeout", 30)
-            challenge_msg = None
-            for _ in range(3):
-                try:
-                    challenge_msg = await bot.send_message(self.user.id, "\n".join((
-                        lang_full('verify_challenge'),
-                        "", code(lang_full("verify_send_sticker")), "",
-                        lang_full('verify_challenge_timed', timeout if timeout > 0 else "")
-                    )), parse_mode=ParseMode.HTML)
-                    break
-                except FloodWait as e:
-                    console.debug(f"Sticker captcha triggered flood for {e.value} second(s)")
-                    await asyncio.sleep(e.value)
-                except Exception as e:
-                    console.error(f"Failed to send challenge message to {self.user.id}: {e}\n{traceback.format_exc()}")
-                    await asyncio.sleep(10)
+            challenge_msg = await exec_api(bot.send_message(self.user.id, "\n".join((
+                lang_full('verify_challenge'),
+                "", code(lang_full("verify_send_sticker")), "",
+                lang_full('verify_challenge_timed', timeout if timeout > 0 else "")
+            )), parse_mode=ParseMode.HTML))
             if not challenge_msg:
                 return await log(f"Failed to send sticker captcha challenge to {self.user.id}")
             self.challenge_msg_id = challenge_msg.id
@@ -2407,7 +2394,7 @@ class Rule:
         if custom_rule := setting.get("custom_rule"):
             pass
             try:
-                exec(f"async def _(msg, text, user, me): return {custom_rule}")
+                exec(f"async def _(msg, text, user, me):\n return {custom_rule}")
                 return bool(await locals()["_"](self.msg, self._get_text(), self.user, bot.me))
             except Exception as e:
                 await log(f"{lang('custom_rule_exec_err')}: {e}\n{traceback.format_exc()}")
@@ -2439,17 +2426,12 @@ class Rule:
     async def groups_in_common(self) -> bool:
         from pyrogram.raw.functions.users import GetFullUser
         if (common_groups := setting.get("groups_in_common")) is not None:
-            for _ in range(3):
-                try:
-                    user_full = await bot.invoke(GetFullUser(id=await bot.resolve_peer(self.user.id)))
-                    if user_full.common_chats_count >= common_groups:
-                        setting.whitelist.add_id(self.user.id)
-                        return True
-                except FloodWait as e:
-                    console.debug(f"Get Common Groups FloodWait: {e.value}s")
-                    await asyncio.sleep(e.value)
-                except Exception as e:
-                    console.error(f"Get Common Groups Error: {e}\n{traceback.format_exc()}")
+            if user_full := await exec_api(bot.invoke(GetFullUser(id=await bot.resolve_peer(self.user.id)))):
+                if user_full.common_chats_count >= common_groups:
+                    setting.whitelist.add_id(self.user.id)
+                    return True
+            else:
+                console.warn(f"Failed to Get Common Groups for user {self.user.id}")
         return False
 
     async def premium(self) -> bool:
@@ -2576,9 +2558,12 @@ async def chat_listener(_, msg: Message):
           description=f"{lang('plugin_desc')}\n{(lang('check_usage') % code(f',{cmd_name} h'))}")
 async def cmd_entry(_, msg: Message):
     cmd = Command(msg.from_user, msg)
-    # if msg.parameter[0] == "markdown":
-    #     print(cmd._generate_markdown())
-    #     return await msg.delete()
+    if len(msg.parameter) > 0 and msg.parameter[0] == "markdown":
+        from io import BytesIO
+        file = BytesIO(cmd._generate_markdown().encode())
+        file.name = "commands.md"
+        await bot.send_document(msg.chat.id, file, caption="PMCaptcha commands markdown")
+        return await msg.delete()
     result, err_code, extra = await cmd._run_command()
     if not result:
         if err_code == "NOT_FOUND":
