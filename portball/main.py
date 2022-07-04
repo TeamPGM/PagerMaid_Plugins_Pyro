@@ -77,6 +77,6 @@ async def portball(_, message: Message):
             await asyncio.sleep(10)
             await message.safe_delete()
     else:
-        await message.edit_text("你好蠢诶，都没有回复人，我哪知道你要搞谁的事情……")
+        await message.edit_text("你好蠢诶，又不是群组，怎么禁言啦！")
         await asyncio.sleep(10)
         await message.safe_delete()
