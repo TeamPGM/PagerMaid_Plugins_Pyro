@@ -1184,6 +1184,7 @@ class Command:
         if not arg:
             data = (setting.get('pass', 0) + setting.get('banned', 0), setting.get('pass', 0), setting.get('banned', 0))
             await self.msg.edit_text(f"{code('PMCaptcha')} {lang('stats_display') % data}", parse_mode=ParseMode.HTML)
+            return 
         if arg.startswith("-c"):
             setting.delete('pass').delete('banned')
             return await self.msg.edit(lang('stats_reset'), parse_mode=ParseMode.HTML)
