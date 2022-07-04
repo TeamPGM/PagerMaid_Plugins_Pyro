@@ -2572,8 +2572,8 @@ async def chat_listener(_, msg: Message):
           description=f"{lang('plugin_desc')}\n{(lang('check_usage') % code(f',{cmd_name} h'))}")
 async def cmd_entry(_, msg: Message):
     cmd = Command(msg.from_user, msg)
-    if msg.parameter[0] == "markdown":
-        print(cmd._generate_markdown())
+    # if msg.parameter[0] == "markdown":
+    #     print(cmd._generate_markdown())
         return await msg.delete()
     result, err_code, extra = await cmd._run_command()
     if not result:
