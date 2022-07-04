@@ -79,553 +79,287 @@ def gen_link(text: str, url: str) -> str:
 def str_timestamp(unix_ts: int) -> str:
     import datetime
     date_time = datetime.datetime.fromtimestamp(unix_ts, datetime.timezone(datetime.timedelta(hours=8)))
-    return date_time.strftime(f"%Y-%m-%dT%XZ%z")
+    return date_time.strftime("%Y-%m-%dT%XZ%z")
 
 
 # endregion
 
 lang_dict = {
-    # region General
     "cmd_err_run": [
         f"Error occurred when running command: {code('%s')}: {code('%s')}\n{code('%s')}",
         f"运行指令 {code('%s')} 时发生错误: {code('%s')}\n{code('%s')}",
     ],
     "no_cmd_given": [
         "Please use this command in private chat, or add parameters to execute.",
-        "请在私聊时使用此命令，或添加参数执行。"
+        "请在私聊时使用此命令，或添加参数执行。",
     ],
-    "invalid_user_id": [
-        "Invalid User ID",
-        "未知用户或无效的用户 ID"
-    ],
-    "invalid_param": [
-        "Invalid Parameter",
-        "无效的参数"
-    ],
-    "enabled": [
-        "Enabled",
-        "开启"
-    ],
-    "disabled": [
-        "Disabled",
-        "关闭"
-    ],
-    "none": [
-        "None",
-        "无"
-    ],
+    "invalid_user_id": ["Invalid User ID", "未知用户或无效的用户 ID"],
+    "invalid_param": ["Invalid Parameter", "无效的参数"],
+    "enabled": ["Enabled", "开启"],
+    "disabled": ["Disabled", "关闭"],
+    "none": ["None", "无"],
     "tip_edit": [
         f"You can edit this by using {code('%s')}",
-        f"如需编辑，请使用 {code('%s')}"
+        f"如需编辑，请使用 {code('%s')}",
     ],
     "tip_run_in_pm": [
         "You can only run this command in private chat, or by adding parameters.",
-        "请在私聊使用此命令，或添加参数执行。"
+        "请在私聊使用此命令，或添加参数执行。",
     ],
-    # endregion
-
-    # region Plugin
-    "plugin_desc": [
-        "Captcha for PM",
-        "私聊人机验证插件"
-    ],
+    "plugin_desc": ["Captcha for PM", "私聊人机验证插件"],
     "check_usage": [
         "Please use %s to see available commands.",
-        "请使用 %s 查看可用命令"
+        "请使用 %s 查看可用命令",
     ],
     "curr_version": [
         f"Current {code('PMCaptcha')} Version: %s",
-        f"{code('PMCaptcha')} 当前版本：%s"
+        f"{code('PMCaptcha')} 当前版本：%s",
     ],
-    "unknown_version": [
-        italic("Unknown"),
-        italic("未知")
-    ],
-    # endregion
-
-    # region Vocabs
-    "vocab_msg": [
-        "Message",
-        "消息"
-    ],
-    "vocab_array": [
-        "List",
-        "列表"
-    ],
-    "vocab_bool": [
-        "Boolean",
-        "y / n"
-    ],
-    "vocab_int": [
-        "Integer",
-        "整数"
-    ],
-    "vocab_cmd": [
-        "Command",
-        "指令"
-    ],
-    "vocab_rule": [
-        "Rule",
-        "规则"
-    ],
-    "vocab_action": [
-        "Action",
-        "操作"
-    ],
-    # endregion
-
-    # region Captcha Challenge
-    "verify_verified": [
-        "Verified user",
-        "已验证用户"
-    ],
-    "verify_unverified": [
-        "Unverified user",
-        "未验证用户"
-    ],
-    "verify_blocked": [
-        "You were blocked.",
-        "您已被封禁"
-    ],
-    "verify_log_punished": [
-        "User %s has been %s.",
-        "已对用户 %s 执行`%s`操作"
-    ],
+    "unknown_version": [italic("Unknown"), italic("未知")],
+    "vocab_msg": ["Message", "消息"],
+    "vocab_array": ["List", "列表"],
+    "vocab_bool": ["Boolean", "y / n"],
+    "vocab_int": ["Integer", "整数"],
+    "vocab_cmd": ["Command", "指令"],
+    "vocab_rule": ["Rule", "规则"],
+    "vocab_action": ["Action", "操作"],
+    "verify_verified": ["Verified user", "已验证用户"],
+    "verify_unverified": ["Unverified user", "未验证用户"],
+    "verify_blocked": ["You were blocked.", "您已被封禁"],
+    "verify_log_punished": ["User %s has been %s.", "已对用户 %s 执行`%s`操作"],
     "verify_challenge": [
         "Please answer this question to prove you are human (1 chance)",
-        "请回答这个问题证明您不是机器人 (一次机会)"
+        "请回答这个问题证明您不是机器人 (一次机会)",
     ],
-    "verify_challenge_timed": [
-        "You have %i seconds.",
-        "您有 %i 秒来回答这个问题"
-    ],
-    "verify_passed": [
-        "Verification passed.",
-        "验证通过"
-    ],
-    "verify_failed": [
-        "Verification failed.",
-        "验证失败"
-    ],
-    # Sticker
-    "verify_send_sticker": [
-        "Please send a sticker to me.",
-        "请发送一个贴纸给我"
-    ],
-    # endregion
-
-    # region Help
-    "cmd_param": [
-        "Parameter",
-        "参数"
-    ],
-    "cmd_param_optional": [
-        "Optional",
-        "可选"
-    ],
-    "cmd_alias": [
-        "Alias",
-        "别名/快捷命令"
-    ],
+    "verify_challenge_timed": ["You have %i seconds.", "您有 %i 秒来回答这个问题"],
+    "verify_passed": ["Verification passed.", "验证通过"],
+    "verify_failed": ["Verification failed.", "验证失败"],
+    "verify_send_sticker": ["Please send a sticker to me.", "请发送一个贴纸给我"],
+    "cmd_param": ["Parameter", "参数"],
+    "cmd_param_optional": ["Optional", "可选"],
+    "cmd_alias": ["Alias", "别名/快捷命令"],
     "cmd_detail": [
         f"Do {code(f',{cmd_name} h ')}[command ] for details",
         f"详细指令请输入 {code(f',{cmd_name} h ')}[指令名称 ]",
     ],
-    "cmd_not_found": [
-        "Command Not Found",
-        "指令不存在"
-    ],
-    "cmd_list": [
-        "Command List",
-        "指令列表"
-    ],
-    "priority": [
-        "Priority",
-        "优先级"
-    ],
-    "cmd_search_result": [
-        f"Search Result for `%s`",
-        f"`%s` 的搜索结果"
-    ],
-    "cmd_search_docs": [
-        "Documentation",
-        "文档"
-    ],
-    "cmd_search_cmds": [
-        "Commands",
-        "指令"
-    ],
-    "cmd_search_none": [
-        "No result found.",
-        "未找到结果"
-    ],
-    # endregion
-
-    # region Check
+    "cmd_not_found": ["Command Not Found", "指令不存在"],
+    "cmd_list": ["Command List", "指令列表"],
+    "priority": ["Priority", "优先级"],
+    "cmd_search_result": ["Search Result for `%s`", "`%s` 的搜索结果"],
+    "cmd_search_docs": ["Documentation", "文档"],
+    "cmd_search_cmds": ["Commands", "指令"],
+    "cmd_search_none": ["No result found.", "未找到结果"],
     "user_verified": [
         f"User {code('%i')} {italic('verified')}",
-        f"用户 {code('%i')} {italic('已验证')}"
+        f"用户 {code('%i')} {italic('已验证')}",
     ],
     "user_unverified": [
         f"User {code('%i')} {bold('unverified')}",
-        f"用户 {code('%i')} {bold('未验证')}"
+        f"用户 {code('%i')} {bold('未验证')}",
     ],
-    # endregion
-
-    # region Add / Delete
     "add_whitelist_success": [
         f"User {code('%i')} added to whitelist",
-        f"用户 {code('%i')} 已添加到白名单"
+        f"用户 {code('%i')} 已添加到白名单",
     ],
     "remove_verify_log_success": [
         f"Removed User {code('%i')}'s verify record",
-        f"已删除用户 {code('%i')} 的验证记录"
+        f"已删除用户 {code('%i')} 的验证记录",
     ],
     "remove_verify_log_failed": [
         f"Failed to remove User {code('%i')}'s verify record.",
-        f"删除用户 {code('%i')} 的验证记录失败"
+        f"删除用户 {code('%i')} 的验证记录失败",
     ],
     "remove_verify_log_not_found": [
         f"Verify record not found for User {code('%i')}",
-        f"未找到用户 {code('%i')} 的验证记录"
+        f"未找到用户 {code('%i')} 的验证记录",
     ],
-    # endregion
-
-    # region Unstuck
     "unstuck_success": [
         f"User {code('%i')} has removed from challenge mode",
-        f"用户 {code('%i')} 已解除验证状态"
+        f"用户 {code('%i')} 已解除验证状态",
     ],
     "not_stuck": [
         f"User {code('%i')} is not stuck",
-        f"用户 {code('%i')} 未在验证状态"
+        f"用户 {code('%i')} 未在验证状态",
     ],
-    # endregion
-
-    # region Welcome
-    "welcome_curr_rule": [
-        "Current welcome rule",
-        "当前验证通过时消息规则"
-    ],
-    "welcome_set": [
-        "Welcome message set.",
-        "已设置验证通过消息"
-    ],
-    "welcome_reset": [
-        "Welcome message reset.",
-        "已重置验证通过消息"
-    ],
-    # endregion
-
-    # region Whitelist
-    "whitelist_curr_rule": [
-        "Current whitelist rule",
-        "当前白名单规则"
-    ],
-    "whitelist_set": [
-        "Keywords whitelist set.",
-        "已设置关键词白名单"
-    ],
-    "whitelist_reset": [
-        "Keywords whitelist reset.",
-        "已重置关键词白名单"
-    ],
-    # endregion
-
-    # region Blacklist
-    "blacklist_curr_rule": [
-        "Current blacklist rule",
-        "当前黑名单规则"
-    ],
-    "blacklist_set": [
-        "Keywords blacklist set.",
-        "已设置关键词黑名单"
-    ],
-    "blacklist_reset": [
-        "Keywords blacklist reset.",
-        "已重置关键词黑名单"
-    ],
-    "blacklist_triggered": [
-        "Blacklist rule triggered",
-        "您触发了黑名单规则"
-    ],
-    # endregion
-
-    # region Timeout
-    "timeout_curr_rule": [
-        "Current timeout: %i second(s)",
-        "当前超时时间: %i 秒"
-    ],
+    "welcome_curr_rule": ["Current welcome rule", "当前验证通过时消息规则"],
+    "welcome_set": ["Welcome message set.", "已设置验证通过消息"],
+    "welcome_reset": ["Welcome message reset.", "已重置验证通过消息"],
+    "whitelist_curr_rule": ["Current whitelist rule", "当前白名单规则"],
+    "whitelist_set": ["Keywords whitelist set.", "已设置关键词白名单"],
+    "whitelist_reset": ["Keywords whitelist reset.", "已重置关键词白名单"],
+    "blacklist_curr_rule": ["Current blacklist rule", "当前黑名单规则"],
+    "blacklist_set": ["Keywords blacklist set.", "已设置关键词黑名单"],
+    "blacklist_reset": ["Keywords blacklist reset.", "已重置关键词黑名单"],
+    "blacklist_triggered": ["Blacklist rule triggered", "您触发了黑名单规则"],
+    "timeout_curr_rule": ["Current timeout: %i second(s)", "当前超时时间: %i 秒"],
     "timeout_set": [
         "Verification timeout has been set to %i seconds.",
-        "已设置验证超时时间为 %i 秒"
+        "已设置验证超时时间为 %i 秒",
     ],
-    "timeout_off": [
-        "Verification timeout disabled.",
-        "已关闭验证超时时间"
-    ],
-    "timeout_exceeded": [
-        "Verification timeout.",
-        "验证超时"
-    ],
-    # endregion
-
-    # region Disable PM
-    "disable_pm_curr_rule": [
-        "Current disable PM status: %s",
-        "当前禁止私聊状态: 已%s"
-    ],
+    "timeout_off": ["Verification timeout disabled.", "已关闭验证超时时间"],
+    "timeout_exceeded": ["Verification timeout.", "验证超时"],
+    "disable_pm_curr_rule": ["Current disable PM status: %s", "当前禁止私聊状态: 已%s"],
     "disable_pm_tip_exception": [
         "This feature will automatically allow contents and whitelist users.",
-        "此功能会自动放行联系人与白名单用户"
+        "此功能会自动放行联系人与白名单用户",
     ],
     "disable_set": [
         f"Disable private chat has been set to {bold('%s')}.",
-        f"已设置禁止私聊为{bold('%s')}"
+        f"已设置禁止私聊为{bold('%s')}",
     ],
-    "disable_pm_enabled": [
-        "Owner has private chat disabled.",
-        "对方已禁止私聊。"
-    ],
-    # endregion
-
-    # region Stats
+    "disable_pm_enabled": ["Owner has private chat disabled.", "对方已禁止私聊。"],
     "stats_display": [
         "has verified %i users in total.\nSuccess: %i\nBlocked: %i",
-        "已进行验证 %i 次\n验证通过: %i 次\n拦截: %i 次"
+        "已进行验证 %i 次\n验证通过: %i 次\n拦截: %i 次",
     ],
-    "stats_reset": [
-        "Statistics has been reset.",
-        "已重置统计"
-    ],
-    # endregion
-
-    # region Action
-    "action_curr_rule": [
-        "Current action rule",
-        "当前验证失败规则"
-    ],
+    "stats_reset": ["Statistics has been reset.", "已重置统计"],
+    "action_curr_rule": ["Current action rule", "当前验证失败规则"],
     "action_set": [
         f"Action has been set to {bold('%s')}.",
-        f"验证失败后将执行{bold('%s')}操作"
+        f"验证失败后将执行{bold('%s')}操作",
     ],
-    "action_set_none": [
-        "Action has been set to none.",
-        "验证失败后将不执行任何操作"
-    ],
-    "action_ban": [
-        "Ban",
-        "封禁"
-    ],
-    "action_delete": [
-        "Ban and delete",
-        "封禁并删除对话"
-    ],
-    "action_archive": [
-        "Ban and archive",
-        "封禁并归档"
-    ],
-    # endregion
-
-    # region Report
-    "report_curr_rule": [
-        "Current report state: %s",
-        "当前举报状态为: %s"
-    ],
+    "action_set_none": ["Action has been set to none.", "验证失败后将不执行任何操作"],
+    "action_ban": ["Ban", "封禁"],
+    "action_delete": ["Ban and delete", "封禁并删除对话"],
+    "action_archive": ["Ban and archive", "封禁并归档"],
+    "report_curr_rule": ["Current report state: %s", "当前举报状态为: %s"],
     "report_set": [
         f"Report has been set to {bold('%s')}.",
-        f"已设置举报状态为{bold('%s')}"
+        f"已设置举报状态为{bold('%s')}",
     ],
-    # endregion
-
-    # region Premium
-    "premium_curr_rule": [
-        "Current premium user rule",
-        "当前 Premium 用户规则"
-    ],
+    "premium_curr_rule": ["Current premium user rule", "当前 Premium 用户规则"],
     "premium_set_allow": [
         f"Telegram Premium users will be allowed to {bold('bypass')} the captcha.",
-        f"将{bold('不对')} Telegram Premium 用户{bold('发起验证')}"
+        f"将{bold('不对')} Telegram Premium 用户{bold('发起验证')}",
     ],
     "premium_set_ban": [
         f"Telegram Premium users will be {bold('banned')} from private chat.",
-        f"将{bold('禁止')} Telegram Premium 用户私聊"
+        f"将{bold('禁止')} Telegram Premium 用户私聊",
     ],
     "premium_set_only": [
         f"{bold('Only allowed')} Telegram Premium users to private chat.",
-        f"将{bold('仅允许')} Telegram Premium 用户私聊"
+        f"将{bold('仅允许')} Telegram Premium 用户私聊",
     ],
     "premium_set_none": [
         "Nothing will do to Telegram Premium",
-        "将不对 Telegram Premium 用户执行额外操作"
+        "将不对 Telegram Premium 用户执行额外操作",
     ],
     "premium_only": [
         "Owner only allows Telegram Premium users to private chat.",
-        "对方只允许 Telegram Premium 用户私聊"
+        "对方只允许 Telegram Premium 用户私聊",
     ],
     "premium_ban": [
         "Owner bans Telegram Premium users from private chat.",
-        "对方禁止 Telegram Premium 用户私聊"
+        "对方禁止 Telegram Premium 用户私聊",
     ],
-    # endregion
-
-    # region Groups In Common
     "groups_in_common_set": [
         f"Groups in common larger than {bold('%i')} will be whitelisted.",
-        f"共同群数量大于 {bold('%i')} 时将自动添加到白名单"
+        f"共同群数量大于 {bold('%i')} 时将自动添加到白名单",
     ],
     "groups_in_common_disabled": [
         "Group in command is not enabled",
-        "未开启共同群数量检测"
+        "未开启共同群数量检测",
     ],
-    "groups_in_common_disable": [
-        "Groups in common disabled.",
-        "已关闭共同群检查"
-    ],
-    # endregion
-
-    # region Chat History
+    "groups_in_common_disable": ["Groups in common disabled.", "已关闭共同群检查"],
     "chat_history_curr_rule": [
         f"Chat history equal or larger than {bold('%i')} will be whitelisted.",
-        f"聊天记录数量大于 {bold('%i')} 时将自动添加到白名单"
+        f"聊天记录数量大于 {bold('%i')} 时将自动添加到白名单",
     ],
     "chat_history_disabled": [
         "Chat history check is not enabled",
-        "未开启聊天记录数量检测"
+        "未开启聊天记录数量检测",
     ],
-    # endregion
-
-    # region Initiative
     "initiative_curr_rule": [
         "Current initiative status: %s",
-        "当前对主动进行对话的用户添加白名单状态为： %s"
+        "当前对主动进行对话的用户添加白名单状态为： %s",
     ],
     "initiative_set": [
         f"Initiative has been set to {bold('%s')}.",
-        f"已设置对主动进行对话的用户添加白名单状态为{bold('%s')}"
+        f"已设置对主动进行对话的用户添加白名单状态为{bold('%s')}",
     ],
-    # endregion
-
-    # region Silent
-    "silent_curr_rule": [
-        "Current silent status: %s",
-        "当前静音状态: 已%s"
-    ],
+    "silent_curr_rule": ["Current silent status: %s", "当前静音状态: 已%s"],
     "silent_set": [
         f"Silent has been set to {bold('%s')}.",
-        f"已设置静音模式为{bold('%s')}"
+        f"已设置静音模式为{bold('%s')}",
     ],
-    # endregion
-
-    # region Flood
     "flood_curr_rule": [
         "Current flood detect limit was set to %i user(s)",
-        "当前轰炸人数已设置为 %i 人"
+        "当前轰炸人数已设置为 %i 人",
     ],
-    # Username
     "flood_username_curr_rule": [
         "Current flood username option was set to %s",
-        "当前轰炸时切换用户名选项已设置为 %s"
+        "当前轰炸时切换用户名选项已设置为 %s",
     ],
     "flood_username_set_confirm": [
-        (f"The feature may lose your username, are you sure you want to enable this feature?\n"
-         f"Please enter {code(f',{cmd_name} flood_username y')} again to confirm."),
-        f"此功能有可能回导致您的用户名丢失，您是否确定要开启此功能？\n请再次输入 {code(f',{cmd_name} flood_username y')} 来确认"
+        (
+            f"The feature may lose your username, are you sure you want to enable this feature?\n"
+            f"Please enter {code(f',{cmd_name} flood_username y')} again to confirm."
+        ),
+        f"此功能有可能回导致您的用户名丢失，您是否确定要开启此功能？\n请再次输入 {code(f',{cmd_name} flood_username y')} 来确认",
     ],
     "flood_username_set": [
-        f"Change username in flood preiod has been %s.",
-        f"轰炸时切换用户名已%s"
+        "Change username in flood preiod has been %s.",
+        "轰炸时切换用户名已%s",
     ],
     "flood_channel_desc": [
-        ("This channel is a placeholder of username, which the owner is being flooded.\n"
-         "Please content him later after this channel is gone."),
-        "这是一个用于临时设置用户名的频道，该群主正在被私聊轰炸\n请在此频道消失后再联系他。"
+        (
+            "This channel is a placeholder of username, which the owner is being flooded.\n"
+            "Please content him later after this channel is gone."
+        ),
+        "这是一个用于临时设置用户名的频道，该群主正在被私聊轰炸\n请在此频道消失后再联系他。",
     ],
-    # Action
     "flood_act_curr_rule": [
         "Current flood action was set to %s",
-        "当前轰炸操作已设置为 %s"
+        "当前轰炸操作已设置为 %s",
     ],
     "flood_act_set_asis": [
         f"All users in flood period will be {bold('treat as verify failed')}.",
-        f"所有在轰炸期间的用户将会{bold('与验证失败的处理方式一致')}"
+        f"所有在轰炸期间的用户将会{bold('与验证失败的处理方式一致')}",
     ],
     "flood_act_set_captcha": [
         f"All users in flood period will be {bold('asked for captcha')}.",
-        f"所有在轰炸期间的用户将会{bold('进行验证码挑战')}"
+        f"所有在轰炸期间的用户将会{bold('进行验证码挑战')}",
     ],
     "flood_act_set_none": [
         "Nothing will do to users in flood period.",
-        "所有在轰炸期间的用户将不会被进行任何处理"
+        "所有在轰炸期间的用户将不会被进行任何处理",
     ],
-    # endregion
-
-    # region Custom Rule
-    "custom_rule_curr_rule": [
-        "Current custom rule",
-        "当前自定义规则"
-    ],
+    "custom_rule_curr_rule": ["Current custom rule", "当前自定义规则"],
     "custom_rule_set": [
         f"Custom rule has been set to\n{code('%s')}.",
-        f"已设置自定义规则为\n{code('%s')}"
+        f"已设置自定义规则为\n{code('%s')}",
     ],
-    "custom_rule_reset": [
-        "Custom rule has been deleted.",
-        "已删除自定义规则"
-    ],
+    "custom_rule_reset": ["Custom rule has been deleted.", "已删除自定义规则"],
     "custom_rule_exec_err": [
         "Error occurred when executing custom rule",
-        "执行自定义规则时发生错误"
+        "执行自定义规则时发生错误",
     ],
-    # endregion
-
-    # region Collect Logs
     "collect_logs_curr_rule": [
         "Current collect logs status: %s",
-        "当前收集日志状态: 已%s"
+        "当前收集日志状态: 已%s",
     ],
     "collect_logs_note": [
-        ("This feature will only collect user information and chat logs of non-verifiers "
-         f"via @{log_collect_bot} , and is not provided to third parties (except @LivegramBot ).\n"
-         "Information collected will be used for PMCaptcha improvements, "
-         "toggling this feature does not affect the use of PMCaptcha."),
-        (f"此功能仅会通过 @{log_collect_bot} 收集未通过验证者的用户信息以及验证未通过的聊天记录；"
-         "且不会提供给第三方(@LivegramBot 除外)。\n收集的信息将用于 PMCaptcha 改进，开启或关闭此功能不影响 PMCaptcha 的使用。")
+        (
+            "This feature will only collect user information and chat logs of non-verifiers "
+            f"via @{log_collect_bot} , and is not provided to third parties (except @LivegramBot ).\n"
+            "Information collected will be used for PMCaptcha improvements, "
+            "toggling this feature does not affect the use of PMCaptcha."
+        ),
+        (
+            f"此功能仅会通过 @{log_collect_bot} 收集未通过验证者的用户信息以及验证未通过的聊天记录；"
+            "且不会提供给第三方(@LivegramBot 除外)。\n收集的信息将用于 PMCaptcha 改进，开启或关闭此功能不影响 PMCaptcha 的使用。"
+        ),
     ],
-    "collect_logs_set": [
-        "Collect logs has been set to %s.",
-        "已设置收集日志为 %s"
-    ],
-    # endregion
-
-    # region Captcha Type
-    "type_curr_rule": [
-        "Current captcha type: %s",
-        "当前验证码类型: %s"
-    ],
+    "collect_logs_set": ["Collect logs has been set to %s.", "已设置收集日志为 %s"],
+    "type_curr_rule": ["Current captcha type: %s", "当前验证码类型: %s"],
     "type_set": [
         f"Captcha type has been set to {bold('%s')}.",
-        f"已设置验证码类型为 {bold('%s')}"
+        f"已设置验证码类型为 {bold('%s')}",
     ],
-    "type_param_name": [
-        "Type",
-        "类型"
-    ],
-    "type_captcha_img": [
-        "Image",
-        "图像辨识"
-    ],
-    "type_captcha_math": [
-        "Math",
-        "计算"
-    ],
-    "type_captcha_sticker": [
-        "Sticker",
-        "贴纸"
-    ],
-    # endregion
-
-    # region Image Captcha Type
+    "type_param_name": ["Type", "类型"],
+    "type_captcha_img": ["Image", "图像辨识"],
+    "type_captcha_math": ["Math", "计算"],
+    "type_captcha_sticker": ["Sticker", "贴纸"],
     "img_captcha_type_func": [
         "funCaptcha",
         "funCaptcha",
@@ -634,19 +368,15 @@ lang_dict = {
         "GitHub",
         "GitHub",
     ],
-    "img_captcha_type_rec": [
-        "reCaptcha",
-        "reCaptcha"
-    ],
+    "img_captcha_type_rec": ["reCaptcha", "reCaptcha"],
     "img_captcha_retry_curr_rule": [
         "Current max retry for image captcha: %s",
-        "当前图像验证码最大重试次数: %s"
+        "当前图像验证码最大重试次数: %s",
     ],
     "img_captcha_retry_set": [
         "Max retry for image captcha has been set to %s.",
-        "已设置图像验证码最大重试次数为 %s"
+        "已设置图像验证码最大重试次数为 %s",
     ],
-    # endregion
 }
 
 
@@ -776,10 +506,12 @@ class Command:
         result = []
         members = inspect.getmembers(self, inspect.iscoroutinefunction)
         members.sort(key=sort_line_number)
-        for name, func in members:
-            if name.startswith("_"):
-                continue
-            result.append(self._extract_docs(func.__name__, func.__doc__ or '', True))
+        result.extend(
+            self._extract_docs(func.__name__, func.__doc__ or '', True)
+            for name, func in members
+            if not name.startswith("_")
+        )
+
         return "\n".join(result)
 
     async def _run_command(self):
@@ -842,12 +574,21 @@ class Command:
         len(extras) and extras.insert(0, "")
         cmd_display = code(f",{cmd_name} {self._get_cmd_with_param(subcmd_name)}".strip())
         if markdown:
-            result = ["<details>",
-                      f"<summary>{self._get_cmd_with_param(subcmd_name) or cmd_name} · {re.search(r'(.+)', self[subcmd_name].__doc__ or '')[1].strip()}</summary>",
-                      "\n>\n", f"用法：{cmd_display}",
-                      re.sub(r" {4,}", "", text).replace("{cmd_name}", cmd_name).strip().replace("\n", "\n\n"),
-                      "\n\n".join(extras)]
-            result.extend(("", "---", "</details>"))
+            result = [
+                "<details>",
+                f"<summary>{self._get_cmd_with_param(subcmd_name) or cmd_name} · {re.search(r'(.+)', self[subcmd_name].__doc__ or '')[1].strip()}</summary>",
+                "\n>\n",
+                f"用法：{cmd_display}",
+                re.sub(r" {4,}", "", text)
+                .replace("{cmd_name}", cmd_name)
+                .strip()
+                .replace("\n", "\n\n"),
+                "\n\n".join(extras),
+                "",
+                "---",
+                "</details>",
+            ]
+
             return "\n".join(result)
         return "\n".join([cmd_display, re.sub(r" {4,}", "", text).replace("{cmd_name}", cmd_name).strip()] + extras)
 
@@ -1797,14 +1538,20 @@ class TheWorldEye:
             console.debug("Changing back username")
             await self._restore_username()
         try:
-            await bot.send_message(log_collect_bot, "\n".join((
-                f"💣 检测到私聊轰炸",
-                f"设置限制: {code(setting.get('flood_limit', 50))}",
-                f"用户数量: {code(str(len(self.user_ids)))}",
-                f"开始时间: {code(str_timestamp(self.start))}",
-                f"结束时间: {code(str_timestamp(self.end))}",
-                f"轰炸时长: {code(str(self.end - self.start))} 秒",
-            )))
+            await bot.send_message(
+                log_collect_bot,
+                "\n".join(
+                    (
+                        "💣 检测到私聊轰炸",
+                        f"设置限制: {code(setting.get('flood_limit', 50))}",
+                        f"用户数量: {code(str(len(self.user_ids)))}",
+                        f"开始时间: {code(str_timestamp(self.start))}",
+                        f"结束时间: {code(str_timestamp(self.end))}",
+                        f"轰炸时长: {code(str(self.end - self.start))} 秒",
+                    )
+                ),
+            )
+
         except Exception as e:
             console.debug(f"Failed to send flood log: {e}\n{traceback.format_exc()}")
         if not self.auto_archive_enabled_default:  # Restore auto archive setting
@@ -2400,7 +2147,6 @@ class Rule:
 
     async def user_defined(self) -> bool:
         if custom_rule := setting.get("custom_rule"):
-            pass
             try:
                 exec(f"async def _(msg, text, user, me): return {custom_rule}")
                 return bool(await locals()["_"](self.msg, self._get_text(), self.user, bot.me))
