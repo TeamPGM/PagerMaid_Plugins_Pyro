@@ -34,6 +34,9 @@ cmd_name = "pmcaptcha"
 log_collect_bot = "CloudreflectionPmcaptchabot"
 img_captcha_bot = "PagerMaid_Sam_Bot"
 
+# Get alias for user command
+user_cmd_name = alias_command(cmd_name)
+
 
 def sort_line_number(m):
     try:
@@ -2629,8 +2632,6 @@ async def resume_states():
 if __name__ == "plugins.pmcaptcha":
     import gc
 
-    # Get alias for user command
-    user_cmd_name = alias_command(cmd_name)
     # Force disabled for old PMCaptcha
     globals().get("SubCommand") and exit(0)
     # Flood Username confirm
