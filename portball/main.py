@@ -1,4 +1,3 @@
-import asyncio
 from datetime import datetime, timedelta
 
 from pyrogram.enums import ChatType, ParseMode
@@ -22,7 +21,8 @@ async def portball(_, message: Message):
             if from_user is None:
                 return
             if from_user.is_self:
-                await message.edit_text('无法禁言自己。')
+                edit_message: Message = await message.edit_text('无法禁言自己。')
+                await edit_message.delay_delete()
                 return
             seconds: int = -1
             reason: str = ""
@@ -32,41 +32,33 @@ async def portball(_, message: Message):
                 except ValueError:
                     edit_message: Message = await message.edit_text("出错了呜呜呜 ~ 无效的参数。")
                     await edit_message.delay_delete()
-                    await message.edit_text("出错了呜呜呜 ~ 无效的参数。")
-                    await asyncio.sleep(10)
-                    await message.safe_delete()
                     return
             elif len(message.parameter) == 2:
                 try:
                     reason = message.parameter[0]
                     seconds = int(message.parameter[1])
                 except ValueError:
-                    await message.edit_text("出错了呜呜呜 ~ 无效的参数。")
-                    await asyncio.sleep(10)
-                    await message.safe_delete()
+                    edit_message: Message = await message.edit_text("出错了呜呜呜 ~ 无效的参数。")
+                    await edit_message.delay_delete()
                     return
             else:
-                await message.edit_text("出错了呜呜呜 ~ 无效的参数。")
-                await asyncio.sleep(10)
-                await message.safe_delete()
+                edit_message: Message = await message.edit_text("出错了呜呜呜 ~ 无效的参数。")
+                await edit_message.delay_delete()
                 return
             if seconds < 60:
-                await message.edit_text("诶呀不要小于60秒啦")
-                await asyncio.sleep(10)
-                await message.safe_delete()
+                edit_message: Message = await message.edit_text("诶呀不要小于60秒啦")
+                await edit_message.delay_delete()
                 return
             try:
                 await bot.restrict_chat_member(chat.id, from_user.id, ChatPermissions(),
                                                datetime.now() + timedelta(seconds=seconds))
             except (UserAdminInvalid, ChatAdminRequired):
                 await bot.send_message(chat.id, "错误：该操作需要管理员权限")
-                await asyncio.sleep(10)
-                await message.safe_delete()
+                await message.delay_delete()
                 return
             except BadRequest:
                 await message.edit_text("出错了呜呜呜 ~ 执行封禁时出错")
-                await asyncio.sleep(10)
-                await message.safe_delete()
+                await message.delay_delete()
                 return
             else:
                 if from_user.last_name:
@@ -83,10 +75,10 @@ async def portball(_, message: Message):
                 await bot.send_message(chat.id, text)
                 await message.safe_delete()
         else:
-            await message.edit_text("你好蠢诶，都没有回复人，我哪知道你要搞谁的事情……")
-            await asyncio.sleep(10)
-            await message.safe_delete()
+            edit_message: Message = await message.edit_text("你好蠢诶，都没有回复人，我哪知道你要搞谁的事情……")
+            await edit_message.delay_delete()
+            await message.delay_delete()
     else:
-        await message.edit_text("你好蠢诶，又不是群组，怎么禁言啦！")
-        await asyncio.sleep(10)
-        await message.safe_delete()
+        edit_message: Message = await message.edit_text("你好蠢诶，又不是群组，怎么禁言啦！")
+        await edit_message.delay_delete()
+        await message.delay_delete()
