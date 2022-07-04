@@ -49,572 +49,6 @@ async def log(message: str, remove_prefix: bool = False):
     Config.LOG and logging.send_log(message, remove_prefix)
 
 
-def lang(lang_id: str, lang_code: str = Config.LANGUAGE or "en") -> str:
-    lang_dict = {
-        # region General
-        "no_cmd_given": [
-            "Please use this command in private chat, or add parameters to execute.",
-            "请在私聊时使用此命令，或添加参数执行。"
-        ],
-        "invalid_user_id": [
-            "Invalid User ID",
-            "未知用户或无效的用户 ID"
-        ],
-        "invalid_param": [
-            "Invalid Parameter",
-            "无效的参数"
-        ],
-        "enabled": [
-            "Enabled",
-            "开启"
-        ],
-        "disabled": [
-            "Disabled",
-            "关闭"
-        ],
-        "none": [
-            "None",
-            "无"
-        ],
-        "tip_edit": [
-            f"You can edit this by using {code('%s')}",
-            f"如需编辑，请使用 {code('%s')}"
-        ],
-        "tip_run_in_pm": [
-            "You can only run this command in private chat, or by adding parameters.",
-            "请在私聊使用此命令，或添加参数执行。"
-        ],
-        # endregion
-
-        # region Plugin
-        "plugin_desc": [
-            "Captcha for PM",
-            "私聊人机验证插件"
-        ],
-        "check_usage": [
-            "Please use %s to see available commands.",
-            "请使用 %s 查看可用命令"
-        ],
-        "curr_version": [
-            f"Current {code('PMCaptcha')} Version: %s",
-            f"{code('PMCaptcha')} 当前版本：%s"
-        ],
-        "unknown_version": [
-            italic("Unknown"),
-            italic("未知")
-        ],
-        # endregion
-
-        # region Vocabs
-        "vocab_msg": [
-            "Message",
-            "消息"
-        ],
-        "vocab_array": [
-            "List",
-            "列表"
-        ],
-        "vocab_bool": [
-            "Boolean",
-            "y / n"
-        ],
-        "vocab_int": [
-            "Integer",
-            "整数"
-        ],
-        "vocab_cmd": [
-            "Command",
-            "指令"
-        ],
-        "vocab_rule": [
-            "Rule",
-            "规则"
-        ],
-        # endregion
-
-        # region Captcha Challenge
-        "verify_verified": [
-            "Verified user",
-            "已验证用户"
-        ],
-        "verify_unverified": [
-            "Unverified user",
-            "未验证用户"
-        ],
-        "verify_blocked": [
-            "You were blocked.",
-            "您已被封禁"
-        ],
-        "verify_log_punished": [
-            "User %s has been %s.",
-            "已对用户 %s 执行`%s`操作"
-        ],
-        "verify_challenge": [
-            "Please answer this question to prove you are human (1 chance)",
-            "请回答这个问题证明您不是机器人 (一次机会)"
-        ],
-        "verify_challenge_timed": [
-            "You have %i seconds.",
-            "您有 %i 秒来回答这个问题"
-        ],
-        "verify_passed": [
-            "Verification passed.",
-            "验证通过"
-        ],
-        "verify_failed": [
-            "Verification failed.",
-            "验证失败"
-        ],
-        # Sticker
-        "verify_send_sticker": [
-            "Please send a sticker to me.",
-            "请发送一个贴纸给我"
-        ],
-        # endregion
-
-        # region Help
-        "cmd_param": [
-            "Parameter",
-            "参数"
-        ],
-        "cmd_param_optional": [
-            "Optional",
-            "可选"
-        ],
-        "cmd_alias": [
-            "Alias",
-            "别名/快捷命令"
-        ],
-        "cmd_detail": [
-            f"Do {code(f',{cmd_name} h ')}[command ] for details",
-            f"详细指令请输入 {code(f',{cmd_name} h ')}[指令名称 ]",
-        ],
-        "cmd_not_found": [
-            "Command Not Found",
-            "指令不存在"
-        ],
-        "cmd_list": [
-            "Command List",
-            "指令列表"
-        ],
-        "priority": [
-            "Priority",
-            "优先级"
-        ],
-        "cmd_search_result": [
-            f"Search Result for `%s`",
-            f"`%s` 的搜索结果"
-        ],
-        "cmd_search_docs": [
-            "Documentation",
-            "文档"
-        ],
-        "cmd_search_cmds": [
-            "Commands",
-            "指令"
-        ],
-        "cmd_search_none": [
-            "No result found.",
-            "未找到结果"
-        ],
-        # endregion
-
-        # region Check
-        "user_verified": [
-            f"User {code('%i')} {italic('verified')}",
-            f"用户 {code('%i')} {italic('已验证')}"
-        ],
-        "user_unverified": [
-            f"User {code('%i')} {bold('unverified')}",
-            f"用户 {code('%i')} {bold('未验证')}"
-        ],
-        # endregion
-
-        # region Add / Delete
-        "add_whitelist_success": [
-            f"User {code('%i')} added to whitelist",
-            f"用户 {code('%i')} 已添加到白名单"
-        ],
-        "remove_verify_log_success": [
-            f"Removed User {code('%i')}'s verify record",
-            f"已删除用户 {code('%i')} 的验证记录"
-        ],
-        "remove_verify_log_failed": [
-            f"Failed to remove User {code('%i')}'s verify record.",
-            f"删除用户 {code('%i')} 的验证记录失败"
-        ],
-        "remove_verify_log_not_found": [
-            f"Verify record not found for User {code('%i')}",
-            f"未找到用户 {code('%i')} 的验证记录"
-        ],
-        # endregion
-
-        # region Unstuck
-        "unstuck_success": [
-            f"User {code('%i')} has removed from challenge mode",
-            f"用户 {code('%i')} 已解除验证状态"
-        ],
-        "not_stuck": [
-            f"User {code('%i')} is not stuck",
-            f"用户 {code('%i')} 未在验证状态"
-        ],
-        # endregion
-
-        # region Welcome
-        "welcome_curr_rule": [
-            "Current welcome rule",
-            "当前验证通过时消息规则"
-        ],
-        "welcome_set": [
-            "Welcome message set.",
-            "已设置验证通过消息"
-        ],
-        "welcome_reset": [
-            "Welcome message reset.",
-            "已重置验证通过消息"
-        ],
-        # endregion
-
-        # region Whitelist
-        "whitelist_curr_rule": [
-            "Current whitelist rule",
-            "当前白名单规则"
-        ],
-        "whitelist_set": [
-            "Keywords whitelist set.",
-            "已设置关键词白名单"
-        ],
-        "whitelist_reset": [
-            "Keywords whitelist reset.",
-            "已重置关键词白名单"
-        ],
-        # endregion
-
-        # region Blacklist
-        "blacklist_curr_rule": [
-            "Current blacklist rule",
-            "当前黑名单规则"
-        ],
-        "blacklist_set": [
-            "Keywords blacklist set.",
-            "已设置关键词黑名单"
-        ],
-        "blacklist_reset": [
-            "Keywords blacklist reset.",
-            "已重置关键词黑名单"
-        ],
-        "blacklist_triggered": [
-            "Blacklist rule triggered",
-            "您触发了黑名单规则"
-        ],
-        # endregion
-
-        # region Timeout
-        "timeout_curr_rule": [
-            "Current timeout: %i second(s)",
-            "当前超时时间: %i 秒"
-        ],
-        "timeout_set": [
-            "Verification timeout has been set to %i seconds.",
-            "已设置验证超时时间为 %i 秒"
-        ],
-        "timeout_off": [
-            "Verification timeout disabled.",
-            "已关闭验证超时时间"
-        ],
-        "timeout_exceeded": [
-            "Verification timeout.",
-            "验证超时"
-        ],
-        # endregion
-
-        # region Disable PM
-        "disable_pm_curr_rule": [
-            "Current disable PM status: %s",
-            "当前禁止私聊状态: 已%s"
-        ],
-        "disable_pm_tip_exception": [
-            "This feature will automatically allow contents and whitelist users.",
-            "此功能会自动放行联系人与白名单用户"
-        ],
-        "disable_set": [
-            f"Disable private chat has been set to {bold('%s')}.",
-            f"已设置禁止私聊为{bold('%s')}"
-        ],
-        "disable_pm_enabled": [
-            "Owner has private chat disabled.",
-            "对方已禁止私聊。"
-        ],
-        # endregion
-
-        # region Stats
-        "stats_display": [
-            "PMCaptcha has verified %i users in total.\n%i users has passed, %i users has been blocked.",
-            "自上次重置起，已进行验证 %i 次\n其中验证通过 %i 次，拦截 %i 次"
-        ],
-        "stats_reset": [
-            "Statistics has been reset.",
-            "已重置统计"
-        ],
-        # endregion
-
-        # region Action
-        "action_param_name": [
-            "Action",
-            "操作"
-        ],
-        "action_curr_rule": [
-            "Current action rule",
-            "当前验证失败规则"
-        ],
-        "action_set": [
-            f"Action has been set to {bold('%s')}.",
-            f"验证失败后将执行{bold('%s')}操作"
-        ],
-        "action_set_none": [
-            "Action has been set to none.",
-            "验证失败后将不执行任何操作"
-        ],
-        "action_ban": [
-            "Ban",
-            "封禁"
-        ],
-        "action_delete": [
-            "Ban and delete",
-            "封禁并删除对话"
-        ],
-        "action_archive": [
-            "Ban and archive",
-            "封禁并归档"
-        ],
-        # endregion
-
-        # region Report
-        "report_curr_rule": [
-            "Current report state: %s",
-            "当前举报状态为: %s"
-        ],
-        "report_set": [
-            f"Report has been set to {bold('%s')}.",
-            f"已设置举报状态为{bold('%s')}"
-        ],
-        # endregion
-
-        # region Premium
-        "premium_curr_rule": [
-            "Current premium user rule",
-            "当前 Premium 用户规则"
-        ],
-        "premium_set_allow": [
-            f"Telegram Premium users will be allowed to {bold('bypass')} the captcha.",
-            f"将{bold('不对')} Telegram Premium 用户{bold('发起验证')}"
-        ],
-        "premium_set_ban": [
-            f"Telegram Premium users will be {bold('banned')} from private chat.",
-            f"将{bold('禁止')} Telegram Premium 用户私聊"
-        ],
-        "premium_set_only": [
-            f"{bold('Only allowed')} Telegram Premium users to private chat.",
-            f"将{bold('仅允许')} Telegram Premium 用户私聊"
-        ],
-        "premium_set_none": [
-            "Nothing will do to Telegram Premium",
-            "将不对 Telegram Premium 用户执行额外操作"
-        ],
-        "premium_only": [
-            "Owner only allows Telegram Premium users to private chat.",
-            "对方只允许 Telegram Premium 用户私聊"
-        ],
-        "premium_ban": [
-            "Owner bans Telegram Premium users from private chat.",
-            "对方禁止 Telegram Premium 用户私聊"
-        ],
-        # endregion
-
-        # region Groups In Common
-        "groups_in_common_set": [
-            f"Groups in common larger than {bold('%i')} will be whitelisted.",
-            f"共同群数量大于 {bold('%i')} 时将自动添加到白名单"
-        ],
-        "groups_in_common_disabled": [
-            "Group in command is not enabled",
-            "未开启共同群数量检测"
-        ],
-        "groups_in_common_disable": [
-            "Groups in common disabled.",
-            "已关闭共同群检查"
-        ],
-        # endregion
-
-        # region Chat History
-        "chat_history_curr_rule": [
-            f"Chat history equal or larger than {bold('%i')} will be whitelisted.",
-            f"聊天记录数量大于 {bold('%i')} 时将自动添加到白名单"
-        ],
-        "chat_history_disabled": [
-            "Chat history check is not enabled",
-            "未开启聊天记录数量检测"
-        ],
-        # endregion
-
-        # region Initiative
-        "initiative_curr_rule": [
-            "Current initiative status: %s",
-            "当前对主动进行对话的用户添加白名单状态为： %s"
-        ],
-        "initiative_set": [
-            f"Initiative has been set to {bold('%s')}.",
-            f"已设置对主动进行对话的用户添加白名单状态为{bold('%s')}"
-        ],
-        # endregion
-
-        # region Silent
-        "silent_curr_rule": [
-            "Current silent status: %s",
-            "当前静音状态: 已%s"
-        ],
-        "silent_set": [
-            f"Silent has been set to {bold('%s')}.",
-            f"已设置静音模式为{bold('%s')}"
-        ],
-        # endregion
-
-        # region Flood
-        "flood_curr_rule": [
-            "Current flood detect limit was set to %i user(s)",
-            "当前轰炸人数已设置为 %i 人"
-        ],
-        # Username
-        "flood_username_curr_rule": [
-            "Current flood username option was set to %s",
-            "当前轰炸时切换用户名选项已设置为 %s"
-        ],
-        "flood_username_set_confirm": [
-            (f"The feature may lose your username, are you sure you want to enable this feature?\n"
-             f"Please enter {code(f',{cmd_name} flood_username y')} again to confirm."),
-            f"此功能有可能回导致您的用户名丢失，您是否确定要开启此功能？\n请再次输入 {code(f',{cmd_name} flood_username y')} 来确认"
-        ],
-        "flood_username_set": [
-            f"Change username in flood preiod has been %s.",
-            f"轰炸时切换用户名已%s"
-        ],
-        "flood_channel_desc": [
-            ("This channel is a placeholder of username, which the owner is being flooded.\n"
-             "Please content him later after this channel is gone."),
-            "这是一个用于临时设置用户名的频道，该群主正在被私聊轰炸\n请在此频道消失后再联系他。"
-        ],
-        # Action
-        "flood_act_curr_rule": [
-            "Current flood action was set to %s",
-            "当前轰炸操作已设置为 %s"
-        ],
-        "flood_act_set_asia": [
-            f"All users in flood period will be {bold('treat as verify failed')}.",
-            f"所有在轰炸期间的用户将会{bold('与验证失败的处理方式一致')}"
-        ],
-        "flood_act_set_captcha": [
-            f"All users in flood period will be {bold('asked for captcha')}.",
-            f"所有在轰炸期间的用户将会{bold('进行验证码挑战')}"
-        ],
-        "flood_act_set_none": [
-            "Nothing will do to users in flood period.",
-            "所有在轰炸期间的用户将不会被进行任何处理"
-        ],
-        # endregion
-
-        # region Custom Rule
-        "custom_rule_curr_rule": [
-            "Current custom rule",
-            "当前自定义规则"
-        ],
-        "custom_rule_set": [
-            f"Custom rule has been set to\n{code('%s')}.",
-            f"已设置自定义规则为\n{code('%s')}"
-        ],
-        "custom_rule_reset": [
-            "Custom rule has been deleted.",
-            "已删除自定义规则"
-        ],
-        "custom_rule_exec_err": [
-            "Error occurred when executing custom rule",
-            "执行自定义规则时发生错误"
-        ],
-        # endregion
-
-        # region Collect Logs
-        "collect_logs_curr_rule": [
-            "Current collect logs status: %s",
-            "当前收集日志状态: 已%s"
-        ],
-        "collect_logs_note": [
-            ("This feature will only collect user information and chat logs of non-verifiers "
-             f"via @{log_collect_bot} , and is not provided to third parties (except @LivegramBot ).\n"
-             "Information collected will be used for PMCaptcha improvements, "
-             "toggling this feature does not affect the use of PMCaptcha."),
-            (f"此功能仅会通过 @{log_collect_bot} 收集未通过验证者的用户信息以及验证未通过的聊天记录；"
-             "且不会提供给第三方(@LivegramBot 除外)。\n收集的信息将用于 PMCaptcha 改进，开启或关闭此功能不影响 PMCaptcha 的使用。")
-        ],
-        "collect_logs_set": [
-            "Collect logs has been set to %s.",
-            "已设置收集日志为 %s"
-        ],
-        # endregion
-
-        # region Captcha Type
-        "type_curr_rule": [
-            "Current captcha type: %s",
-            "当前验证码类型: %s"
-        ],
-        "type_set": [
-            f"Captcha type has been set to {bold('%s')}.",
-            f"已设置验证码类型为 {bold('%s')}"
-        ],
-        "type_param_name": [
-            "Type",
-            "类型"
-        ],
-        "type_captcha_img": [
-            "Image",
-            "图像辨识"
-        ],
-        "type_captcha_math": [
-            "Math",
-            "计算"
-        ],
-        "type_captcha_sticker": [
-            "Sticker",
-            "贴纸"
-        ],
-        # endregion
-
-        # region Image Captcha Type
-        "img_captcha_type_func": [
-            "funCaptcha",
-            "funCaptcha",
-        ],
-        "img_captcha_type_github": [
-            "GitHub",
-            "GitHub",
-        ],
-        "img_captcha_type_rec": [
-            "reCaptcha",
-            "reCaptcha"
-        ],
-        "img_captcha_retry_curr_rule": [
-            "Current max retry for image captcha: %s",
-            "当前图像验证码最大重试次数: %s"
-        ],
-        "img_captcha_retry_set": [
-            "Max retry for image captcha has been set to %s.",
-            "已设置图像验证码最大重试次数为 %s"
-        ],
-        # endregion
-    }
-
-    lang_code = lang_code or "en"
-    return lang_dict.get(lang_id)[1 if lang_code.startswith("zh") else 0]
-
-
 def get_version():
     from pagermaid import working_dir
     from os import sep
@@ -642,7 +76,588 @@ def gen_link(text: str, url: str) -> str:
     return f"<a href=\"{url}\">{text}</a>"
 
 
+def str_timestamp(unix_ts: int) -> str:
+    import datetime
+    date_time = datetime.datetime.fromtimestamp(unix_ts, datetime.timezone(datetime.timedelta(hours=8)))
+    return date_time.strftime(f"%Y-%m-%dT%XZ%z")
+
+
 # endregion
+
+lang_dict = {
+    # region General
+    "cmd_err_run": [
+        f"Error occurred when running command: {code('%s')}: {code('%s')}\n{code('%s')}",
+        f"运行指令 {code('%s')} 时发生错误: {code('%s')}\n{code('%s')}",
+    ],
+    "no_cmd_given": [
+        "Please use this command in private chat, or add parameters to execute.",
+        "请在私聊时使用此命令，或添加参数执行。"
+    ],
+    "invalid_user_id": [
+        "Invalid User ID",
+        "未知用户或无效的用户 ID"
+    ],
+    "invalid_param": [
+        "Invalid Parameter",
+        "无效的参数"
+    ],
+    "enabled": [
+        "Enabled",
+        "开启"
+    ],
+    "disabled": [
+        "Disabled",
+        "关闭"
+    ],
+    "none": [
+        "None",
+        "无"
+    ],
+    "tip_edit": [
+        f"You can edit this by using {code('%s')}",
+        f"如需编辑，请使用 {code('%s')}"
+    ],
+    "tip_run_in_pm": [
+        "You can only run this command in private chat, or by adding parameters.",
+        "请在私聊使用此命令，或添加参数执行。"
+    ],
+    # endregion
+
+    # region Plugin
+    "plugin_desc": [
+        "Captcha for PM",
+        "私聊人机验证插件"
+    ],
+    "check_usage": [
+        "Please use %s to see available commands.",
+        "请使用 %s 查看可用命令"
+    ],
+    "curr_version": [
+        f"Current {code('PMCaptcha')} Version: %s",
+        f"{code('PMCaptcha')} 当前版本：%s"
+    ],
+    "unknown_version": [
+        italic("Unknown"),
+        italic("未知")
+    ],
+    # endregion
+
+    # region Vocabs
+    "vocab_msg": [
+        "Message",
+        "消息"
+    ],
+    "vocab_array": [
+        "List",
+        "列表"
+    ],
+    "vocab_bool": [
+        "Boolean",
+        "y / n"
+    ],
+    "vocab_int": [
+        "Integer",
+        "整数"
+    ],
+    "vocab_cmd": [
+        "Command",
+        "指令"
+    ],
+    "vocab_rule": [
+        "Rule",
+        "规则"
+    ],
+    "vocab_action": [
+        "Action",
+        "操作"
+    ],
+    # endregion
+
+    # region Captcha Challenge
+    "verify_verified": [
+        "Verified user",
+        "已验证用户"
+    ],
+    "verify_unverified": [
+        "Unverified user",
+        "未验证用户"
+    ],
+    "verify_blocked": [
+        "You were blocked.",
+        "您已被封禁"
+    ],
+    "verify_log_punished": [
+        "User %s has been %s.",
+        "已对用户 %s 执行`%s`操作"
+    ],
+    "verify_challenge": [
+        "Please answer this question to prove you are human (1 chance)",
+        "请回答这个问题证明您不是机器人 (一次机会)"
+    ],
+    "verify_challenge_timed": [
+        "You have %i seconds.",
+        "您有 %i 秒来回答这个问题"
+    ],
+    "verify_passed": [
+        "Verification passed.",
+        "验证通过"
+    ],
+    "verify_failed": [
+        "Verification failed.",
+        "验证失败"
+    ],
+    # Sticker
+    "verify_send_sticker": [
+        "Please send a sticker to me.",
+        "请发送一个贴纸给我"
+    ],
+    # endregion
+
+    # region Help
+    "cmd_param": [
+        "Parameter",
+        "参数"
+    ],
+    "cmd_param_optional": [
+        "Optional",
+        "可选"
+    ],
+    "cmd_alias": [
+        "Alias",
+        "别名/快捷命令"
+    ],
+    "cmd_detail": [
+        f"Do {code(f',{cmd_name} h ')}[command ] for details",
+        f"详细指令请输入 {code(f',{cmd_name} h ')}[指令名称 ]",
+    ],
+    "cmd_not_found": [
+        "Command Not Found",
+        "指令不存在"
+    ],
+    "cmd_list": [
+        "Command List",
+        "指令列表"
+    ],
+    "priority": [
+        "Priority",
+        "优先级"
+    ],
+    "cmd_search_result": [
+        f"Search Result for `%s`",
+        f"`%s` 的搜索结果"
+    ],
+    "cmd_search_docs": [
+        "Documentation",
+        "文档"
+    ],
+    "cmd_search_cmds": [
+        "Commands",
+        "指令"
+    ],
+    "cmd_search_none": [
+        "No result found.",
+        "未找到结果"
+    ],
+    # endregion
+
+    # region Check
+    "user_verified": [
+        f"User {code('%i')} {italic('verified')}",
+        f"用户 {code('%i')} {italic('已验证')}"
+    ],
+    "user_unverified": [
+        f"User {code('%i')} {bold('unverified')}",
+        f"用户 {code('%i')} {bold('未验证')}"
+    ],
+    # endregion
+
+    # region Add / Delete
+    "add_whitelist_success": [
+        f"User {code('%i')} added to whitelist",
+        f"用户 {code('%i')} 已添加到白名单"
+    ],
+    "remove_verify_log_success": [
+        f"Removed User {code('%i')}'s verify record",
+        f"已删除用户 {code('%i')} 的验证记录"
+    ],
+    "remove_verify_log_failed": [
+        f"Failed to remove User {code('%i')}'s verify record.",
+        f"删除用户 {code('%i')} 的验证记录失败"
+    ],
+    "remove_verify_log_not_found": [
+        f"Verify record not found for User {code('%i')}",
+        f"未找到用户 {code('%i')} 的验证记录"
+    ],
+    # endregion
+
+    # region Unstuck
+    "unstuck_success": [
+        f"User {code('%i')} has removed from challenge mode",
+        f"用户 {code('%i')} 已解除验证状态"
+    ],
+    "not_stuck": [
+        f"User {code('%i')} is not stuck",
+        f"用户 {code('%i')} 未在验证状态"
+    ],
+    # endregion
+
+    # region Welcome
+    "welcome_curr_rule": [
+        "Current welcome rule",
+        "当前验证通过时消息规则"
+    ],
+    "welcome_set": [
+        "Welcome message set.",
+        "已设置验证通过消息"
+    ],
+    "welcome_reset": [
+        "Welcome message reset.",
+        "已重置验证通过消息"
+    ],
+    # endregion
+
+    # region Whitelist
+    "whitelist_curr_rule": [
+        "Current whitelist rule",
+        "当前白名单规则"
+    ],
+    "whitelist_set": [
+        "Keywords whitelist set.",
+        "已设置关键词白名单"
+    ],
+    "whitelist_reset": [
+        "Keywords whitelist reset.",
+        "已重置关键词白名单"
+    ],
+    # endregion
+
+    # region Blacklist
+    "blacklist_curr_rule": [
+        "Current blacklist rule",
+        "当前黑名单规则"
+    ],
+    "blacklist_set": [
+        "Keywords blacklist set.",
+        "已设置关键词黑名单"
+    ],
+    "blacklist_reset": [
+        "Keywords blacklist reset.",
+        "已重置关键词黑名单"
+    ],
+    "blacklist_triggered": [
+        "Blacklist rule triggered",
+        "您触发了黑名单规则"
+    ],
+    # endregion
+
+    # region Timeout
+    "timeout_curr_rule": [
+        "Current timeout: %i second(s)",
+        "当前超时时间: %i 秒"
+    ],
+    "timeout_set": [
+        "Verification timeout has been set to %i seconds.",
+        "已设置验证超时时间为 %i 秒"
+    ],
+    "timeout_off": [
+        "Verification timeout disabled.",
+        "已关闭验证超时时间"
+    ],
+    "timeout_exceeded": [
+        "Verification timeout.",
+        "验证超时"
+    ],
+    # endregion
+
+    # region Disable PM
+    "disable_pm_curr_rule": [
+        "Current disable PM status: %s",
+        "当前禁止私聊状态: 已%s"
+    ],
+    "disable_pm_tip_exception": [
+        "This feature will automatically allow contents and whitelist users.",
+        "此功能会自动放行联系人与白名单用户"
+    ],
+    "disable_set": [
+        f"Disable private chat has been set to {bold('%s')}.",
+        f"已设置禁止私聊为{bold('%s')}"
+    ],
+    "disable_pm_enabled": [
+        "Owner has private chat disabled.",
+        "对方已禁止私聊。"
+    ],
+    # endregion
+
+    # region Stats
+    "stats_display": [
+        "has verified %i users in total.\nSuccess: %i\nBlocked: %i",
+        "已进行验证 %i 次\n验证通过: %i 次\n拦截: %i 次"
+    ],
+    "stats_reset": [
+        "Statistics has been reset.",
+        "已重置统计"
+    ],
+    # endregion
+
+    # region Action
+    "action_curr_rule": [
+        "Current action rule",
+        "当前验证失败规则"
+    ],
+    "action_set": [
+        f"Action has been set to {bold('%s')}.",
+        f"验证失败后将执行{bold('%s')}操作"
+    ],
+    "action_set_none": [
+        "Action has been set to none.",
+        "验证失败后将不执行任何操作"
+    ],
+    "action_ban": [
+        "Ban",
+        "封禁"
+    ],
+    "action_delete": [
+        "Ban and delete",
+        "封禁并删除对话"
+    ],
+    "action_archive": [
+        "Ban and archive",
+        "封禁并归档"
+    ],
+    # endregion
+
+    # region Report
+    "report_curr_rule": [
+        "Current report state: %s",
+        "当前举报状态为: %s"
+    ],
+    "report_set": [
+        f"Report has been set to {bold('%s')}.",
+        f"已设置举报状态为{bold('%s')}"
+    ],
+    # endregion
+
+    # region Premium
+    "premium_curr_rule": [
+        "Current premium user rule",
+        "当前 Premium 用户规则"
+    ],
+    "premium_set_allow": [
+        f"Telegram Premium users will be allowed to {bold('bypass')} the captcha.",
+        f"将{bold('不对')} Telegram Premium 用户{bold('发起验证')}"
+    ],
+    "premium_set_ban": [
+        f"Telegram Premium users will be {bold('banned')} from private chat.",
+        f"将{bold('禁止')} Telegram Premium 用户私聊"
+    ],
+    "premium_set_only": [
+        f"{bold('Only allowed')} Telegram Premium users to private chat.",
+        f"将{bold('仅允许')} Telegram Premium 用户私聊"
+    ],
+    "premium_set_none": [
+        "Nothing will do to Telegram Premium",
+        "将不对 Telegram Premium 用户执行额外操作"
+    ],
+    "premium_only": [
+        "Owner only allows Telegram Premium users to private chat.",
+        "对方只允许 Telegram Premium 用户私聊"
+    ],
+    "premium_ban": [
+        "Owner bans Telegram Premium users from private chat.",
+        "对方禁止 Telegram Premium 用户私聊"
+    ],
+    # endregion
+
+    # region Groups In Common
+    "groups_in_common_set": [
+        f"Groups in common larger than {bold('%i')} will be whitelisted.",
+        f"共同群数量大于 {bold('%i')} 时将自动添加到白名单"
+    ],
+    "groups_in_common_disabled": [
+        "Group in command is not enabled",
+        "未开启共同群数量检测"
+    ],
+    "groups_in_common_disable": [
+        "Groups in common disabled.",
+        "已关闭共同群检查"
+    ],
+    # endregion
+
+    # region Chat History
+    "chat_history_curr_rule": [
+        f"Chat history equal or larger than {bold('%i')} will be whitelisted.",
+        f"聊天记录数量大于 {bold('%i')} 时将自动添加到白名单"
+    ],
+    "chat_history_disabled": [
+        "Chat history check is not enabled",
+        "未开启聊天记录数量检测"
+    ],
+    # endregion
+
+    # region Initiative
+    "initiative_curr_rule": [
+        "Current initiative status: %s",
+        "当前对主动进行对话的用户添加白名单状态为： %s"
+    ],
+    "initiative_set": [
+        f"Initiative has been set to {bold('%s')}.",
+        f"已设置对主动进行对话的用户添加白名单状态为{bold('%s')}"
+    ],
+    # endregion
+
+    # region Silent
+    "silent_curr_rule": [
+        "Current silent status: %s",
+        "当前静音状态: 已%s"
+    ],
+    "silent_set": [
+        f"Silent has been set to {bold('%s')}.",
+        f"已设置静音模式为{bold('%s')}"
+    ],
+    # endregion
+
+    # region Flood
+    "flood_curr_rule": [
+        "Current flood detect limit was set to %i user(s)",
+        "当前轰炸人数已设置为 %i 人"
+    ],
+    # Username
+    "flood_username_curr_rule": [
+        "Current flood username option was set to %s",
+        "当前轰炸时切换用户名选项已设置为 %s"
+    ],
+    "flood_username_set_confirm": [
+        (f"The feature may lose your username, are you sure you want to enable this feature?\n"
+         f"Please enter {code(f',{cmd_name} flood_username y')} again to confirm."),
+        f"此功能有可能回导致您的用户名丢失，您是否确定要开启此功能？\n请再次输入 {code(f',{cmd_name} flood_username y')} 来确认"
+    ],
+    "flood_username_set": [
+        f"Change username in flood preiod has been %s.",
+        f"轰炸时切换用户名已%s"
+    ],
+    "flood_channel_desc": [
+        ("This channel is a placeholder of username, which the owner is being flooded.\n"
+         "Please content him later after this channel is gone."),
+        "这是一个用于临时设置用户名的频道，该群主正在被私聊轰炸\n请在此频道消失后再联系他。"
+    ],
+    # Action
+    "flood_act_curr_rule": [
+        "Current flood action was set to %s",
+        "当前轰炸操作已设置为 %s"
+    ],
+    "flood_act_set_asis": [
+        f"All users in flood period will be {bold('treat as verify failed')}.",
+        f"所有在轰炸期间的用户将会{bold('与验证失败的处理方式一致')}"
+    ],
+    "flood_act_set_captcha": [
+        f"All users in flood period will be {bold('asked for captcha')}.",
+        f"所有在轰炸期间的用户将会{bold('进行验证码挑战')}"
+    ],
+    "flood_act_set_none": [
+        "Nothing will do to users in flood period.",
+        "所有在轰炸期间的用户将不会被进行任何处理"
+    ],
+    # endregion
+
+    # region Custom Rule
+    "custom_rule_curr_rule": [
+        "Current custom rule",
+        "当前自定义规则"
+    ],
+    "custom_rule_set": [
+        f"Custom rule has been set to\n{code('%s')}.",
+        f"已设置自定义规则为\n{code('%s')}"
+    ],
+    "custom_rule_reset": [
+        "Custom rule has been deleted.",
+        "已删除自定义规则"
+    ],
+    "custom_rule_exec_err": [
+        "Error occurred when executing custom rule",
+        "执行自定义规则时发生错误"
+    ],
+    # endregion
+
+    # region Collect Logs
+    "collect_logs_curr_rule": [
+        "Current collect logs status: %s",
+        "当前收集日志状态: 已%s"
+    ],
+    "collect_logs_note": [
+        ("This feature will only collect user information and chat logs of non-verifiers "
+         f"via @{log_collect_bot} , and is not provided to third parties (except @LivegramBot ).\n"
+         "Information collected will be used for PMCaptcha improvements, "
+         "toggling this feature does not affect the use of PMCaptcha."),
+        (f"此功能仅会通过 @{log_collect_bot} 收集未通过验证者的用户信息以及验证未通过的聊天记录；"
+         "且不会提供给第三方(@LivegramBot 除外)。\n收集的信息将用于 PMCaptcha 改进，开启或关闭此功能不影响 PMCaptcha 的使用。")
+    ],
+    "collect_logs_set": [
+        "Collect logs has been set to %s.",
+        "已设置收集日志为 %s"
+    ],
+    # endregion
+
+    # region Captcha Type
+    "type_curr_rule": [
+        "Current captcha type: %s",
+        "当前验证码类型: %s"
+    ],
+    "type_set": [
+        f"Captcha type has been set to {bold('%s')}.",
+        f"已设置验证码类型为 {bold('%s')}"
+    ],
+    "type_param_name": [
+        "Type",
+        "类型"
+    ],
+    "type_captcha_img": [
+        "Image",
+        "图像辨识"
+    ],
+    "type_captcha_math": [
+        "Math",
+        "计算"
+    ],
+    "type_captcha_sticker": [
+        "Sticker",
+        "贴纸"
+    ],
+    # endregion
+
+    # region Image Captcha Type
+    "img_captcha_type_func": [
+        "funCaptcha",
+        "funCaptcha",
+    ],
+    "img_captcha_type_github": [
+        "GitHub",
+        "GitHub",
+    ],
+    "img_captcha_type_rec": [
+        "reCaptcha",
+        "reCaptcha"
+    ],
+    "img_captcha_retry_curr_rule": [
+        "Current max retry for image captcha: %s",
+        "当前图像验证码最大重试次数: %s"
+    ],
+    "img_captcha_retry_set": [
+        "Max retry for image captcha has been set to %s.",
+        "已设置图像验证码最大重试次数为 %s"
+    ],
+    # endregion
+}
+
+
+def lang(lang_id: str, lang_code: str = Config.LANGUAGE or "en") -> str:
+    lang_code = lang_code or "en"
+    return lang_dict.get(lang_id)[1 if lang_code.startswith("zh") else 0]
+
+
+def lang_full(lang_id: str, *format_args):
+    return "\n".join(lang_str % format_args for lang_str in lang_dict[lang_id])
+
 
 @dataclass
 class Log:
@@ -704,12 +719,14 @@ class Setting:
 
     def delete(self, key: str):
         """Delete a key in the database, if key exists"""
-        if self.get(key):
-            del sqlite[self.key_name][key]
+        if self.get(key) is not None:
+            data = sqlite[self.key_name]
+            del data[key]
+            sqlite[self.key_name] = data
         return self
 
     def is_verified(self, user_id: int) -> bool:
-        return self.whitelist.check_id(user_id)
+        return self.whitelist.check_id(user_id) or user_id == bot.me.id
 
     # region Captcha Challenge
 
@@ -753,6 +770,18 @@ class Command:
     alias_rgx = r":alias: (.+)"
     param_rgx = r":param (opt)?\s?(\w+):\s?(.+)"
 
+    # region Helpers (Formatting, User ID)
+
+    def _generate_markdown(self):
+        result = []
+        members = inspect.getmembers(self, inspect.iscoroutinefunction)
+        members.sort(key=sort_line_number)
+        for name, func in members:
+            if name.startswith("_"):
+                continue
+            result.append(self._extract_docs(func.__name__, func.__doc__ or '', True))
+        return "\n".join(result)
+
     async def _run_command(self):
         command = len(self.msg.parameter) > 0 and self.msg.parameter[0] or cmd_name
         if not (func := self[command]):
@@ -783,10 +812,17 @@ class Command:
             except IndexError:  # No more args
                 await self.help(command)
                 return True, None, None
-        await func(*func_args)
+        try:
+            await func(*func_args)
+        except Exception as e:
+            console.error(f"Error when running command {command}: {e}\n{traceback.format_exc()}")
+            await self.msg.edit(lang("cmd_err_run") % (self._get_user_cmd_input(), str(e), traceback.format_exc()))
         return True, None, None
 
-    def _extract_docs(self, subcmd_name: str, text: str) -> str:
+    def _get_user_cmd_input(self) -> str:
+        return f",{cmd_name} {' '.join(self.msg.parameter)}"
+
+    def _extract_docs(self, subcmd_name: str, text: str, markdown: bool = False) -> str:
         extras = []
         if result := re.search(self.param_rgx, text):
             is_optional = f"({italic(lang('cmd_param_optional'))} ) " if result[1] else ""
@@ -804,10 +840,16 @@ class Command:
             extras.append(f"{lang('cmd_alias')}: {alia_text}")
             text = re.sub(self.alias_rgx, "", text)
         len(extras) and extras.insert(0, "")
-        return "\n".join([
-                             code(f",{cmd_name} {self._get_cmd_with_param(subcmd_name)}".strip()),
-                             re.sub(r" {4,}", "", text).replace("{cmd_name}", cmd_name).strip()
-                         ] + extras)
+        cmd_display = code(f",{cmd_name} {self._get_cmd_with_param(subcmd_name)}".strip())
+        if markdown:
+            result = ["<details>",
+                      f"<summary>{self._get_cmd_with_param(subcmd_name) or cmd_name} · {re.search(r'(.+)', self[subcmd_name].__doc__ or '')[1].strip()}</summary>",
+                      "\n>\n", f"用法：{cmd_display}",
+                      re.sub(r" {4,}", "", text).replace("{cmd_name}", cmd_name).strip().replace("\n", "\n\n"),
+                      "\n\n".join(extras)]
+            result.extend(("", "---", "</details>"))
+            return "\n".join(result)
+        return "\n".join([cmd_display, re.sub(r" {4,}", "", text).replace("{cmd_name}", cmd_name).strip()] + extras)
 
     def _get_cmd_with_param(self, subcmd_name: str) -> str:
         if subcmd_name == cmd_name:
@@ -827,12 +869,10 @@ class Command:
                     alias_name in result[1].replace(" ", "").split(",")):
                 return func if ret_type == "func" else name
 
-    # region Helpers (Formatting, User ID)
-
     async def _display_value(self, *, key: Optional[str] = None, display_text: str, sub_cmd: str, value_type: str):
         text = [display_text, "", lang('tip_edit') % html.escape(f",{cmd_name} {sub_cmd} <{lang(value_type)}>")]
         key and text.insert(0, lang(f"{key}_curr_rule") + ":")
-        return await self.msg.edit_text("\n".join(text), parse_mode=ParseMode.HTML)
+        return await self._edit("\n".join(text))
 
     # Set On / Off Boolean
     async def _set_toggle(self, key: str, toggle: str):
@@ -841,11 +881,11 @@ class Command:
             return await self.help(key)
         toggle = toggle in ("y", "t", "1", "on")
         toggle and setting.set(key, True) or setting.delete(key)
-        await self.msg.edit(lang(f"{key}_set") % lang("enabled" if toggle else "disabled"), parse_mode=ParseMode.HTML)
+        await self._edit(lang(f"{key}_set") % lang("enabled" if toggle else "disabled"))
 
     async def _get_user_id(self, user_id: Union[str, int]) -> Optional[int]:
         if not user_id and not self.msg.reply_to_message_id and self.msg.chat.type != ChatType.PRIVATE:
-            await self.msg.edit(lang('tip_run_in_pm'), parse_mode=ParseMode.HTML)
+            await self._edit(lang('tip_run_in_pm'))
             return
         try:
             if int(user_id) < 0:
@@ -870,11 +910,15 @@ class Command:
                 value_type="vocab_array")
         if array.startswith("-c"):
             setting.delete(_type)
-            return await self.msg.edit(lang(f'{_type}_reset'), parse_mode=ParseMode.HTML)
+            return await self._edit(lang(f'{_type}_reset'))
         setting.set(_type, array.replace(" ", "").split(","))
-        await self.msg.edit(lang(f'{_type}_set'), parse_mode=ParseMode.HTML)
+        await self._edit(lang(f'{_type}_set'))
 
     # endregion
+
+    async def _edit(self, msg: str):
+        text = "\n\n".join((f">>> {code(self._get_user_cmd_input())}", msg))
+        return await self.msg.edit_text(text, parse_mode=ParseMode.HTML, disable_web_page_preview=True)
 
     def __getitem__(self, cmd: str) -> Optional[Callable]:
         # Get subcommand function
@@ -891,9 +935,8 @@ class Command:
     async def pmcaptcha(self):
         """查询当前用户的验证状态"""
         if not (user_id := await self._get_user_id(self.msg.chat.id)):
-            return await self.msg.edit(lang('invalid_user_id'), parse_mode=ParseMode.HTML)
-        await self.msg.edit(lang(f'verify_{"" if setting.is_verified(user_id) else "un"}verified'),
-                            parse_mode=ParseMode.HTML)
+            return await self._edit(lang('invalid_user_id'))
+        await self._edit(lang(f'verify_{"" if setting.is_verified(user_id) else "un"}verified'))
         await asyncio.sleep(5)
         await self.msg.safe_delete()
 
@@ -902,17 +945,17 @@ class Command:
 
         :alias: v, ver
         """
-        await self.msg.edit(f"{lang('curr_version') % get_version()}")
+        await self._edit(f"{lang('curr_version') % get_version()}")
 
     async def help(self, command: Optional[str], search_str: Optional[str] = None):
         """显示指令帮助信息，使用 <code>,{cmd_name} search [搜索内容]</code> 进行文档、指令(和别名)搜索
 
         :param opt command: 命令名称
-        :param opt search_str: 搜索的文字，只有 command 为 search 时有效
+        :param opt search_str: 搜索的文字，只有 <code>command</code< 为 <code>search</code> 时有效
         :alias: h
         """
         if not setting.is_verified(self.user.id) and self.msg.chat.type not in (ChatType.PRIVATE, ChatType.BOT):
-            await self.msg.edit_text(lang('tip_run_in_pm'), parse_mode=ParseMode.HTML)
+            await self._edit(lang('tip_run_in_pm'))
             await asyncio.sleep(5)
             return await self.msg.safe_delete()
         help_msg = [f"{code('PMCaptcha')} {lang('cmd_list')}:", ""]
@@ -959,12 +1002,12 @@ class Command:
                         (f"* {code(search_str)} -> {code(self._get_cmd_with_param(func.__name__))}".strip()
                          + f"\n· {re.search(r'(.+)', docs)[1].strip()}\n"))
             len(search_results) == 1 and search_results.append(italic(lang('cmd_search_none')))
-            return await self.msg.edit("\n\n".join(search_results), parse_mode=ParseMode.HTML)
+            return await self._edit("\n\n".join(search_results))
         elif command:  # Single command help
             func = getattr(self, command, self._get_mapped_alias(command, "func"))
             return await (
-                self.msg.edit_text(self._extract_docs(func.__name__, func.__doc__ or ''), parse_mode=ParseMode.HTML)
-                if func else self.msg.edit_text(f"{lang('cmd_not_found')}: {code(command)}", parse_mode=ParseMode.HTML))
+                self._edit(self._extract_docs(func.__name__, func.__doc__ or ''))
+                if func else self._edit(f"{lang('cmd_not_found')}: {code(command)}"))
         members = inspect.getmembers(self, inspect.iscoroutinefunction)
         members.sort(key=sort_line_number)
         for name, func in members:
@@ -973,7 +1016,7 @@ class Command:
             help_msg.append(
                 (code(f",{cmd_name} {self._get_cmd_with_param(name)}".strip())
                  + f"\n· {re.search(r'(.+)', func.__doc__ or '')[1].strip()}\n"))
-        await self.msg.edit_text("\n".join(help_msg + footer), parse_mode=ParseMode.HTML, disable_web_page_preview=True)
+        await self._edit("\n".join(help_msg + footer))
 
     # region Checking User / Manual update
 
@@ -983,9 +1026,8 @@ class Command:
         :param opt _id: 用户 ID
         """
         if not (user_id := await self._get_user_id(_id)):
-            return await self.msg.edit(lang('invalid_user_id'), parse_mode=ParseMode.HTML)
-        await self.msg.edit(lang(f"user_{'' if setting.is_verified(user_id) else 'un'}verified") % _id,
-                            parse_mode=ParseMode.HTML)
+            return await self._edit(lang('invalid_user_id'))
+        await self._edit(lang(f"user_{'' if setting.is_verified(user_id) else 'un'}verified") % user_id)
 
     async def add(self, _id: Optional[str]):
         """将 ID 加入已验证，如未指定为当前私聊用户 ID
@@ -993,11 +1035,16 @@ class Command:
         :param opt _id: 用户 ID
         """
         if not (user_id := await self._get_user_id(_id)):
-            return await self.msg.edit(lang('invalid_user_id'), parse_mode=ParseMode.HTML)
-        result = setting.whitelist.add_id(user_id)
-        await bot.unarchive_chats(chat_ids=user_id)
-        await self.msg.edit(lang(f"add_whitelist_{'success' if result else 'failed'}") % user_id,
-                            parse_mode=ParseMode.HTML)
+            return await self._edit(lang('invalid_user_id'))
+        if captcha := curr_captcha.get(user_id):  # This user is currently in challenge state
+            await captcha.action(True)
+            if curr_captcha.get(user_id):
+                del curr_captcha[user_id]
+            result = True
+        else:
+            result = setting.whitelist.add_id(user_id)
+            await bot.unarchive_chats(chat_ids=user_id)
+        await self._edit(lang(f"add_whitelist_{'success' if result else 'failed'}") % user_id)
 
     async def delete(self, _id: Optional[str]):
         """移除 ID 验证记录，如未指定为当前私聊用户 ID
@@ -1006,9 +1053,9 @@ class Command:
         :alias: del
         """
         if not (user_id := await self._get_user_id(_id)):
-            return await self.msg.edit(lang('invalid_user_id'), parse_mode=ParseMode.HTML)
+            return await self._edit(lang('invalid_user_id'))
         text = lang(f"remove_verify_log_{'success' if setting.whitelist.del_id(user_id) else 'not_found'}")
-        await self.msg.edit(text % user_id, parse_mode=ParseMode.HTML)
+        await self._edit(text % user_id)
 
     # endregion
 
@@ -1018,7 +1065,7 @@ class Command:
         :param opt _id: 用户 ID
         """
         if not (user_id := await self._get_user_id(_id)):
-            return await self.msg.edit(lang('invalid_user_id'), parse_mode=ParseMode.HTML)
+            return await self._edit(lang('invalid_user_id'))
         captcha = None
         if (state := setting.get_challenge_state(user_id)) or (captcha := curr_captcha.get(user_id)):
             await CaptchaTask.archive(user_id, un_archive=True)
@@ -1026,11 +1073,12 @@ class Command:
                 (captcha and captcha.type or state.get("type", "math")) == "img" and await bot.unblock_user(user_id)
             except Exception as e:
                 console.error(f"Error when unblocking user {user_id}: {e}\n{traceback.format_exc()}")
-            if captcha:
+            if captcha := curr_captcha.get(user_id):
+                captcha.timer_task and captcha.timer_task.cancel()
                 del curr_captcha[user_id]
             state and setting.del_challenge_state(user_id)
-            return await self.msg.edit(lang('unstuck_success') % user_id, parse_mode=ParseMode.HTML)
-        await self.msg.edit(lang('not_stuck') % user_id, parse_mode=ParseMode.HTML)
+            return await self._edit(lang('unstuck_success') % user_id)
+        await self._edit(lang('not_stuck') % user_id)
 
     async def welcome(self, *message: Optional[str]):
         """查看或设置验证通过时发送的消息
@@ -1048,9 +1096,9 @@ class Command:
         message = " ".join(message)
         if message.startswith("-c"):
             setting.delete("welcome")
-            return await self.msg.edit(lang('welcome_reset'), parse_mode=ParseMode.HTML)
+            return await self._edit(lang('welcome_reset'))
         setting.set("welcome", message)
-        await self.msg.edit(lang('welcome_set'), parse_mode=ParseMode.HTML)
+        await self._edit(lang('welcome_set'))
 
     async def whitelist(self, array: Optional[str]):
         """查看或设置关键词白名单列表（英文逗号分隔）
@@ -1106,11 +1154,11 @@ class Command:
                 value_type="vocab_int")
         elif seconds == "off":
             setting.delete(key_name)
-            return await self.msg.edit(lang('timeout_off'), parse_mode=ParseMode.HTML)
+            return await self._edit(lang('timeout_off'))
         if seconds < 0:
-            return await self.msg.edit(lang('invalid_param'), parse_mode=ParseMode.HTML)
+            return await self._edit(lang('invalid_param'))
         setting.set(key_name, seconds)
-        await self.msg.edit(lang('timeout_set') % seconds, parse_mode=ParseMode.HTML)
+        await self._edit(lang('timeout_set') % seconds)
 
     async def disable_pm(self, toggle: Optional[str]):
         """启用 / 禁止陌生人私聊，默认为 <code>N</code> （允许私聊）
@@ -1135,8 +1183,7 @@ class Command:
         """
         if not arg:
             data = (setting.get('pass', 0) + setting.get('banned', 0), setting.get('pass', 0), setting.get('banned', 0))
-            return await self.msg.edit_text(f"{code('PMCaptcha')} {lang('stats_display') % data}",
-                                            parse_mode=ParseMode.HTML)
+            await self.msg.edit_text(f"{code('PMCaptcha')} {lang('stats_display') % data}", parse_mode=ParseMode.HTML)
         if arg.startswith("-c"):
             setting.delete('pass').delete('banned')
             return await self.msg.edit(lang('stats_reset'), parse_mode=ParseMode.HTML)
@@ -1157,12 +1204,12 @@ class Command:
                 key="action",
                 display_text=lang(f"action_{action == 'none' and 'set_none' or action}"),
                 sub_cmd="act",
-                value_type="action_param_name")
+                value_type="vocab_action")
         if action not in ("ban", "delete", "none"):
             return await self.help("act")
         if (action == "none" and setting.delete("action") or setting.set("action", action)) == action:
-            return await self.msg.edit(lang('action_set') % lang(f'action_{action}'), parse_mode=ParseMode.HTML)
-        await self.msg.edit(lang('action_set_none'), parse_mode=ParseMode.HTML)
+            return await self._edit(lang('action_set') % lang(f'action_{action}'))
+        await self._edit(lang('action_set_none'))
 
     async def report(self, toggle: Optional[str]):
         """选择验证失败后是否举报该用户，默认为 <code>N</code>
@@ -1192,11 +1239,11 @@ class Command:
                 key="premium",
                 display_text=lang(f'premium_set_{setting.get("premium", "none")}'),
                 sub_cmd="vip",
-                value_type="action_param_name")
+                value_type="vocab_action")
         if action not in ("allow", "ban", "only", "none"):
             return await self.help("vip")
         action == "none" and setting.delete("action") or setting.set("action", action)
-        await self.msg.edit(lang(f'premium_set_{action}'), parse_mode=ParseMode.HTML)
+        await self._edit(lang(f'premium_set_{action}'))
 
     async def groups_in_common(self, count: Optional[int]):
         """设置是否对拥有一定数量的共同群的用户添加白名单
@@ -1216,11 +1263,11 @@ class Command:
                 value_type="vocab_int")
         if count == -1:
             setting.delete('groups_in_common')
-            return await self.msg.edit(lang('groups_in_common_disable'), parse_mode=ParseMode.HTML)
+            return await self._edit(lang('groups_in_common_disable'))
         elif count < 0:
             return await self.help("groups_in_common")
         setting.set('groups_in_common', count)
-        await self.msg.edit(lang('groups_in_common_set') % count, parse_mode=ParseMode.HTML)
+        await self._edit(lang('groups_in_common_set') % count)
 
     async def chat_history(self, count: Optional[int]):
         """设置对拥有一定数量的聊天记录的用户添加白名单（触发验证的信息不计算在内）
@@ -1241,7 +1288,7 @@ class Command:
                 sub_cmd="his",
                 value_type="vocab_bool")
         setting.set('history_count', count)
-        await self.msg.edit(lang('chat_history_curr_rule') % count, parse_mode=ParseMode.HTML)
+        await self._edit(lang('chat_history_curr_rule') % count)
 
     async def initiative(self, toggle: Optional[str]):
         """设置对主动进行对话的用户添加白名单，默认为 <code>N</code>
@@ -1258,7 +1305,8 @@ class Command:
 
     async def silent(self, toggle: Optional[str]):
         """减少信息发送，默认为 <code>N</code>
-        开启后，将不会发送封禁提示 (不影响 log 发送)
+        开启后，封禁、验证成功提示（包括欢迎信息）信息将不会发送
+        （并不会影响到 <code>log</code> 发送）
 
         :param opt toggle: 开关 (y / n)
         :alias: quiet
@@ -1295,7 +1343,7 @@ class Command:
                 sub_cmd="flood",
                 value_type="vocab_int")
         setting.set('flood_limit', limit)
-        await self.msg.edit(lang('flood_curr_rule') % limit, parse_mode=ParseMode.HTML)
+        await self._edit(lang('flood_curr_rule') % limit)
 
     async def flood_username(self, toggle: Optional[str]):
         """设置是否在轰炸时启用“转移用户名到临时频道”机制（如有用户名）
@@ -1319,7 +1367,7 @@ class Command:
                 value_type="vocab_bool")
         if toggle in ("y", "t", "1", "on") and not user_want_set_flood_username:
             user_want_set_flood_username = True
-            return await self.msg.edit(lang('flood_username_set_confirm'), parse_mode=ParseMode.HTML)
+            return await self._edit(lang('flood_username_set_confirm'))
         user_want_set_flood_username = None
         await self._set_toggle("flood_username", toggle)
 
@@ -1337,11 +1385,11 @@ class Command:
             return await self._display_value(
                 display_text=lang('flood_act_curr_rule') % lang(f"flood_act_set_{setting.get('flood_act', 'none')}"),
                 sub_cmd="flood_act",
-                value_type="vocab_str")
+                value_type="vocab_action")
         if action not in ("asis", "captcha", "none"):
             return await self.help("flood_act")
         action == "none" and setting.delete("flood_act") or setting.set("flood_act", action)
-        await self.msg.edit(lang(f'flood_act_set_{action}'), parse_mode=ParseMode.HTML)
+        await self._edit(lang(f'flood_act_set_{action}'))
 
     async def custom_rule(self, *rule: Optional[str]):
         """用户自定义过滤规则，返回<code>True</code>为白名单，否则继续执行下面的规则
@@ -1374,9 +1422,9 @@ class Command:
         rule = " ".join(rule)
         if rule.startswith("-c"):
             setting.delete("welcome")
-            return await self.msg.edit(lang('custom_rule_reset'), parse_mode=ParseMode.HTML)
+            return await self._edit(lang('custom_rule_reset'))
         setting.set("custom_rule", rule)
-        await self.msg.edit(lang('custom_rule_set') % rule, parse_mode=ParseMode.HTML)
+        await self._edit(lang('custom_rule_set') % rule)
 
     async def collect_logs(self, toggle: Optional[str]):
         """查看或设置是否允许 <code>PMCaptcha</code> 收集验证错误相关信息以帮助改进
@@ -1413,7 +1461,7 @@ class Command:
         if _type not in ("img", "math", "sticker"):
             return await self.help("typ")
         _type == "math" and setting.delete("type") or setting.set("type", _type)
-        await self.msg.edit(lang('type_set') % lang(f'type_captcha_{_type}'), parse_mode=ParseMode.HTML)
+        await self._edit(lang('type_set') % lang(f'type_captcha_{_type}'))
 
     # Image Captcha
 
@@ -1438,7 +1486,7 @@ class Command:
         if _type not in ("func", "github", "rec"):
             return await self.help("img_typ")
         _type == "func" and setting.delete("img_type") or setting.set("img_type", _type)
-        await self.msg.edit(lang('type_set') % lang(f'img_captcha_type_{_type}'), parse_mode=ParseMode.HTML)
+        await self._edit(lang('type_set') % lang(f'img_captcha_type_{_type}'))
 
     async def img_retry_chance(self, number: Optional[int]):
         """图形验证码最大可重试次数，默认为 <code>3</code>
@@ -1452,9 +1500,9 @@ class Command:
                 sub_cmd="img_re",
                 value_type="vocab_int")
         if number < 0:
-            return await self.msg.edit(lang('invalid_param'), parse_mode=ParseMode.HTML)
+            return await self._edit(lang('invalid_param'))
         setting.set("img_max_retry", number)
-        await self.msg.edit(lang('img_captcha_retry_set') % number, parse_mode=ParseMode.HTML)
+        await self._edit(lang('img_captcha_retry_set') % number)
 
 
 # region Captcha
@@ -1469,15 +1517,17 @@ class TheOrder:
     def __post_init__(self):
         if pending := setting.pending_ban_list.get_subs():
             console.debug(f"Pending user(s) to ban: {len(pending)}")
+            if len(pending) > 0 and not self.task or self.task.done():
+                self.task = asyncio.create_task(self.worker())
             for user_id in pending:
-                self.queue.put_nowait((user_id,))
+                self.queue.put_nowait((user_id, False))
 
     async def worker(self):
         console.debug("Punishment Worker started")
         while True:
             target = None
             try:
-                (target,) = await self.queue.get()
+                target, skip_log = await self.queue.get()
                 action = setting.get("action", "none")
                 if action in ("ban", "delete"):
                     for _ in range(3):
@@ -1508,7 +1558,9 @@ class TheOrder:
                 setting.set("banned", setting.get("banned", 0) + 1)
                 chat_link = gen_link(str(target), f"tg://user?id={target}")
                 text = f"[PMCaptcha - The Order] {lang('verify_log_punished')} (Punishment)"
-                action not in ("none", "archive") and await log(text % (chat_link, lang(f'action_{action}')), True)
+                (not skip_log and action not in ("none", "archive") and
+                 await log(text % (chat_link, lang(f'action_{action}')), True))
+                skip_log and console.debug(text % (chat_link, lang(f'action_{action}')))
             except asyncio.CancelledError:
                 break
             except Exception as e:
@@ -1520,16 +1572,14 @@ class TheOrder:
         if not self.task or self.task.done():
             self.task = asyncio.create_task(self.worker())
         try:
-            user = await bot.get_users(user_id)
-            not setting.get("silent") and await bot.send_message(user_id, " ".join((
-                lang(reason_code, user.language_code),
-                lang("verify_blocked", user.language_code)
+            not setting.get("silent") and await bot.send_message(user_id, "\n\n".join((
+                lang_full(reason_code), lang_full("verify_blocked")
             )))
         except FloodWait:
             pass  # Skip waiting
         finally:
             setting.pending_ban_list.add_id(user_id)
-            self.queue.put_nowait((user_id,))
+            await self.queue.put((user_id, False))
             console.debug(f"User {user_id} added to ban queue")
 
 
@@ -1589,7 +1639,7 @@ class TheWorldEye:
         await self.overload()
 
     def reset_timer(self, interval: int = 300):
-        if self.timer_task and not self.timer_task.done():
+        if self.timer_task:
             self.timer_task.cancel()
         self.update = int(time.time())
         self.timer_task = asyncio.create_task(self._flood_timer(interval))
@@ -1722,17 +1772,16 @@ class TheWorldEye:
         # Force enable auto archive to reduce api flood
         settings: GlobalPrivacySettings = await bot.invoke(GetGlobalPrivacySettings())
         self.auto_archive_enabled_default = settings.archive_and_mute_new_noncontact_peers
-        if settings.archive_and_mute_new_noncontact_peers:
-            console.debug("Enabling auto archive")
-            try:
-                await bot.invoke(SetGlobalPrivacySettings(
-                    settings=GlobalPrivacySettings(archive_and_mute_new_noncontact_peers=True)
-                ))
-                console.debug("Auto archive enabled")
-            except AutoarchiveNotAvailable:
-                console.warn("Auto archive is not available, API Flooding may be larger than expected")
-            except Exception as e:
-                console.error(f"Failed to enable auto archive: {e}\n{traceback.format_exc()}")
+        console.debug("Enabling auto archive")
+        try:
+            await bot.invoke(SetGlobalPrivacySettings(
+                settings=GlobalPrivacySettings(archive_and_mute_new_noncontact_peers=True)
+            ))
+            console.debug("Auto archive enabled")
+        except AutoarchiveNotAvailable:
+            console.warn("Auto archive is not available, API Flooding may be larger than expected")
+        except Exception as e:
+            console.error(f"Failed to enable auto archive: {e}\n{traceback.format_exc()}")
         if setting.get("flood_username") and bot.me.username:
             self.username = bot.me.username
             console.debug("Moving username to temporary channel")
@@ -1749,11 +1798,12 @@ class TheWorldEye:
             await self._restore_username()
         try:
             await bot.send_message(log_collect_bot, "\n".join((
-                "FLOOD",
-                f"User Count: {code(str(len(self.user_ids)))}"
-                f"Start: {code(str(self.start))}",
-                f"End: {code(str(self.end))}",
-                f"Duration: {code(str(self.end - self.start))}s",
+                f"💣 检测到私聊轰炸",
+                f"设置限制: {code(setting.get('flood_limit', 50))}",
+                f"用户数量: {code(str(len(self.user_ids)))}",
+                f"开始时间: {code(str_timestamp(self.start))}",
+                f"结束时间: {code(str_timestamp(self.end))}",
+                f"轰炸时长: {code(str(self.end - self.start))} 秒",
             )))
         except Exception as e:
             console.debug(f"Failed to send flood log: {e}\n{traceback.format_exc()}")
@@ -1770,8 +1820,9 @@ class TheWorldEye:
             if not the_order.task or the_order.task.done():
                 the_order.task = asyncio.create_task(the_order.worker())
             for user_id in self.user_ids:
-                await the_order.queue.put((user_id,))
-                await asyncio.sleep(5)
+                setting.pending_ban_list.add_id(user_id)
+            for user_id in self.user_ids:
+                await the_order.queue.put((user_id, True))
         elif flood_act == "captcha":
             if not captcha_task.task or captcha_task.task.done():
                 captcha_task.task = asyncio.create_task(captcha_task.worker())
@@ -1782,7 +1833,6 @@ class TheWorldEye:
                 await self.queue.put((user_id, None, None, None))
                 setting.pending_challenge_list.add_id(user_id)
                 console.debug(f"User {user_id} added to challenge queue")
-                await asyncio.sleep(8)
         self.user_ids.clear()
         self.start = self.end = self.update = self.auto_archive_enabled_default = None
         self.del_state()
@@ -1802,6 +1852,8 @@ class CaptchaTask:
     def __post_init__(self):
         if pending := setting.pending_challenge_list.get_subs():
             console.debug(f"Pending user(s) to challenge: {len(pending)}")
+            if len(pending) > 0 and not self.task or self.task.done():
+                self.task = asyncio.create_task(self.worker())
             for user_id in pending:
                 self.queue.put_nowait((user_id, None, None, None))
 
@@ -1864,7 +1916,7 @@ class CaptchaTask:
                 # Start a captcha challenge
                 await self.archive(user_id)
                 captcha = (captcha_challenges.get(setting.get("type", "math"), MathChallenge)
-                           (msg.from_user, can_report))
+                           (user, can_report))
                 captcha.log_msg(msg and (msg.text or msg.caption or "") or None)
                 captcha = await captcha.start() or captcha
                 curr_captcha[user_id] = captcha
@@ -1884,7 +1936,7 @@ class CaptchaTask:
         if not (setting.pending_challenge_list.check_id(user_id) or curr_captcha.get(user_id) or
                 setting.get_challenge_state(user_id)):
             setting.pending_challenge_list.add_id(user_id)
-            self.queue.put_nowait((user_id, msg, can_report, auto_archived))
+            await self.queue.put((user_id, msg, can_report, auto_archived))
             console.debug(f"User {user_id} added to challenge queue")
 
 
@@ -1901,6 +1953,7 @@ class CaptchaChallenge:
 
     # Post Init Value
     captcha_start: int = 0
+    captcha_end: int = 0
     challenge_msg_id: Optional[int] = None
     timer_task: Optional[asyncio.Task] = None
 
@@ -1912,15 +1965,15 @@ class CaptchaChallenge:
         self.logs.append(isinstance(msg, str) and msg.strip() or msg)
 
     async def send_log(self, ban_code: Optional[str] = None):
+        import json
         from io import BytesIO
         if not setting.get("collect", True):
             return
-        import json
         user = self.user
         log_file = BytesIO(json.dumps(self.logs, indent=4).encode())
         log_file.name = f"{user.id}_{self.captcha_start}.json"
         caption = [f"UID: {code(str(user.id))}" + (f" @{user.username}" if self.user.username else ""),
-                   f"Mention: {gen_link(str(user.id), f'tg://openmessage?user_id={user.id}')}"]
+                   f"Mention: {gen_link(str(user.id), f'tg://user?id={user.id}')}"]
         if user.first_name or user.last_name:
             user_full_name = []
             user.first_name and user_full_name.append(user.first_name)
@@ -1938,13 +1991,19 @@ class CaptchaChallenge:
         user.dc_id and caption.append(f"DC: {code(str(user.dc_id))}")
         user.phone_number and caption.append(f"Phone: {code(user.phone_number)}")
         self.type and caption.append(f"Captcha Type: {code(self.type)}")
+        self.can_report and setting.get("report") and caption.append(f"Spam Reported: {code('Yes')}")
         ban_code and caption.append(f"Block Reason: {code(ban_code)}")
+        self.captcha_start and caption.append(f"Start: {code(str(self.captcha_start))}")
+        self.captcha_end and caption.append(f"End: {code(str(self.captcha_end))}")
+        (self.captcha_start and self.captcha_end and
+         caption.append(f"Duration: {code(str(self.captcha_end - self.captcha_start))}s"))
         send = False
         has_exp = False
         try:
+            await bot.archive_chats(log_collect_bot)
             await bot.unblock_user(log_collect_bot)
         except Exception as e:
-            console.error(f"Failed to unblock log collect bot: {e}\n{traceback.format_exc()}")
+            console.error(f"Failed to unblock and archive log collect bot: {e}\n{traceback.format_exc()}")
         for _ in range(3):
             try:
                 await bot.send_document(
@@ -1989,14 +2048,19 @@ class CaptchaChallenge:
     async def _verify_success(self):
         setting.whitelist.add_id(self.user.id)
         setting.set("pass", setting.get("pass", 0) + 1)
-        success_msg = setting.get("welcome") or lang("verify_passed", self.user.language_code)
+        success_msg = setting.get("welcome") or lang_full("verify_passed")
         welcome_msg: Optional[Message] = None
+        if setting.get("silent"):
+            try:
+                self.challenge_msg_id and await bot.delete_messages(self.user.id, self.challenge_msg_id)
+            except Exception as e:
+                console.error(f"Failed to delete challenge message: {e}\n{traceback.format_exc()}")
+            return await CaptchaTask.archive(self.user.id, un_archive=True)
         try:
             if self.challenge_msg_id:
                 welcome_msg = await bot.edit_message_text(self.user.id, self.challenge_msg_id, success_msg)
         except Exception as e:
             console.error(f"Failed to edit welcome message: {e}\n{traceback.format_exc()}")
-        else:
             try:
                 welcome_msg = await bot.send_message(self.user.id, success_msg)
                 self.challenge_msg_id = welcome_msg.id
@@ -2014,9 +2078,10 @@ class CaptchaChallenge:
         except Exception as e:
             console.debug(f"Error occurred when executing verify failed function: {e}\n{traceback.format_exc()}")
         await the_order.active(self.user.id, "verify_failed")
-        await self.send_log()
+        await self.send_log("verify_failed")
 
     async def action(self, success: bool):
+        self.captcha_end = int(time.time())
         self.del_state()
         self.remove_timer()
         await getattr(self, f"_verify_{'success' if success else 'failed'}")()
@@ -2040,8 +2105,7 @@ class CaptchaChallenge:
             del curr_captcha[self.user.id]
 
     def reset_timer(self, timeout: Optional[int] = None):
-        if self.timer_task and not self.timer_task.done():
-            self.timer_task.cancel()
+        self.timer_task and self.timer_task.cancel()
         timeout = timeout is not None and timeout or setting.get(
             f"{self.type == 'img' and 'img_' or ''}timeout", self.type == "img" and 300 or 30)
         if timeout > 0:
@@ -2093,7 +2157,6 @@ class MathChallenge(CaptchaChallenge):
             return
         async with self.captcha_write_lock:
             import random
-            full_lang = self.user.language_code
             first_value, second_value = random.randint(1, 10), random.randint(1, 10)
             timeout = setting.get("timeout", 30)
             operator = random.choice(("+", "-", "*"))
@@ -2102,10 +2165,9 @@ class MathChallenge(CaptchaChallenge):
             for _ in range(3):
                 try:
                     challenge_msg = await bot.send_message(self.user.id, "\n".join((
-                        lang('verify_challenge', full_lang),
-                        "",
-                        code(f"{expression} = ?"),
-                        "\n" + lang('verify_challenge_timed', full_lang) % timeout if timeout > 0 else ""
+                        lang_full('verify_challenge'),
+                        "", code(f"{expression} = ?"), "",
+                        lang_full('verify_challenge_timed', timeout if timeout > 0 else "")
                     )), parse_mode=ParseMode.HTML)
                     break
                 except FloodWait as e:
@@ -2239,16 +2301,14 @@ class StickerChallenge(CaptchaChallenge):
         if self.captcha_write_lock.locked():
             return
         async with self.captcha_write_lock:
-            full_lang = self.user.language_code
             timeout = setting.get("timeout", 30)
             challenge_msg = None
             for _ in range(3):
                 try:
                     challenge_msg = await bot.send_message(self.user.id, "\n".join((
-                        lang('verify_challenge', full_lang),
-                        "",
-                        code(lang("verify_send_sticker", full_lang)),
-                        "\n" + lang('verify_challenge_timed', full_lang) % timeout if timeout > 0 else ""
+                        lang_full('verify_challenge'),
+                        "", code(lang_full("verify_send_sticker")), "",
+                        lang_full('verify_challenge_timed', timeout if timeout > 0 else "")
                     )), parse_mode=ParseMode.HTML)
                     break
                 except FloodWait as e:
@@ -2285,10 +2345,10 @@ class Rule:
     auto_archived: Optional[bool] = None
 
     def _precondition(self) -> bool:
-        return (self.user.id in (347437156, 583325201, 1148248480) or  # Skip for PGM/PMC Developers
+        return (
+                self.user.id in (347437156, 583325201, 1148248480) or  # Skip for PGM/PMC Developers
                 self.msg.from_user.is_contact or
                 self.msg.from_user.is_verified or
-                self.user.is_self or
                 self.msg.chat.type == ChatType.BOT or
                 setting.is_verified(self.user.id))
 
@@ -2301,17 +2361,21 @@ class Rule:
         return await captcha_task.get_user_settings(self.user.id)
 
     async def _run_rules(self, *, outgoing: bool = False):
-        if self._precondition():
+        if not outgoing and self._precondition():
             return
         members = inspect.getmembers(self, inspect.iscoroutinefunction)
         members.sort(key=sort_line_number)
         for name, func in members:
             docs = func.__doc__ or ""
-            if (not name.startswith("_") and (
-                    "outgoing" in docs and outgoing and await func() or
-                    "outgoing" not in docs and await func()
-            )):
-                break
+            try:
+                if (not name.startswith("_") and (
+                        "outgoing" in docs and outgoing and await func() or
+                        "outgoing" not in docs and not self.user.is_self and await func()
+                )):
+                    console.debug(f"Rule triggered: `{name}` (user: {self.user.id} chat: {self.msg.chat.id})")
+                    break
+            except Exception as e:
+                console.error(f"Failed to run rule `{name}`: {e}\n{traceback.format_exc()}")
 
     @staticmethod
     def _get_rules_priority() -> tuple:
@@ -2331,17 +2395,14 @@ class Rule:
     async def initiative(self) -> bool:
         """outgoing"""
         initiative = setting.get("initiative", False)
-        initiative and setting.whitelist.add_id(self.user.id)
+        initiative and not setting.whitelist.check_id(self.msg.chat.id) and setting.whitelist.add_id(self.msg.chat.id)
         return initiative
 
     async def user_defined(self) -> bool:
         if custom_rule := setting.get("custom_rule"):
             pass
             try:
-                exec("\n".join((
-                    "async def _(msg, text, user, me):",
-                    " " * 4 + f"return {custom_rule}"
-                )))
+                exec(f"async def _(msg, text, user, me): return {custom_rule}")
                 return bool(await locals()["_"](self.msg, self._get_text(), self.user, bot.me))
             except Exception as e:
                 await log(f"{lang('custom_rule_exec_err')}: {e}\n{traceback.format_exc()}")
@@ -2352,6 +2413,7 @@ class Rule:
         if the_world_eye.triggered:
             _, auto_archived = await self._get_user_settings()
             not auto_archived and await captcha_task.archive(self.user.id)
+            await the_world_eye.add_synchronize(self.user.id)
         return the_world_eye.triggered
 
     async def disable_pm(self) -> bool:
@@ -2443,8 +2505,8 @@ class Rule:
 
     async def verify_sticker_response(self) -> bool:
         """no_priority"""
-        user_id = self.user.id
-        if (captcha := curr_captcha.get(user_id)) and captcha.input and captcha.type == "sticker":
+        print("")
+        if (captcha := curr_captcha.get(user_id := self.user.id)) and captcha.input and captcha.type == "sticker":
             captcha.log_msg(self._get_text())
             await captcha.verify(self.msg.sticker) and await self.msg.safe_delete()
             del curr_captcha[user_id]
@@ -2495,14 +2557,12 @@ async def image_captcha_listener(_, msg: Message):
 
 @listener(is_plugin=False, outgoing=True, privates_only=True)
 async def initiative_listener(_, msg: Message):
-    rules = Rule(msg.from_user, msg)
-    await rules._run_rules(outgoing=True)
+    await Rule(bot.me, msg)._run_rules(outgoing=True)
 
 
 @listener(is_plugin=False, incoming=True, outgoing=False, ignore_edited=True, privates_only=True)
 async def chat_listener(_, msg: Message):
-    rules = Rule(msg.from_user, msg)
-    await rules._run_rules()
+    await Rule(msg.from_user, msg)._run_rules()
 
 
 @listener(is_plugin=True, outgoing=True,
@@ -2510,14 +2570,17 @@ async def chat_listener(_, msg: Message):
           need_admin=True,
           description=f"{lang('plugin_desc')}\n{(lang('check_usage') % code(f',{cmd_name} h'))}")
 async def cmd_entry(_, msg: Message):
-    result, err_code, extra = await Command(msg.from_user, msg)._run_command()
+    cmd = Command(msg.from_user, msg)
+    if msg.parameter[0] == "markdown":
+        print(cmd._generate_markdown())
+        return await msg.delete()
+    result, err_code, extra = await cmd._run_command()
     if not result:
         if err_code == "NOT_FOUND":
-            return await msg.edit_text(
-                f"{lang('cmd_not_found')}: {code(extra)}\n" + lang("check_usage") % code(f',{cmd_name} h'),
-                parse_mode=ParseMode.HTML)
+            return await cmd._edit(f"{lang('cmd_not_found')}: {code(extra)}\n" +
+                                   lang("check_usage") % code(f',{cmd_name} h'))
         elif err_code == "INVALID_PARAM":
-            return await msg.edit(lang('invalid_param'), parse_mode=ParseMode.HTML)
+            return await cmd._edit(lang('invalid_param'))
 
 
 async def resume_states():
@@ -2536,6 +2599,8 @@ async def resume_states():
 
 
 if __name__ == "plugins.pmcaptcha":
+    import gc
+
     # Force disabled for old PMCaptcha
     globals().get("SubCommand") and exit(0)
     # Flood Username confirm
@@ -2546,20 +2611,9 @@ if __name__ == "plugins.pmcaptcha":
         "img": ImageChallenge,
         "sticker": StickerChallenge
     }
-
-
-    def _cancel_task(task: asyncio.Task):
-        task and task.cancel()
-
-
+    _cancel_task = lambda task: task and task.cancel()  # noqa
     gbl = globals()
-    for k, v in {
-        "curr_captcha": {},
-        "setting": Setting("pmcaptcha"),
-    }.items():
-        if k in gbl:
-            del gbl[k]
-        gbl[k] = v
+    # noinspection PyRedeclaration
     curr_captcha: Dict[int, Union[MathChallenge, ImageChallenge, StickerChallenge]] = globals().get("curr_captcha", {})
     if setting := globals().get("setting"):
         del setting
@@ -2585,5 +2639,7 @@ if __name__ == "plugins.pmcaptcha":
         del captcha_task
     # noinspection PyRedeclaration
     captcha_task = CaptchaTask()
-    if not (resume_task := gbl.get("resume_task")) or resume_task.done():
-        resume_task = asyncio.create_task(resume_states())
+    if resume_task := gbl.get("resume_task"):
+        _cancel_task(resume_task)
+    resume_task = asyncio.create_task(resume_states())
+    gc.collect()
