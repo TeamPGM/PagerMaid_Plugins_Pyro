@@ -25,7 +25,7 @@ from pyrogram.types import User, Sticker
 from pagermaid import bot, logs
 from pagermaid.config import Config
 from pagermaid.sub_utils import Sub
-from pagermaid.utils import Message
+from pagermaid.utils import Message, alias_command
 from pagermaid.listener import listener
 from pagermaid.single_utils import sqlite
 
@@ -55,20 +55,6 @@ def get_version():
     with open(f"{working_dir}{sep}plugins{sep}version.json", 'r', encoding="utf-8") as f:
         version_json = load(f)
     return version_json.get(cmd_name, lang('unknown_version'))
-
-
-def get_user_cmd_name():
-    global user_cmd_name  # noqa
-    from pagermaid import working_dir
-    from os import sep
-    from json import load, JSONDecodeError
-    try:
-        with open(f"{working_dir}{sep}data{sep}/alias.json", "r", encoding="utf-8") as f:
-            user_cmd_name = load(f).get(cmd_name, cmd_name)
-            return
-    except (FileNotFoundError, JSONDecodeError, KeyError):
-        pass
-    user_cmd_name = cmd_name
 
 
 # region Text Formatting
@@ -2644,7 +2630,7 @@ if __name__ == "plugins.pmcaptcha":
     import gc
 
     # Get alias for user command
-    get_user_cmd_name()
+    user_cmd_name = alias_command(cmd_name)
     # Force disabled for old PMCaptcha
     globals().get("SubCommand") and exit(0)
     # Flood Username confirm
