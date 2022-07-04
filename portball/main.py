@@ -61,12 +61,12 @@ async def portball(_, message: Message):
                 await message.delay_delete()
                 return
             else:
-                if from_user.last_name:
-                    full_name = f"{from_user.first_name} {from_user.last_name}"
-                elif from_user.first_name:
+                if from_user.first_name is None:
                     full_name = f"{from_user.id}"
+                elif from_user.last_name is None:
+                    full_name = from_user.first_name
                 else:
-                    full_name = from_user.last_name
+                    full_name = f"{from_user.first_name} {from_user.last_name}"
                 text = f"[{full_name}](tg://user?id={from_user.id}) "
                 if reason != "":
                     text += f"由于 {reason} "
