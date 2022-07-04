@@ -31,7 +31,7 @@ from pagermaid.single_utils import sqlite
 
 cmd_name = "pmcaptcha"
 
-log_collect_bot = "PagerMaid_Sam_Bot"  # CloudreflectionPmcaptchabot
+log_collect_bot = "CloudreflectionPmcaptchabot"
 img_captcha_bot = "PagerMaid_Sam_Bot"
 
 
