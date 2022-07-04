@@ -269,6 +269,16 @@
             "supported": true,
             "des-short": "贴纸迁移",
             "des": "贴纸迁移。\n指令：,sticker_transfer"
+        },
+        {
+            "name": "portball",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "luoshuijs",
+            "size": "4.9 kb",
+            "supported": true,
+            "des-short": "回复你要临时禁言的人的消息来实现XX秒的禁言",
+            "des": "回复你要临时禁言的人的消息来实现XX秒的禁言。\n指令：,portball [理由]|<时间/秒>"
         }
     ]
 }
