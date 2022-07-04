@@ -277,6 +277,10 @@ lang_dict = {
         f"User {code('%i')} added to whitelist",
         f"用户 {code('%i')} 已添加到白名单"
     ],
+    "add_whitelist_failed": [
+        f"Failed to add iser {code('%i')} to whitelist",
+        f"无法添加用户 {code('%i')} 到白名单"
+    ],
     "remove_verify_log_success": [
         f"Removed User {code('%i')}'s verify record",
         f"已删除用户 {code('%i')} 的验证记录"
@@ -1184,7 +1188,7 @@ class Command:
         if not arg:
             data = (setting.get('pass', 0) + setting.get('banned', 0), setting.get('pass', 0), setting.get('banned', 0))
             await self.msg.edit_text(f"{code('PMCaptcha')} {lang('stats_display') % data}", parse_mode=ParseMode.HTML)
-            return 
+            return
         if arg.startswith("-c"):
             setting.delete('pass').delete('banned')
             return await self.msg.edit(lang('stats_reset'), parse_mode=ParseMode.HTML)
@@ -2574,7 +2578,7 @@ async def cmd_entry(_, msg: Message):
     cmd = Command(msg.from_user, msg)
     # if msg.parameter[0] == "markdown":
     #     print(cmd._generate_markdown())
-        return await msg.delete()
+    #     return await msg.delete()
     result, err_code, extra = await cmd._run_command()
     if not result:
         if err_code == "NOT_FOUND":
