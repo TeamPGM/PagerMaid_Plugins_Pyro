@@ -19,7 +19,9 @@ async def portball(_, message: Message):
         if reply_to_message is not None:
             from_user = reply_to_message.from_user
             chat = reply_to_message.chat
-            if from_user.id == bot.me.id:
+            if from_user is None:
+                return
+            if from_user.is_self:
                 await message.edit_text('无法禁言自己。')
                 return
             seconds: int = -1
@@ -28,6 +30,8 @@ async def portball(_, message: Message):
                 try:
                     seconds = int(message.parameter[0])
                 except ValueError:
+                    edit_message: Message = await message.edit_text("出错了呜呜呜 ~ 无效的参数。")
+                    await edit_message.delay_delete()
                     await message.edit_text("出错了呜呜呜 ~ 无效的参数。")
                     await asyncio.sleep(10)
                     await message.safe_delete()
@@ -65,7 +69,13 @@ async def portball(_, message: Message):
                 await message.safe_delete()
                 return
             else:
-                text = f"[{from_user.last_name}{from_user.first_name}](tg://user?id={from_user.id}) "
+                if from_user.last_name:
+                    full_name = f"{from_user.first_name} {from_user.last_name}"
+                elif from_user.first_name:
+                    full_name = f"{from_user.id}"
+                else:
+                    full_name = from_user.last_name
+                text = f"[{full_name}](tg://user?id={from_user.id}) "
                 if reason != "":
                     text += f"由于 {reason} "
                 text += f"被塞了{seconds}秒口球.\n"
