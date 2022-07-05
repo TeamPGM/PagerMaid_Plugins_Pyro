@@ -279,6 +279,16 @@
             "supported": true,
             "des-short": "回复你要临时禁言的人的消息来实现XX秒的禁言",
             "des": "回复你要临时禁言的人的消息来实现XX秒的禁言。\n指令：,portball [理由]|<时间/秒>"
+        },
+        {
+            "name": "sb",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "3.5 kb",
+            "supported": true,
+            "des-short": "在自己拥有管理员权限的共同群组中封禁一位用户。",
+            "des": "在自己拥有管理员权限的共同群组中封禁一位用户。\n指令：,sb"
         }
     ]
 }
