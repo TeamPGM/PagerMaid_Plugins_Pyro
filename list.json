@@ -72,13 +72,13 @@
         },
         {
             "name": "pmcaptcha",
-            "version": "2.1919810",
+            "version": "2.2",
             "section": "chat",
             "maintainer": "cloudreflection,01101sam",
-            "size": "20 kb",
+            "size": "2.1k line",
             "supported": true,
             "des-short": "私聊人机验证插件",
-            "des": "私聊人机验证，支持自定义关键词黑白名单，通过后欢迎语，验证超时时间，禁止陌生人私聊，对premium特殊操作"
+            "des": "私聊人机验证，助您远离广告烦恼"
         },
         {
             "name": "bc",
