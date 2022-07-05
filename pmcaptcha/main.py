@@ -314,12 +314,22 @@ class Command:
         len(extras) and extras.insert(0, "")
         cmd_display = code(f",{cmd_name} {self._get_cmd_with_param(subcmd_name)}".strip())
         if markdown:
-            result = ["<details>",
-                      f"<summary>{self._get_cmd_with_param(subcmd_name, markdown) or code(cmd_name)} · {re.search(r'(.+)', self[subcmd_name].__doc__ or '')[1].strip()}</summary>",
-                      "\n>\n", f"用法：{cmd_display}", "",
-                      re.sub(r" {4,}", "", text).replace("{cmd_name}", cmd_name).strip().replace("\n", "\n\n"),
-                      "\n\n".join(extras)]
-            result.extend(("", "---", "</details>"))
+            result = [
+                "<details>",
+                f"<summary>{self._get_cmd_with_param(subcmd_name, markdown) or code(cmd_name)} · {re.search(r'(.+)', self[subcmd_name].__doc__ or '')[1].strip()}</summary>",
+                "\n>\n",
+                f"用法：{cmd_display}",
+                "",
+                re.sub(r" {4,}", "", text)
+                .replace("{cmd_name}", cmd_name)
+                .strip()
+                .replace("\n", "\n\n"),
+                "\n\n".join(extras),
+                "",
+                "---",
+                "</details>",
+            ]
+
             return "\n".join(result)
         return "\n".join([cmd_display, re.sub(r" {4,}", "", text).replace("{cmd_name}", cmd_name).strip()] + extras)
 
@@ -1013,7 +1023,7 @@ class Command:
                 key = "img_max_retry"
             value = setting.get(key, default)
             if isinstance(value, bool):
-                value = bold(lang(f'enabled' if value else 'disabled'))
+                value = bold(lang('enabled' if value else 'disabled'))
             elif key == "premium":
                 value = "\n" + value
             if lang_text.find("%") != -1:
@@ -1091,13 +1101,17 @@ class TheOrder:
                 if action in ("ban", "delete"):
                     if not await exec_api(bot.block_user(user_id=target)):
                         console.debug(f"Failed to block user {target}")
-                    if action == "delete":
-                        if not await exec_api(bot.invoke(messages.DeleteHistory(
+                    if action == "delete" and not await exec_api(
+                        bot.invoke(
+                            messages.DeleteHistory(
                                 just_clear=False,
                                 revoke=False,
                                 peer=await bot.resolve_peer(target),
-                                max_id=0))):
-                            console.debug(f"Failed to delete user chat {target}")
+                                max_id=0,
+                            )
+                        )
+                    ):
+                        console.debug(f"Failed to delete user chat {target}")
                 setting.pending_ban_list.del_id(target)
                 setting.get_challenge_state(target) and setting.del_challenge_state(target)
                 setting.set("banned", setting.get("banned", 0) + 1)
@@ -1347,14 +1361,20 @@ class TheWorldEye:
             console.debug("Changing back username")
             await self._restore_username()
         try:
-            await bot.send_message(log_collect_bot, "\n".join((
-                f"💣 检测到私聊轰炸",
-                f"设置限制: {code(setting.get('flood_limit', 5))}",
-                f"用户数量: {code(str(len(user_ids)))}",
-                f"开始时间: {code(str_timestamp(start))}",
-                f"结束时间: {code(str_timestamp(end))}",
-                f"轰炸时长: {code(str(duration))} 秒",
-            )))
+            await bot.send_message(
+                log_collect_bot,
+                "\n".join(
+                    (
+                        "💣 检测到私聊轰炸",
+                        f"设置限制: {code(setting.get('flood_limit', 5))}",
+                        f"用户数量: {code(str(len(user_ids)))}",
+                        f"开始时间: {code(str_timestamp(start))}",
+                        f"结束时间: {code(str_timestamp(end))}",
+                        f"轰炸时长: {code(str(duration))} 秒",
+                    )
+                ),
+            )
+
         except Exception as e:
             console.debug(f"Failed to send flood log: {e}\n{traceback.format_exc()}")
         if not self.auto_archive_enabled_default:  # Restore auto archive setting
@@ -1923,7 +1943,6 @@ class Rule:
 
     async def user_defined(self) -> bool:
         if custom_rule := setting.get("custom_rule"):
-            pass
             try:
                 exec(f"async def _(msg, text, user, me):\n return {custom_rule}")
                 return bool(await locals()["_"](self.msg, self._get_text(), self.user, bot.me))
