@@ -1036,7 +1036,7 @@ class Command:
     # Config Export / Import
 
     async def export_settings(self):
-        """导出目前 PMCaptcha 的设置
+        """导出目前 <code>PMCaptcha</code> 的设置
         请注意，此导出并不包括：
         - 封禁人数缓存
         - 白名单
@@ -1055,7 +1055,7 @@ class Command:
         await self._edit(lang('export_success'))
 
     async def import_settings(self):
-        """导入 PMCaptcha 的设置，对着设置文件回复即可
+        """导入 <code>PMCaptcha</code> 的设置，对着设置文件回复即可
         请注意，如果导出和导入的版本不一样可能会因为版本兼容问题
         导致有些设置可能会无法导入，届时将会提示
 
