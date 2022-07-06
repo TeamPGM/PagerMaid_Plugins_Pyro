@@ -289,6 +289,16 @@
             "supported": true,
             "des-short": "在自己拥有管理员权限的共同群组中封禁一位用户。",
             "des": "在自己拥有管理员权限的共同群组中封禁一位用户。\n指令：,sb"
+        },
+        {
+            "name": "sendat",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "12.2 kb",
+            "supported": true,
+            "des-short": "定时发送消息。",
+            "des": "定时发送消息。\n指令：,sendat"
         }
     ]
 }
