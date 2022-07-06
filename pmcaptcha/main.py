@@ -4,7 +4,8 @@ v1 by xtaodata and cloudreflection
 v2 by Sam
 """
 
-import re, gc, time, html, asyncio, inspect, traceback
+import re, gc, time, html, asyncio, inspect, traceback, json
+from io import BytesIO
 from dataclasses import dataclass, field
 from random import randint
 from typing import Optional, Callable, Union, List, Any, Dict, Coroutine
@@ -105,7 +106,7 @@ lang_dict = get_lang_list()
 
 def lang(lang_id: str, lang_code: str = Config.LANGUAGE or "en") -> str:
     lang_code = lang_code or "en"
-    return (lang_dict.get(lang_id, [f"Get lang failed[{code('lang_id')}]", f"获取语言失败[{code('lang_id')}]"])
+    return (lang_dict.get(lang_id, [f"Get lang failed[{code(lang_id)}]", f"获取语言失败[{code(lang_id)}]"])
     [1 if lang_code.startswith("zh") else 0])
 
 
@@ -113,7 +114,7 @@ def lang_full(lang_id: str, *format_args):
     return "\n".join(
         lang_str % format_args
         for lang_str in lang_dict.get(
-            lang_id, [f"Get lang failed[{code('lang_id')}]", f"获取语言失败[{code('lang_id')}]"])
+            lang_id, [f"Get lang failed[{code(lang_id)}]", f"获取语言失败[{code(lang_id)}]"])
     )
 
 
@@ -329,7 +330,6 @@ class Command:
                 "---",
                 "</details>",
             ]
-
             return "\n".join(result)
         return "\n".join([cmd_display, re.sub(r" {4,}", "", text).replace("{cmd_name}", cmd_name).strip()] + extras)
 
@@ -698,10 +698,10 @@ class Command:
                 value_type="vocab_action")
         if action not in ("ban", "delete", "none"):
             return await self.help("act")
-        if (action == "ban" and setting.delete("action") or setting.set("action", action)) == action:
-            if action == "none":
-                return await self._edit(lang('action_set_none'))
-            return await self._edit(lang('action_set') % lang(f'action_{action}'))
+        action == "ban" and setting.delete("action") or setting.set("action", action)
+        if action == "none":
+            return await self._edit(lang('action_set_none'))
+        return await self._edit(lang('action_set') % lang(f'action_{action}'))
 
     async def report(self, toggle: Optional[str]):
         """选择验证失败后是否举报该用户，默认为 <code>开启</code>
@@ -921,7 +921,7 @@ class Command:
                 value_type="vocab_rule")
         rule = " ".join(rule)
         if rule.startswith("-c"):
-            setting.delete("welcome")
+            setting.delete("custom_rule")
             return await self._edit(lang('custom_rule_reset'))
         setting.set("custom_rule", rule)
         await self._edit(lang('custom_rule_set') % rule)
@@ -1033,6 +1033,48 @@ class Command:
             settings_text.append(lang_text)
         await self._edit(lang('settings_lists') % "\n".join(settings_text))
 
+    # Config Export / Import
+
+    async def export_settings(self):
+        """导出目前 <code>PMCaptcha</code> 的设置
+        请注意，此导出并不包括：
+        - 封禁人数缓存
+        - 白名单
+        - 等待验证缓存
+
+        :alias: export, export_setting
+        """
+        config = sqlite[setting.key_name]
+        config['version'] = get_version()
+        for key in ("pass", "banned", "flooded"):
+            if config.get(key):
+                del config[key]
+        file = BytesIO(json.dumps(config, indent=4).encode())
+        file.name = f"{str_timestamp(int(time.time()))}.pmc-settings.json"
+        await bot.send_document("me", file)
+        await self._edit(lang('export_success'))
+
+    async def import_settings(self):
+        """导入 <code>PMCaptcha</code> 的设置，对着设置文件回复即可
+        请注意，如果导出和导入的版本不一样可能会因为版本兼容问题
+        导致有些设置可能会无法导入，届时将会提示
+
+        :alias: import_setting, import
+        """
+        if not (self.msg.reply_to_message and self.msg.reply_to_message.document):
+            return await self.help("import")
+        try:
+            # noinspection PyUnresolvedReferences
+            config = json.loads((await self.msg.reply_to_message.download(in_memory=True)).getvalue())
+        except (json.JSONDecodeError, ValueError):
+            return await self._edit(lang('import_failed'))
+        if config.get("version") != get_version():
+            return await self._edit(lang('import_version_mismatch'))
+        del config["version"]
+        for key, value in config.items():
+            setting.set(key, value)
+        await self._edit(lang('import_success'))
+
     # Image Captcha
 
     async def change_img_type(self, _type: Optional[str]):
@@ -1102,14 +1144,14 @@ class TheOrder:
                     if not await exec_api(bot.block_user(user_id=target)):
                         console.debug(f"Failed to block user {target}")
                     if action == "delete" and not await exec_api(
-                        bot.invoke(
-                            messages.DeleteHistory(
-                                just_clear=False,
-                                revoke=False,
-                                peer=await bot.resolve_peer(target),
-                                max_id=0,
+                            bot.invoke(
+                                messages.DeleteHistory(
+                                    just_clear=False,
+                                    revoke=False,
+                                    peer=await bot.resolve_peer(target),
+                                    max_id=0,
+                                )
                             )
-                        )
                     ):
                         console.debug(f"Failed to delete user chat {target}")
                 setting.pending_ban_list.del_id(target)
@@ -1374,7 +1416,6 @@ class TheWorldEye:
                     )
                 ),
             )
-
         except Exception as e:
             console.debug(f"Failed to send flood log: {e}\n{traceback.format_exc()}")
         if not self.auto_archive_enabled_default:  # Restore auto archive setting
@@ -1527,8 +1568,6 @@ class CaptchaChallenge:
         self.logs.append(isinstance(msg, str) and msg.strip() or msg)
 
     async def send_log(self, ban_code: Optional[str] = None):
-        import json
-        from io import BytesIO
         if not setting.get("collect_logs", True):
             return
         user = self.user
