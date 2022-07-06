@@ -128,7 +128,7 @@ class SendTask:
             raise ValueError("Invalid task format")
         if no_date:
             self.interval = True
-            self.time_limit = 1
+            self.time_limit = self.time_limit if self.time_limit > 0 else 1
 
 
 class SendTasks:
