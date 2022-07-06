@@ -299,6 +299,16 @@
             "supported": true,
             "des-short": "定时发送消息。",
             "des": "定时发送消息。\n指令：,sendat"
+        },
+        {
+            "name": "chat_transfer",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "3.52 kb",
+            "supported": true,
+            "des-short": "导出、导入已加入的群组/频道（仅可导入公开群组/频道）",
+            "des": "导出、导入已加入的群组/频道（仅可导入公开群组/频道）\n指令：,chat_transfer"
         }
     ]
 }
