@@ -1023,7 +1023,7 @@ class Command:
                 key = "img_max_retry"
             value = setting.get(key, default)
             if isinstance(value, bool):
-                value = bold(lang(f'enabled' if value else 'disabled'))
+                value = bold(lang('enabled' if value else 'disabled'))
             elif key == "premium":
                 value = "\n" + value
             if lang_text.find("%") != -1:
