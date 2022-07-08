@@ -783,17 +783,17 @@ class Command:
         await self._edit(lang('chat_history_curr_rule') % count)
 
     async def initiative(self, toggle: Optional[str]):
-        """设置对主动进行对话的用户添加白名单，默认为 <code>关闭</code>
+        """设置对主动进行对话的用户添加白名单，默认为 <code>开启</code>
 
         :param opt toggle: 开关 (y / n)
         """
         if not toggle:
             return await self._display_value(
                 display_text=lang('initiative_curr_rule') % lang(
-                    'enabled' if setting.get('initiative', False) else 'disabled'),
+                    'enabled' if setting.get('initiative', True) else 'disabled'),
                 sub_cmd="initiative",
                 value_type="vocab_bool")
-        await self._set_toggle("initiative", toggle)
+        await self._set_toggle("initiative", toggle, reverse=True)
 
     async def silent(self, toggle: Optional[str]):
         """减少信息发送，默认为 <code>关闭</code>
@@ -980,7 +980,7 @@ class Command:
                 ("premium", bold(lang('premium_set_none'))),
                 ("groups_in_common", text_none),
                 ("chat_history", -1),
-                ("initiative", bold(lang("disabled"))),
+                ("initiative", bold(lang("enabled"))),
                 ("silent", bold(lang("disabled"))),
                 ("flood", 5),
                 ("flood_username", bold(lang("disabled"))),
@@ -1976,7 +1976,7 @@ class Rule:
 
     async def initiative(self) -> bool:
         """outgoing"""
-        initiative = setting.get("initiative", False)
+        initiative = setting.get("initiative", True)
         initiative and not setting.whitelist.check_id(self.msg.chat.id) and setting.whitelist.add_id(self.msg.chat.id)
         return initiative
 
