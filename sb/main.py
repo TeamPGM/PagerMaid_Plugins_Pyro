@@ -22,25 +22,30 @@ async def delete_all_messages(chat: Chat, uid):
     await bot.delete_user_history(chat.id, uid)
 
 
-async def check_uid(uid: str):
+async def check_uid(chat: Chat, uid: str):
     channel = False
     try:
         uid = int(uid)
         if uid < 0:
             channel = True
-        await bot.get_chat(uid)
+        await bot.get_chat_member(chat.id, uid)
     except ValueError:
-        chat = await bot.get_chat(uid)
-        uid = chat.id
-        if chat.type in [ChatType.CHANNEL, ChatType.SUPERGROUP, ChatType.GROUP]:
-            channel = True
+        try:
+            chat = await bot.get_chat(uid)
+            uid = chat.id
+            if chat.type in [ChatType.CHANNEL, ChatType.SUPERGROUP, ChatType.GROUP]:
+                channel = True
+        except PeerIdInvalid:
+            member = await bot.get_chat_member(chat.id, uid)
+            uid = member.user.id
     return uid, channel
 
 
-async def get_uid(message: Message):
+async def get_uid(chat: Chat, message: Message):
     uid = None
     channel = False
     delete_all = True
+    sender = None
     if reply := message.reply_to_message:
         if sender := reply.from_user:
             uid = sender.id
@@ -50,21 +55,22 @@ async def get_uid(message: Message):
         if message.arguments:
             delete_all = False
     elif len(message.parameter) == 2:
-        uid, channel = await check_uid(message.parameter[0])
+        uid, channel = await check_uid(chat, message.parameter[0])
         delete_all = False
     elif len(message.parameter) == 1:
-        uid, channel = await check_uid(message.arguments)
-    return uid, channel, delete_all
+        uid, channel = await check_uid(chat, message.arguments)
+    return uid, channel, delete_all, sender
 
 
 @listener(command="sb",
           description=lang('sb_des'),
           need_admin=True,
+          groups_only=True,
           parameters="<reply|id|username> <do_not_del_all>")
 async def super_ban(message: Message):
     chat = message.chat
     try:
-        uid, channel, delete_all = await get_uid(message)
+        uid, channel, delete_all, sender = await get_uid(chat, message)
     except (ValueError, PeerIdInvalid, UsernameInvalid, FloodWait):
         return await message.edit(lang("arg_error"))
     if not uid:
@@ -104,11 +110,13 @@ async def super_ban(message: Message):
             groups.append(mention_group(i))
         except Exception:  # noqa
             pass
-    user = await bot.get_users(uid)
+    if not sender:
+        member = await bot.get_chat_member(chat.id, uid)
+        sender = member.user
     if count == 0:
-        text = f'{lang("sb_no")} {user.mention}'
+        text = f'{lang("sb_no")} {sender.mention}'
     else:
-        text = f'{lang("sb_per")} {count} {lang("sb_in")} {user.mention}'
+        text = f'{lang("sb_per")} {count} {lang("sb_in")} {sender.mention}'
     await message.edit(text)
     groups = f'\n{lang("sb_pro")}\n' + "\n".join(groups) if groups else ''
     await log(f'{text}\nuid: `{uid}` {groups}')
