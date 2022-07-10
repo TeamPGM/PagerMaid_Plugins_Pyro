@@ -79,7 +79,10 @@ async def super_ban(message: Message):
         except Exception as e:
             return await message.edit(f"出现错误：{e}")
         return await message.edit(lang("sb_channel"))
-    common = await bot.get_common_chats(uid)
+    try:
+        common = await bot.get_common_chats(uid)
+    except PeerIdInvalid:
+        common = [chat]
     count, groups = 0, []
     for i in common:
         try:
