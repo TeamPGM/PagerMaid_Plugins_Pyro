@@ -710,7 +710,7 @@ class Command:
         """
         if not toggle:
             return await self._display_value(
-                display_text=lang('report_curr_rule') % lang('enabled' if setting.get('report') else 'disabled'),
+                display_text=lang('report_curr_rule') % lang('enabled' if setting.get('report', True) else 'disabled'),
                 sub_cmd="report",
                 value_type="vocab_bool")
         await self._set_toggle("report", toggle, reverse=True)
@@ -1592,7 +1592,7 @@ class CaptchaChallenge:
         user.dc_id and caption.append(f"DC: {code(str(user.dc_id))}")
         user.phone_number and caption.append(f"Phone: {code(user.phone_number)}")
         self.type and caption.append(f"Type: {code(self.type)}")
-        self.can_report and setting.get("report") and caption.append(f"Spam Reported: {code('Yes')}")
+        self.can_report and setting.get("report", True) and caption.append(f"Spam Reported: {code('Yes')}")
         ban_code and caption.append(f"Block Reason: {code(ban_code)}")
         self.captcha_start and caption.append(f"Start: {code(str(self.captcha_start))}")
         self.captcha_end and caption.append(f"End: {code(str(self.captcha_end))}")
@@ -1667,7 +1667,7 @@ class CaptchaChallenge:
         try:
             for challenge_msg_id in self.challenge_msg_ids:
                 await bot.delete_messages(self.user.id, challenge_msg_id)
-            (self.can_report and setting.get("report") and
+            (self.can_report and setting.get("report", True) and
              await bot.invoke(messages.ReportSpam(peer=await bot.resolve_peer(self.user.id))))
         except Exception as e:
             console.debug(f"Error occurred when executing verify failed function: {e}\n{traceback.format_exc()}")
