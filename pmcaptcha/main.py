@@ -2112,13 +2112,13 @@ async def image_captcha_listener(_, msg: Message):
         await ImageChallenge.resume(user=msg.from_user, state=last_captcha)
     if not curr_captcha.get(user_id):  # User not in verify state
         return
-    captcha = curr_captcha[user_id]
+    captcha, msg_text = curr_captcha[user_id], msg.caption or ""
     captcha.reset_timer().update_state({"last_active": int(time.time())})
-    if "CAPTCHA_SOLVED" in msg.caption:
+    if "CAPTCHA_SOLVED" in msg_text:
         await msg.safe_delete()
         await captcha.verify(True)
         del curr_captcha[user_id]
-    elif "CAPTCHA_FAILED" in msg.caption:
+    elif "CAPTCHA_FAILED" in msg_text:
         if "forced" in msg.caption:
             await captcha.action(False)
             del curr_captcha[user_id]
@@ -2126,7 +2126,7 @@ async def image_captcha_listener(_, msg: Message):
         if await captcha.verify(False):
             del curr_captcha[user_id]
             await msg.safe_delete()
-    elif "CAPTCHA_FALLBACK" in msg.caption:
+    elif "CAPTCHA_FALLBACK" in msg_text:
         await msg.safe_delete()
         # Fallback to selected captcha type
         captcha_type = msg.caption.replace("CAPTCHA_FALLBACK", "").strip()
