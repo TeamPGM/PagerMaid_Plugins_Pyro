@@ -6,6 +6,7 @@ from os import sep
 from random import randint
 
 from pyrogram import Client
+from pyrogram.enums import MessageEntityType
 from pyrogram.errors import PeerIdInvalid, UsernameNotOccupied
 from pyrogram.types import User, Chat
 
@@ -225,11 +226,11 @@ async def eat(client_: Client, context: Message):
             else:
                 user = context.sender_chat
         if context.entities is not None:
-            if context.entities[0].type == "text_mention":
+            if context.entities[0].type == MessageEntityType.TEXT_MENTION:
                 user = context.entities[0].user
-            elif context.entities[0].type == "phone_number":
+            elif context.entities[0].type == MessageEntityType.PHONE_NUMBER:
                 user = int(context.parameter[0])
-            elif context.entities[0].type == "bot_command":
+            elif context.entities[0].type == MessageEntityType.BOT_COMMAND:
                 if context.from_user:
                     user = context.from_user
                 else:
