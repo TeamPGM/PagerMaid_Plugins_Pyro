@@ -25,6 +25,12 @@ async def dc(bot: Client, context: Message):
             return await context.edit(f"您所在的位置: DC{user.dc_id}")
         except:
             return await context.edit("无法查询! 您是否设置了头像呢？我是否可以看到你的头像呢？")
+    if context.chat.id > 0:
+        try:
+            user = await bot.get_users(context.chat.id)
+            return await context.edit(f"他所在的位置: DC{user.dc_id}")
+        except:
+            return await context.edit("无法查询! 您是否设置了头像呢？我是否可以看到你的头像呢？")
     count = await bot.get_chat_members_count(context.chat.id)
     if count >= 10000 and context.arguments != "force":
         return await context.edit("太...太多人了... 我会...会...会坏掉的...\n\n如果您执意要运行的的话，您可以使用指令 ,dc force")
