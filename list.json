@@ -309,6 +309,16 @@
             "supported": true,
             "des-short": "导出、导入已加入的群组/频道（仅可导入公开群组/频道）",
             "des": "导出、导入已加入的群组/频道（仅可导入公开群组/频道）\n指令：,chat_transfer"
+        },
+        {
+            "name": "keyword",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "10.9 kb",
+            "supported": true,
+            "des-short": "关键词回复。",
+            "des": "关键词回复。\n指令：,keyword"
         }
     ]
 }
