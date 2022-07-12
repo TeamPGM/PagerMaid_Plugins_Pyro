@@ -139,7 +139,7 @@ class SendTasks:
 
     def add(self, task: SendTask):
         for i in self.tasks:
-            if i.cid == task.cid:
+            if i.task_id == task.task_id:
                 return
         self.tasks.append(task)
 
@@ -164,13 +164,7 @@ class SendTasks:
         return "\n".join(task.export_str(show_all) for task in self.tasks if task.cid == cid or show_all)
 
     def save_to_file(self):
-        data = sqlite.get("sendat_tasks", [])
-        for task in self.tasks:
-            for i in data:
-                if i["task_id"] == task.task_id:
-                    data.remove(i)
-                    break
-            data.append(task.export())
+        data = [task.export() for task in self.tasks]
         sqlite["sendat_tasks"] = data
 
     def load_from_file(self):
@@ -310,6 +304,7 @@ async def send_at(message: Message):
             if uid := await from_msg_get_task_id(message):
                 send_tasks.remove(uid)
                 send_tasks.save_to_file()
+                send_tasks.load_from_file()
                 return await message.edit(f"已删除任务 {uid}")
         elif message.parameter[0] == "pause":
             if uid := await from_msg_get_task_id(message):
@@ -335,4 +330,5 @@ async def send_at(message: Message):
     send_tasks.add(task)
     send_tasks.register_single_task(task)
     send_tasks.save_to_file()
+    send_tasks.load_from_file()
     await message.edit(f"已添加任务 {task.task_id}")
