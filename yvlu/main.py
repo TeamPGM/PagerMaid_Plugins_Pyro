@@ -10,7 +10,6 @@ from asyncio import TimeoutError
 from pagermaid import bot
 from pagermaid.listener import listener
 from pagermaid.single_utils import Message
-from pagermaid.utils import alias_command
 
 
 def font(path, size):
@@ -111,7 +110,7 @@ async def yv_lu_process_sticker(name, photo, sticker, path):
     result.save(f'{path}result.png')
 
 
-@listener(is_plugin=True, outgoing=True, command=alias_command("yvlu"),
+@listener(is_plugin=True, outgoing=True, command="yvlu",
           description="将回复的消息或者输入的字符串转换成语录")
 async def yv_lu(message: Message):
     bot_username = "PagerMaid_QuotLy_bot"

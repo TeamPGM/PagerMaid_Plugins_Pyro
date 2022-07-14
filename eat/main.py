@@ -12,7 +12,7 @@ from pyrogram.types import User, Chat
 
 from pagermaid.single_utils import sqlite, safe_remove
 from pagermaid.listener import listener
-from pagermaid.utils import alias_command, client, Message, lang
+from pagermaid.utils import client, Message, lang
 
 from collections import defaultdict
 import json
@@ -191,7 +191,7 @@ async def downloadFileByIds(ids, context):
         await context.edit("更新下载模版图片失败，请确认配置文件是否正确")
 
 
-@listener(is_plugin=True, outgoing=True, command=alias_command("eat"),
+@listener(is_plugin=True, outgoing=True, command="eat",
           description="生成一张 吃头像 图片\n"
                       "可选：当第二个参数是数字时，读取预存的配置；\n\n"
                       "当第二个参数是.开头时，头像旋转180°，并且判断r后面是数字则读取对应的配置生成\n\n"
