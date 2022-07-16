@@ -329,6 +329,16 @@
             "supported": true,
             "des-short": "仅联系人可以发送语音消息给我。",
             "des": "仅联系人可以发送语音消息给我。"
+        },
+        {
+            "name": "session",
+            "version": "1.0",
+            "section": "profile",
+            "maintainer": "xtaodada",
+            "size": "4.36 kb",
+            "supported": true,
+            "des-short": "注销/查询已登录的会话。",
+            "des": "注销/查询已登录的会话。\n指令：,session"
         }
     ]
 }
