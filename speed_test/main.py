@@ -65,14 +65,29 @@ async def run_speedtest(message: Message):
     return des, "speedtest.png" if exists("speedtest.png") else None
 
 
+async def get_all_ids():
+    test = Speedtest()
+    servers = test.get_closest_servers()
+    if not servers:
+        return "附近没有测速点", None
+    return "附近的测速点有：\n\n" + \
+           "\n".join(f"`{i['id']}` - `{int(i['d'])}km` - `{i['name']}` - `{i['sponsor']}`" for i in servers), None
+
+
 @listener(command="speedtest",
           description=lang('speedtest_des'),
-          parameters="(Server ID)")
+          parameters="(Server ID/测速点列表)")
 async def speedtest(message: Message):
     """ Tests internet speed using speedtest. """
-    msg = await message.edit(lang('speedtest_processing'))
+    if message.arguments == "测速点列表":
+        msg = message
+    else:
+        msg: Message = await message.edit(lang('speedtest_processing'))
     try:
-        des, photo = await run_speedtest(message)
+        if message.arguments == "测速点列表":
+            des, photo = await get_all_ids()
+        else:
+            des, photo = await run_speedtest(message)
     except SpeedtestHTTPError:
         return await msg.edit(lang('speedtest_ConnectFailure'))
     except ValueError:
@@ -87,4 +102,5 @@ async def speedtest(message: Message):
         await message.bot.send_photo(message.chat.id, photo, caption=des)
     except Exception:
         return await msg.edit(des)
+    await msg.safe_delete()
     safe_remove(photo)
