@@ -34,11 +34,14 @@ def unit_convert(byte):
 
 async def run_speedtest(message: Message):
     test = Speedtest()
-    server = [int(message.arguments)] if len(message.parameter) == 1 else []
+    server = int(message.arguments) if len(message.parameter) == 1 else None
     if server:
-        test.get_servers(servers=server)
-    else:
-        test.get_best_server(servers=test.servers)
+        servers = test.get_closest_servers()
+        for i in servers:
+            if i["id"] == str(server):
+                test.servers = i
+                break
+    test.get_best_server(servers=test.servers)
     test.download()
     test.upload()
     with contextlib.suppress(ShareResultsConnectFailure):
