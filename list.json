@@ -222,10 +222,10 @@
         },
         {
             "name": "sticker",
-            "version": "0.041",
+            "version": "0.05",
             "section": "chat",
-            "maintainer": "xiluo",
-            "size": "16.9 kb",
+            "maintainer": "xtaodada",
+            "size": "4.94 kb",
             "supported": true,
             "des-short": "Sticker Tools",
             "des": "Sticker Tools"
