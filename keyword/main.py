@@ -65,7 +65,7 @@ class KeywordTask:
             if i["task_id"] == self.task_id:
                 data.remove(i)
                 break
-            data.append(self.export())
+        data.append(self.export())
         sqlite["keyword_tasks"] = data
 
     def check_need_reply(self, message: Message) -> bool:

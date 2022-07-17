@@ -40,7 +40,7 @@ class SendTask:
     def reduce_time(self):
         if self.time_limit > 0:
             self.time_limit -= 1
-        self.save_to_file()
+            self.save_to_file()
 
     def export(self):
         return {"task_id": self.task_id, "cid": self.cid, "msg": self.msg, "interval": self.interval,
@@ -83,7 +83,7 @@ class SendTask:
             if i["task_id"] == self.task_id:
                 data.remove(i)
                 break
-            data.append(self.export())
+        data.append(self.export())
         sqlite["sendat_tasks"] = data
 
     @staticmethod

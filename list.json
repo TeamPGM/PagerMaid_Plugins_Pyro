@@ -292,7 +292,7 @@
         },
         {
             "name": "sendat",
-            "version": "1.002",
+            "version": "1.003",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "12.2 kb",
@@ -312,7 +312,7 @@
         },
         {
             "name": "keyword",
-            "version": "1.0",
+            "version": "1.001",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "10.9 kb",
