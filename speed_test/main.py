@@ -39,7 +39,7 @@ async def run_speedtest(message: Message):
         servers = test.get_closest_servers()
         for i in servers:
             if i["id"] == str(server):
-                test.servers = i
+                test.servers = [i]
                 break
     test.get_best_server(servers=test.servers)
     test.download()
