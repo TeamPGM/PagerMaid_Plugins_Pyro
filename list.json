@@ -339,6 +339,16 @@
             "supported": true,
             "des-short": "注销/查询已登录的会话。",
             "des": "注销/查询已登录的会话。\n指令：,session"
+        },
+        {
+            "name": "speed_test",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "3.02 kb",
+            "supported": true,
+            "des-short": "测速。",
+            "des": "测速。\n指令：,speedtest"
         }
     ]
 }
