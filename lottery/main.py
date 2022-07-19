@@ -2,6 +2,7 @@ import contextlib
 import secrets
 
 from pagermaid import bot, log
+from pagermaid.utils import alias_command
 from pagermaid.listener import listener
 from pagermaid.single_utils import Message
 from pagermaid.sub_utils import Sub
@@ -91,10 +92,11 @@ async def create_lottery(chat_id: int, num: int, win: int, title: str, keyword: 
 @listener(command="lottery",
           groups_only=True,
           parameters="<奖品数/人数> <关键词> <标题> / 强制开奖",
-          description="举行抽奖活动")
+          description=f"举行抽奖活动\n\n例如：,{alias_command('lottery')} 1/10 测试 测试")
 async def lottery(message: Message):
     if not message.arguments:
-        return await message.edit("请输入 奖品数、人数、关键字和标题 或者 强制开奖")
+        return await message.edit(
+            f"请输入 奖品数、人数等参数 或者 强制开奖\n\n例如 `,{alias_command('lottery')} 1/10 测试 测试`")
     if message.arguments == "强制开奖":
         await message.edit("强制开奖成功。")
         return await lottery_end()
