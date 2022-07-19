@@ -359,6 +359,16 @@
             "supported": true,
             "des-short": "解析 Telegram 聊天窗口背景图。",
             "des": "解析 Telegram 聊天窗口背景图。\n指令：,tgbg"
+        },
+        {
+            "name": "lottery",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "4.51 kb",
+            "supported": true,
+            "des-short": "举行单群抽奖活动。",
+            "des": "举行单群抽奖活动。\n指令：,lottery"
         }
     ]
 }
