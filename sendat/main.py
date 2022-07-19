@@ -287,6 +287,7 @@ async def from_msg_get_task_id(message: Message):
 
 @listener(command="sendat",
           parameters="时间 | 消息内容",
+          need_admin=True,
           description=f"定时发送消息\n请使用 ,{alias_command('sendat')} h 查看可用命令")
 async def send_at(message: Message):
     if message.arguments == "h" or len(message.parameter) == 0:

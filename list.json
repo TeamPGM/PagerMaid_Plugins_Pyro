@@ -292,7 +292,7 @@
         },
         {
             "name": "sendat",
-            "version": "1.003",
+            "version": "1.004",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "12.2 kb",
@@ -312,7 +312,7 @@
         },
         {
             "name": "keyword",
-            "version": "1.001",
+            "version": "1.002",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "10.9 kb",
@@ -362,7 +362,7 @@
         },
         {
             "name": "lottery",
-            "version": "1.001",
+            "version": "1.002",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "4.51 kb",

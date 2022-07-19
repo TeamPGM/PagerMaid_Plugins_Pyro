@@ -254,6 +254,7 @@ async def from_msg_get_task_id(message: Message):
 
 @listener(command="keyword",
           parameters="指定参数",
+          need_admin=True,
           description="关键词回复\n\nhttps://telegra.ph/PagerMaid-keyword-07-12")
 async def keyword_set(message: Message):
     if message.arguments == "h" or len(message.parameter) == 0:
