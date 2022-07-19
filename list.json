@@ -349,6 +349,16 @@
             "supported": true,
             "des-short": "测速。",
             "des": "测速。\n指令：,speedtest"
+        },
+        {
+            "name": "tgbg",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "1.25 kb",
+            "supported": true,
+            "des-short": "解析 Telegram 聊天窗口背景图。",
+            "des": "解析 Telegram 聊天窗口背景图。\n指令：,tgbg"
         }
     ]
 }
