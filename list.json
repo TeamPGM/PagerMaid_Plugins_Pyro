@@ -369,6 +369,16 @@
             "supported": true,
             "des-short": "举行单群抽奖活动。",
             "des": "举行单群抽奖活动。\n指令：,lottery"
+        },
+        {
+            "name": "epic",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "5.79 kb",
+            "supported": true,
+            "des-short": "获取 Epic 喜加一限免。",
+            "des": "获取 Epic 喜加一限免。\n指令：,epic"
         }
     ]
 }
