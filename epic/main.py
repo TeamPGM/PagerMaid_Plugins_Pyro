@@ -96,7 +96,10 @@ async def epic(message: Message):
                 r = await client.get(game_thumbnail, timeout=10.0)
                 with open("epic.jpg", "wb") as code:
                     code.write(r.content)
-                await message.reply_photo("epic.jpg", caption=msg, quote=False)
+                try:
+                    await message.reply_photo("epic.jpg", caption=msg, quote=False)
+                except Exception:
+                    await message.reply(msg, quote=False)
                 safe_remove("epic.jpg")
             else:
                 await message.reply(msg, quote=False)
