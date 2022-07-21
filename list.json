@@ -379,6 +379,16 @@
             "supported": true,
             "des-short": "获取 Epic 喜加一限免。",
             "des": "获取 Epic 喜加一限免。\n指令：,epic"
+        },
+        {
+            "name": "everyday_greet",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "3.65 kb",
+            "supported": true,
+            "des-short": "每日问候。",
+            "des": "每日问候。\n指令：,everyday_greet"
         }
     ]
 }
