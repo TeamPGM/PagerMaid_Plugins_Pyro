@@ -389,6 +389,16 @@
             "supported": true,
             "des-short": "每日问候。",
             "des": "每日问候。\n指令：,everyday_greet"
+        },
+        {
+            "name": "netease_comment",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada、KorenKrita",
+            "size": "0.89 kb",
+            "supported": true,
+            "des-short": "随机一条网易云音乐评论。",
+            "des": "随机一条网易云音乐评论。\n指令：,netease_comment"
         }
     ]
 }
