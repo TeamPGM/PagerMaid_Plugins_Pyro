@@ -399,6 +399,16 @@
             "supported": true,
             "des-short": "随机一条网易云音乐评论。",
             "des": "随机一条网易云音乐评论。\n指令：,netease_comment"
+        },
+        {
+            "name": "bingwall",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada、ahhhiiii",
+            "size": "2.0 kb",
+            "supported": true,
+            "des-short": "获取 Bing 每日壁纸。",
+            "des": "获取 Bing 每日壁纸。\n指令：,bingwall"
         }
     ]
 }
