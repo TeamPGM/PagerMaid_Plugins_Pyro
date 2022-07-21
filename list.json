@@ -409,6 +409,16 @@
             "supported": true,
             "des-short": "获取 Bing 每日壁纸。",
             "des": "获取 Bing 每日壁纸。\n指令：,bingwall"
+        },
+        {
+            "name": "atadmins",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada、Pentacene",
+            "size": "0.96 kb",
+            "supported": true,
+            "des-short": "一键 AT 本群管理员。",
+            "des": "一键 AT 本群管理员。\n指令：,atadmins"
         }
     ]
 }
