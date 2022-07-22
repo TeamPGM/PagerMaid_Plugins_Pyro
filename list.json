@@ -429,6 +429,16 @@
             "supported": true,
             "des-short": "获取当前群组的死号数。",
             "des": "获取当前群组的死号数。\n指令：,getdel"
+        },
+        {
+            "name": "hitokoto",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "1.6 kb",
+            "supported": true,
+            "des-short": "一言。",
+            "des": "一言。\n指令：,hitokoto"
         }
     ]
 }
