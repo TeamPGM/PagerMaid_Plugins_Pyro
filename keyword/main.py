@@ -72,7 +72,7 @@ class KeywordTask:
         sqlite["keyword_tasks"] = data
 
     def check_need_reply(self, message: Message) -> bool:
-        if not (message.text or message.caption):
+        if not message.text and not message.caption:
             return False
         if self.ignore_forward and message.forward_date:
             return False
@@ -80,15 +80,12 @@ class KeywordTask:
         key = self.key
         if self.regexp:
             return re.search(key,text)
-        else:
-            if not self.case:
-                text = text.lower()
-                key = key.lower()
-            if self.include and text.find(key) != -1:
-                return True
-            if self.exact and text == key:
-                return True
-        return False
+        if not self.case:
+            text = text.lower()
+            key = key.lower()
+        if self.include and text.find(key) != -1:
+            return True
+        return bool(self.exact and text == key)
 
     @staticmethod
     def mention_chat(chat: Chat):
