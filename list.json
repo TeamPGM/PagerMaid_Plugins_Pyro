@@ -362,10 +362,10 @@
         },
         {
             "name": "lottery",
-            "version": "1.002",
+            "version": "1.003",
             "section": "chat",
             "maintainer": "xtaodada",
-            "size": "4.51 kb",
+            "size": "4.72 kb",
             "supported": true,
             "des-short": "举行单群抽奖活动。",
             "des": "举行单群抽奖活动。\n指令：,lottery"

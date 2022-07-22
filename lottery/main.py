@@ -23,13 +23,13 @@ end_text = """<b>{}</b> 已开奖，中奖用户：
 
 {}
 
-请私聊我领奖，感谢其他用户的参与。"""
+请私聊发起者领奖，感谢其他用户的参与。"""
 end_empty_text = """<b>{}</b> 已开奖，没有中奖用户"""
 
 
 async def lottery_end():
     lottery_json["start"] = False
-    all_user = lottery_bot.get_subs()
+    all_user = lottery_bot.get_subs()[:lottery_json["num"]]
     secret_generator = secrets.SystemRandom()
     win_user = []
     for _ in range(min(lottery_json["win"], len(all_user))):
@@ -57,22 +57,23 @@ async def handle_lottery(_, message: Message):
         return
     if message.chat.id != lottery_json["chat_id"]:
         return
-    if message.text.lower() != lottery_json["keyword"].lower():
+    if message.text != lottery_json["keyword"]:
         return
     if lottery_bot.check_id(message.from_user.id):
         return
     lottery_bot.add_id(message.from_user.id)
+    all_join = len(lottery_bot.get_subs())
+    if all_join >= lottery_json["num"]:
+        lottery_json["start"] = False
+        return await lottery_end()
     with contextlib.suppress(Exception):
         reply = await message.reply(
             join_text.format(
                 lottery_json["title"],
                 lottery_json["win"],
                 lottery_json["num"],
-                len(lottery_bot.get_subs())))
+                all_join))
         add_delete_message_job(reply, 15)
-    if len(lottery_bot.get_subs()) == lottery_json["num"]:
-        lottery_json["start"] = False
-        await lottery_end()
 
 
 async def create_lottery(chat_id: int, num: int, win: int, title: str, keyword: str):
