@@ -439,6 +439,16 @@
             "supported": true,
             "des-short": "一言。",
             "des": "一言。\n指令：,hitokoto"
+        },
+        {
+            "name": "weather_lite",
+            "version": "1.0",
+            "section": "daily",
+            "maintainer": "xtaodada",
+            "size": "0.97 kb",
+            "supported": true,
+            "des-short": "查询天气。",
+            "des": "查询天气。指令：,weather_lite"
         }
     ]
 }
