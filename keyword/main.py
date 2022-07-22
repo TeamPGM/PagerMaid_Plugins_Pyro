@@ -1,4 +1,5 @@
 import contextlib
+import re
 
 from typing import Optional, List
 
@@ -20,6 +21,7 @@ class KeywordTask:
     key: str
     msg: str
     include: bool
+    regexp: bool
     exact: bool
     case: bool
     ignore_forward: bool
@@ -29,7 +31,7 @@ class KeywordTask:
     restrict: int
     delay_delete: int
 
-    def __init__(self, task_id: Optional[int] = None, cid: int = 0, key: str = "", msg: str = "", include: bool = True,
+    def __init__(self, task_id: Optional[int] = None, cid: int = 0, key: str = "", msg: str = "", include: bool = True, regexp: bool = False,
                  exact: bool = False, case: bool = False, ignore_forward: bool = False,
                  reply: bool = True, delete: bool = False, ban: int = 0, restrict: int = 0, delay_delete: int = 0):
         self.task_id = task_id
@@ -37,6 +39,7 @@ class KeywordTask:
         self.key = key
         self.msg = msg
         self.include = include
+        self.regexp = regexp
         self.exact = exact
         self.case = case
         self.ignore_forward = ignore_forward
@@ -47,7 +50,7 @@ class KeywordTask:
         self.delay_delete = delay_delete
 
     def export(self):
-        return {"task_id": self.task_id, "cid": self.cid, "key": self.key, "msg": self.msg, "include": self.include,
+        return {"task_id": self.task_id, "cid": self.cid, "key": self.key, "msg": self.msg, "include": self.include, "regexp": self.regexp,
                 "exact": self.exact, "case": self.case, "ignore_forward": self.ignore_forward, "reply": self.reply,
                 "delete": self.delete, "ban": self.ban, "restrict": self.restrict, "delay_delete": self.delay_delete}
 
@@ -69,20 +72,20 @@ class KeywordTask:
         sqlite["keyword_tasks"] = data
 
     def check_need_reply(self, message: Message) -> bool:
-        if not (message.text or message.caption):
+        if not message.text and not message.caption:
             return False
         if self.ignore_forward and message.forward_date:
             return False
         text = message.text or message.caption
         key = self.key
+        if self.regexp:
+            return re.search(key,text)
         if not self.case:
             text = text.lower()
             key = key.lower()
         if self.include and text.find(key) != -1:
             return True
-        if self.exact and text == key:
-            return True
-        return False
+        return bool(self.exact and text == key)
 
     @staticmethod
     def mention_chat(chat: Chat):
@@ -151,6 +154,8 @@ class KeywordTask:
                     self.include = True
                 elif i.startswith("exact"):
                     self.exact = True
+                elif i.startswith("regexp"):
+                    self.regexp = True
                 elif i.startswith("case"):
                     self.case = True
                 elif i.startswith("ignore_forward"):
