@@ -63,7 +63,7 @@ async def handle_lottery(_, message: Message):
         return
     lottery_bot.add_id(message.from_user.id)
     all_join = len(lottery_bot.get_subs())
-    if all_join >= lottery_json["num"]:
+    if all_join > (lottery_json["num"]):
         lottery_json["start"] = False
         return await lottery_end()
     with contextlib.suppress(Exception):
@@ -74,6 +74,9 @@ async def handle_lottery(_, message: Message):
                 lottery_json["num"],
                 all_join))
         add_delete_message_job(reply, 15)
+    if all_join >= lottery_json["num"]:
+        lottery_json["start"] = False
+        await lottery_end()
 
 
 async def create_lottery(chat_id: int, num: int, win: int, title: str, keyword: str):
