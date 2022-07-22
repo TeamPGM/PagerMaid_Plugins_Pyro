@@ -419,6 +419,16 @@
             "supported": true,
             "des-short": "一键 AT 本群管理员。",
             "des": "一键 AT 本群管理员。\n指令：,atadmins"
+        },
+        {
+            "name": "getdel",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "1.73 kb",
+            "supported": true,
+            "des-short": "获取当前群组的死号数。",
+            "des": "获取当前群组的死号数。\n指令：,getdel"
         }
     ]
 }
