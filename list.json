@@ -449,6 +449,16 @@
             "supported": true,
             "des-short": "查询天气。",
             "des": "查询天气。指令：,weather_lite"
+        },
+        {
+            "name": "unban",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "2.5 kb",
+            "supported": true,
+            "des-short": "解除封禁一位用户。",
+            "des": "解除封禁一位用户。指令：,unban"
         }
     ]
 }
