@@ -3,7 +3,14 @@ import os
 from httpx import get
 
 main = get("https://api.github.com/repos/TeamPGM/PagerMaid_Plugins_Pyro/commits/v2").json()
-plugins = [i["filename"].split("/")[0] for i in main["files"] if "/main.py" in i["filename"]]
+plugins = []
+for file in main["files"]:
+    if file["filename"] == "list.json":
+        print(main['sha'] + " no need！")
+        exit()
+    if "/main.py" in file["filename"]:
+        plugins.append(file["filename"].split("/")[0])
+
 with open("list.json", "r", encoding="utf8") as f:
     list_json = json.load(f)
 for plugin in plugins:
