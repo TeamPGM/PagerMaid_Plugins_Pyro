@@ -1,8 +1,10 @@
-import json, time, sys
+import time
+import sys
+import contextlib
 from httpx import get, post
 
 token = str(sys.argv[1])
-main = json.loads(get("https://api.github.com/repos/TeamPGM/PagerMaid_Plugins_Pyro/commits/v2").content)
+main = get("https://api.github.com/repos/TeamPGM/PagerMaid_Plugins_Pyro/commits/v2").json()
 text = (
     (
         (
@@ -19,17 +21,10 @@ text = (
     + '): '
 ) + main['commit']['message']
 
-push_content = {'chat_id': '-1001441461877', 'disable_web_page_preview': 'True', 'parse_mode': 'markdown',
-                'text': text}
 url = f'https://api.telegram.org/bot{token}/sendMessage'
-try:
-    main_req = post(url, data=push_content)
-except:
-    pass
-push_content['chat_id'] = '-1001319957857'
-time.sleep(1)
-try:
-    main_req = post(url, data=push_content)
-except:
-    pass
+for cid in ['-1001441461877', '-1001319957857']:
+    push_content = {'chat_id': cid, 'disable_web_page_preview': 'True', 'parse_mode': 'markdown', 'text': text}
+    with contextlib.suppress(Exception):
+        main_req = post(url, data=push_content)
+    time.sleep(1)
 print(main['sha'] + " ok！")

@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - v2
+    paths-ignore:
+      - '**.md'
+      - '.github/**'
+      - 'list.json'
+      - 'telegram_update.py'
+      - 'update_list.py'
 
 jobs:
   build:
@@ -23,13 +29,23 @@ jobs:
     # 安装依赖
     - name: Install dependencies
       run: |
-        mkdir tmp && cd tmp
         python -m pip install --upgrade pip
         pip install httpx
 
     # 发送通知
     - name: Send notice
       run: |
-        cd tmp
-        cp ../telegram_update.py ./
         python telegram_update.py ${{ secrets.TG_BOT_TOKEN }}
+
+    # 更新 list
+    - name: Update list
+      run: |
+        python update_list.py
+
+    # Auto commit
+    - uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        # Optional. Commit message for the created commit.
+        # Defaults to "Apply automatic changes"
+        commit_message: "CI: Update version json"
+        file_pattern: 'list.json'
