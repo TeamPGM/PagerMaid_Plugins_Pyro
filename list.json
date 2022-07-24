@@ -459,6 +459,16 @@
             "supported": true,
             "des-short": "解除封禁一位用户。",
             "des": "解除封禁一位用户。指令：,unban"
+        },
+        {
+            "name": "1A2B",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "2.49 kb",
+            "supported": true,
+            "des-short": "Play a game of 1A2B",
+            "des": "Play a game of 1A2B, command:,1a2b"
         }
     ]
 }
