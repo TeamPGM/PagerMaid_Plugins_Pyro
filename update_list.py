@@ -29,8 +29,8 @@ for plugin in plugins:
              "maintainer": main['commit']['author']['name'],
              "size": f"{os.path.getsize(f'{plugin}{os.sep}main.py') / 1000} kb",
              "supported": True,
-             "des-short": "这个人很懒，什么都没留下",
-             "des": "这个人很懒，什么都没有留下。"})
+             "des-short": main['commit']['message'],
+             "des": main['commit']['message']})
 with open("list.json", "w", encoding="utf8") as f:
     json.dump(list_json, f, ensure_ascii=False, indent=4)
 print(main['sha'] + " ok！")
