@@ -1,4 +1,5 @@
 import secrets
+
 from typing import List
 
 from pagermaid.enums import Message
