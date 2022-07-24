@@ -469,6 +469,16 @@
             "supported": true,
             "des-short": "Play a game of 1A2B",
             "des": "Play a game of 1A2B, command:,1a2b"
+        },
+        {
+            "name": "listusernames",
+            "version": "1.0",
+            "section": "daily",
+            "maintainer": "xtaodada",
+            "size": "0.7 kb",
+            "supported": true,
+            "des-short": "列出所有属于自己的公开群组/频道。",
+            "des": "列出所有属于自己的公开群组/频道。命令：,listusernames"
         }
     ]
 }
