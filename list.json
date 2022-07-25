@@ -479,6 +479,16 @@
             "supported": true,
             "des-short": "列出所有属于自己的公开群组/频道。",
             "des": "列出所有属于自己的公开群组/频道。命令：,listusernames"
+        },
+        {
+            "name": "pypi",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "1.764 kb",
+            "supported": true,
+            "des-short": "pypi Search PyPI packages",
+            "des": "pypi Search PyPI packages"
         }
     ]
 }
