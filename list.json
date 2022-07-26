@@ -489,6 +489,16 @@
             "supported": true,
             "des-short": "pypi Search PyPI packages",
             "des": "pypi Search PyPI packages"
+        },
+        {
+            "name": "jikipedia",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "4.579 kb",
+            "supported": true,
+            "des-short": "jikipedia 小鸡词典，梗查询",
+            "des": "jikipedia 小鸡词典，梗查询"
         }
     ]
 }
