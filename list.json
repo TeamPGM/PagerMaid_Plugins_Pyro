@@ -499,6 +499,16 @@
             "supported": true,
             "des-short": "jikipedia 小鸡词典，梗查询",
             "des": "jikipedia 小鸡词典，梗查询"
+        },
+        {
+            "name": "clean_member",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "4.979 kb",
+            "supported": true,
+            "des-short": "clean_member 多种方式清理群成员",
+            "des": "clean_member 多种方式清理群成员"
         }
     ]
 }
