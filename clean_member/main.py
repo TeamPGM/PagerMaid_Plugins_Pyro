@@ -74,6 +74,7 @@ async def process_clean_member(message: Message, mode: str, day: int, only_searc
 
 @listener(command="clean_member",
           need_admin=True,
+          groups_only=True,
           description="多种方式清理群成员")
 async def clean_member(client: Client, message: Message):
     if not await check_self_and_from(message):
