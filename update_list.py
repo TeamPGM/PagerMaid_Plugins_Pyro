@@ -10,6 +10,7 @@ for file in main["files"]:
         exit()
     if "/main.py" in file["filename"]:
         plugins.append(file["filename"].split("/")[0])
+delete = bool(main['commit']['message'].startswith("Delete:"))
 
 with open("list.json", "r", encoding="utf8") as f:
     list_json = json.load(f)
@@ -20,6 +21,8 @@ for plugin in plugins:
             exist = True
             old_version = float(plug_dict["version"])
             list_json["list"][list_json["list"].index(plug_dict)]["version"] = str(old_version + 0.01)
+            if delete:
+                list_json["list"].remove(plug_dict)
             break
     if not exist:
         list_json["list"].append(
