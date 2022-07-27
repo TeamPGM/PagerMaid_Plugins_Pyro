@@ -549,6 +549,16 @@
             "supported": true,
             "des-short": "dictionary 查询英语单词的意思",
             "des": "dictionary 查询英语单词的意思"
+        },
+        {
+            "name": "urbandictionary",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "1.239 kb",
+            "supported": true,
+            "des-short": "urbandictionary 解释英语俚语词汇",
+            "des": "urbandictionary 解释英语俚语词汇"
         }
     ]
 }
