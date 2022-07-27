@@ -115,5 +115,9 @@ async def jikipedia(message: Message):
     if not image:
         await message.edit(text, disable_web_page_preview=True)
     else:
-        await message.reply_photo(image, quote=False, caption=text)
+        try:
+            await message.reply_photo(image, quote=False, caption=text)
+            await message.safe_delete()
+        except Exception:
+            await message.edit(text, disable_web_page_preview=True)
         await message.safe_delete()
