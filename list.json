@@ -529,6 +529,16 @@
             "supported": true,
             "des-short": "crazy4 天天疯狂！随机输出KFC疯狂星期四文案",
             "des": "crazy4 天天疯狂！随机输出KFC疯狂星期四文案"
+        },
+        {
+            "name": "covid",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "3.582 kb",
+            "supported": true,
+            "des-short": "covid 获取新冠疫情信息",
+            "des": "covid 获取新冠疫情信息"
         }
     ]
 }
