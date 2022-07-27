@@ -509,6 +509,16 @@
             "supported": true,
             "des-short": "clean_member 多种方式清理群成员",
             "des": "clean_member 多种方式清理群成员"
+        },
+        {
+            "name": "vctools",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "1.533 kb",
+            "supported": true,
+            "des-short": "vctools 开启或者关闭群组直播间",
+            "des": "vctools 开启或者关闭群组直播间"
         }
     ]
 }
