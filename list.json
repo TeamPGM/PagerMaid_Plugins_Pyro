@@ -559,6 +559,16 @@
             "supported": true,
             "des-short": "urbandictionary 解释英语俚语词汇",
             "des": "urbandictionary 解释英语俚语词汇"
+        },
+        {
+            "name": "paolu",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "0.967 kb",
+            "supported": true,
+            "des-short": "paolu ⚠一键跑路 删除群内消息并禁言⚠",
+            "des": "paolu ⚠一键跑路 删除群内消息并禁言⚠"
         }
     ]
 }
