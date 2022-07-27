@@ -539,6 +539,16 @@
             "supported": true,
             "des-short": "covid 获取新冠疫情信息",
             "des": "covid 获取新冠疫情信息"
+        },
+        {
+            "name": "dictionary",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "1.172 kb",
+            "supported": true,
+            "des-short": "dictionary 查询英语单词的意思",
+            "des": "dictionary 查询英语单词的意思"
         }
     ]
 }
