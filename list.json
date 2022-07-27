@@ -519,6 +519,16 @@
             "supported": true,
             "des-short": "vctools 开启或者关闭群组直播间",
             "des": "vctools 开启或者关闭群组直播间"
+        },
+        {
+            "name": "crazy4",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "72.318 kb",
+            "supported": true,
+            "des-short": "crazy4 天天疯狂！随机输出KFC疯狂星期四文案",
+            "des": "crazy4 天天疯狂！随机输出KFC疯狂星期四文案"
         }
     ]
 }
