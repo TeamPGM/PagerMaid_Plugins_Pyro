@@ -569,6 +569,16 @@
             "supported": true,
             "des-short": "paolu ⚠一键跑路 删除群内消息并禁言⚠",
             "des": "paolu ⚠一键跑路 删除群内消息并禁言⚠"
+        },
+        {
+            "name": "da",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "1.413 kb",
+            "supported": true,
+            "des-short": "da 删除群内所有消息（非群组管理员只删除自己的消息）",
+            "des": "da 删除群内所有消息（非群组管理员只删除自己的消息）"
         }
     ]
 }
