@@ -22,9 +22,7 @@ async def check_self_and_from(message: Message):
     if not message.from_user:
         return False
     data = await bot.get_chat_member(cid, message.from_user.id)
-    if data.status not in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]:
-        return False
-    return True
+    return data.status in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]
 
 
 async def kick_chat_member(cid, uid, only_search: bool = False):

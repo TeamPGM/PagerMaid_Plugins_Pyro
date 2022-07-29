@@ -67,7 +67,7 @@ class JIKIPedia:
         return self.parse(**req.json())
 
     def parse(self, **kwargs):
-        self.data = kwargs.get("data", None)
+        self.data = kwargs.get("data")
         self.definitions = []
         if self.data:
             for i in self.data:
@@ -84,7 +84,7 @@ class JIKIPedia:
                         if len(images) > 0:
                             image = images[0].get("full", {}).get("path", "")
                         self.definitions.append(JIKIPediaDefinition(plaintext, tags, title, item_id, image))
-        self.message = kwargs.get("message", None)
+        self.message = kwargs.get("message")
         if issubclass(type(self.message), dict):
             self.message = self.message.get("title", None)
 

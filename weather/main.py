@@ -65,10 +65,8 @@ async def weather(_: Client, message: Message):
             tempInF = round((1.8 * tempInC) + 32, 2)
             icon = data["weather"][0]["icon"]
             desc = data["weather"][0]["description"]
-            res = "{} {}{} 💨{} {}m/s\n大气🌡 {}℃ ({}℉) 💦 {}% \n体感🌡 {}℃\n气压 {}hpa\n🌅{} 🌇{} ".format(
-                cityName, icons[icon], desc, windDirection, windSpeed, tempInC, tempInF, humidity, fellsTemp, pressure,
-                sunriseTime, sunsetTime
-            )
+            res = f"{cityName} {icons[icon]}{desc} 💨{windDirection} {windSpeed}m/s\n大气🌡 {tempInC}℃ ({tempInF}℉) 💦 {humidity}% \n体感🌡 {fellsTemp}℃\n气压 {pressure}hpa\n🌅{sunriseTime} 🌇{sunsetTime} "
+
             await message.edit(res)
         if req.status_code == 404:
             await message.edit("出错了呜呜呜 ~ 无效的城市名，请使用拼音输入 ~ ")
