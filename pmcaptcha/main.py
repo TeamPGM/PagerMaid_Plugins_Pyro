@@ -1734,7 +1734,10 @@ class MathChallenge(CaptchaChallenge):
         captcha = cls(user, state.get("report", True))
         captcha.captcha_start = state['start']
         captcha.logs = state['logs']
-        captcha.challenge_msg_ids = state.get("msg_id") and [state["msg_id"]] or state.get("msg_ids", [])
+        captcha.challenge_msg_ids = (
+            [state["msg_id"]] if state.get("msg_id") else state.get("msg_ids", [])
+        )
+
         captcha.answer = state['answer']
         if (timeout := setting.get("timeout", 30)) > 0:
             time_passed = int(time.time()) - int(state['start'])
@@ -1795,7 +1798,10 @@ class ImageChallenge(CaptchaChallenge):
         captcha = cls(user, state['report'])
         captcha.captcha_start = state['start']
         captcha.logs = state['logs']
-        captcha.challenge_msg_ids = state.get("msg_id") and [state["msg_id"]] or state.get("msg_ids", [])
+        captcha.challenge_msg_ids = (
+            [state["msg_id"]] if state.get("msg_id") else state.get("msg_ids", [])
+        )
+
         captcha.try_count = state['try_count']
         if captcha.try_count >= setting.get("img_max_retry", 3):
             return await captcha.action(False)
@@ -1877,7 +1883,10 @@ class StickerChallenge(CaptchaChallenge):
         captcha = cls(user, state['report'])
         captcha.captcha_start = state['start']
         captcha.logs = state['logs']
-        captcha.challenge_msg_ids = state.get("msg_id") and [state["msg_id"]] or state.get("msg_ids", [])
+        captcha.challenge_msg_ids = (
+            [state["msg_id"]] if state.get("msg_id") else state.get("msg_ids", [])
+        )
+
         if (timeout := setting.get("timeout", 30)) > 0:
             time_passed = int(time.time()) - int(state['start'])
             if time_passed > timeout:
