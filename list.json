@@ -589,6 +589,16 @@
             "supported": true,
             "des-short": "luxiaoxunbs 鲁小迅整点报时",
             "des": "luxiaoxunbs 鲁小迅整点报时"
+        },
+        {
+            "name": "rate",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "4.268 kb",
+            "supported": true,
+            "des-short": "rate 货币汇率查询",
+            "des": "rate 货币汇率查询"
         }
     ]
 }
