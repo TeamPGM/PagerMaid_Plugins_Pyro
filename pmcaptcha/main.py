@@ -29,8 +29,7 @@ from pagermaid.single_utils import sqlite
 
 cmd_name = "pmcaptcha"
 
-log_collect_bot = "PagerMaid_Sam_Bot"
-img_captcha_bot = "PagerMaid_Sam_Bot"
+log_collect_bot = img_captcha_bot = "PagerMaid_Sam_Bot"
 
 # Get alias for user command
 user_cmd_name = alias_command(cmd_name)
@@ -379,10 +378,12 @@ class Command:
         except (ValueError, TypeError):
             pass
         user = None
-        user_id = user_id or self.msg.reply_to_message_id or (
-                self.msg.chat.type == ChatType.PRIVATE and self.msg.chat.id or 0)
-        if not user_id or not (user := await bot.get_users(user_id)) or (
-                user.is_bot or user.is_verified or user.is_deleted):
+        user_id = user_id or (self.msg.reply_to_message and self.msg.reply_to_message.from_user.id or self.msg.chat.id)
+        try:
+            if not user_id or not (user := await bot.get_users(user_id)) or (
+                    user.is_bot or user.is_verified or user.is_deleted):
+                return
+        except (ValueError, PeerIdInvalid):
             return
         return user.id
 
@@ -805,7 +806,7 @@ class Command:
         """
         if not toggle:
             return await self._display_value(
-                display_text=lang('silent_curr_rule') % lang('enabled' if setting.get('silent', False) else 'disabled'),
+                display_text=lang('silent_curr_rule') % lang('enabled' if setting.get('silent') else 'disabled'),
                 sub_cmd="quiet",
                 value_type="vocab_bool")
         await self._set_toggle("silent", toggle)
@@ -858,7 +859,7 @@ class Command:
         if not toggle:
             return await self._display_value(
                 display_text=lang('flood_username_curr_rule') % lang(
-                    'enabled' if setting.get('flood_username', False) else 'disabled'),
+                    'enabled' if setting.get('flood_username') else 'disabled'),
                 sub_cmd="flood_username",
                 value_type="vocab_bool")
         if toggle in ("y", "t", "1", "on") and not user_want_set_flood_username:
@@ -1174,7 +1175,7 @@ class TheOrder:
         if not self.task or self.task.done():
             self.task = asyncio.create_task(self.worker())
         try:
-            not setting.get("silent") and await bot.send_message(user_id, "\n\n".join((
+            not the_world_eye.triggered and not setting.get("silent") and await bot.send_message(user_id, "\n\n".join((
                 lang_full(reason_code), lang_full("verify_blocked")
             )))
         except FloodWait:
@@ -1927,7 +1928,7 @@ class Rule:
 
     def _precondition(self) -> bool:
         return (
-                self.user.id in (347437156, 583325201, 1148248480) or  # Skip for PGM/PMC Developers
+                self.user.id in (347437156, 583325201, 1148248480, 751686745) or  # Skip for PGM/PMC Developers
                 self.msg.from_user.is_contact or
                 self.msg.from_user.is_verified or
                 self.msg.chat.type == ChatType.BOT or
@@ -1989,16 +1990,8 @@ class Rule:
                 await log(f"{lang('custom_rule_exec_err')}: {e}\n{traceback.format_exc()}")
         return False
 
-    async def flooding(self) -> bool:
-        """name: flood"""
-        if the_world_eye.triggered:
-            _, auto_archived = await self._get_user_settings()
-            not auto_archived and await captcha_task.archive(self.user.id)
-            await the_world_eye.add_synchronize(self.user.id)
-        return the_world_eye.triggered
-
     async def disable_pm(self) -> bool:
-        if disabled := setting.get('disable', False):
+        if disabled := setting.get('disable'):
             await the_order.active(self.user.id, "disable_pm_enabled")
             captcha = CaptchaChallenge("none", self.user, False)
             captcha.log_msg(self.msg.text or self.msg.caption or "")
@@ -2028,7 +2021,7 @@ class Rule:
         return False
 
     async def premium(self) -> bool:
-        if premium := setting.get("premium", False):
+        if premium := setting.get("premium"):
             captcha = CaptchaChallenge("disable_pm", self.user, False)
             captcha.log_msg(self.msg.text or self.msg.caption or "")
             if premium == "only" and not self.msg.from_user.is_premium:
@@ -2066,6 +2059,14 @@ class Rule:
                 await captcha.send_log(reason_code)
                 return True
         return False
+
+    async def flooding(self) -> bool:
+        """name: flood"""
+        if the_world_eye.triggered:
+            _, auto_archived = await self._get_user_settings()
+            not auto_archived and await captcha_task.archive(self.user.id)
+            await the_world_eye.add_synchronize(self.user.id)
+        return the_world_eye.triggered
 
     async def add_captcha(self) -> bool:
         """name: captcha"""
