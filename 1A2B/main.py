@@ -52,7 +52,7 @@ class Game:
 @listener(command="1A2B",
           groups_only=True,
           description="Play a game of 1A2B",
-          usage="<start/stop/answer>")
+          parameters="<start/stop/answer>")
 async def play_game_1a2b(message: Message):
     if not message.arguments:
         return await message.edit("Please specify a command.")
