@@ -71,10 +71,18 @@ async def run_speedtest(message: Message):
 async def get_all_ids():
     test = Speedtest()
     servers = test.get_closest_servers()
-    if not servers:
-        return "附近没有测速点", None
-    return "附近的测速点有：\n\n" + \
-           "\n".join(f"`{i['id']}` - `{int(i['d'])}km` - `{i['name']}` - `{i['sponsor']}`" for i in servers), None
+    return (
+        (
+            "附近的测速点有：\n\n"
+            + "\n".join(
+                f"`{i['id']}` - `{int(i['d'])}km` - `{i['name']}` - `{i['sponsor']}`"
+                for i in servers
+            ),
+            None,
+        )
+        if servers
+        else ("附近没有测速点", None)
+    )
 
 
 @listener(command="speedtest",
