@@ -23,7 +23,7 @@ async def unixtime(_: Client, message: Message):
     msg = message.arguments
     if not msg:
         return await message.edit(f"`{int(time.time())}`")
-    if "-" and ":" in msg:
+    if ":" in msg:
         try:
             return await message.edit(f"`{time_to_unix(msg)}`")
         except ValueError:
