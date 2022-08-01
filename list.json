@@ -604,11 +604,11 @@
             "name": "unixtime",
             "version": "1.0",
             "section": "chat",
-            "maintainer": "sourcery-ai[bot]",
+            "maintainer": "zhxycn",
             "size": "1.372 kb",
             "supported": true,
-            "des-short": "unixtime Unix时间戳转换 (Sourcery refactored) (#58)\n\nCo-authored-by: zhxy-CN <admin@owo.cab>\r\nCo-authored-by: Sourcery AI <>\r\nCo-authored-by: omg-xtao <100690902+omg-xtao@users.noreply.github.com>",
-            "des": "unixtime Unix时间戳转换 (Sourcery refactored) (#58)\n\nCo-authored-by: zhxy-CN <admin@owo.cab>\r\nCo-authored-by: Sourcery AI <>\r\nCo-authored-by: omg-xtao <100690902+omg-xtao@users.noreply.github.com>"
+            "des-short": "unixtime Unix时间戳转换",
+            "des": "unixtime Unix时间戳转换"
         }
     ]
 }
