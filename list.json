@@ -609,6 +609,16 @@
             "supported": true,
             "des-short": "unixtime Unix时间戳转换",
             "des": "unixtime Unix时间戳转换"
+        },
+        {
+            "name": "google",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "1.151 kb",
+            "supported": true,
+            "des-short": "google 谷歌搜索",
+            "des": "google 谷歌搜索"
         }
     ]
 }
