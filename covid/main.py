@@ -39,7 +39,6 @@ class NewsData:
     def __init__(self):
         self.data = {}
         self.time = ''
-        self.update_data()
 
     async def update_data(self):
         url = "https://api.inews.qq.com/newsqa/v1/query/inner/publish/modules/list?modules=statisGradeCityDetail,diseaseh5Shelf"
