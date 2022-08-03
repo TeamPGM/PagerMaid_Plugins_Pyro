@@ -629,6 +629,16 @@
             "supported": true,
             "des-short": "sticker_to_pic 将你回复的静态贴纸转换为图片",
             "des": "sticker_to_pic 将你回复的静态贴纸转换为图片"
+        },
+        {
+            "name": "pic_to_sticker",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "1.82 kb",
+            "supported": true,
+            "des-short": "pic_to_sticker 将你回复的图片转换为贴纸",
+            "des": "pic_to_sticker 将你回复的图片转换为贴纸"
         }
     ]
 }
