@@ -619,6 +619,16 @@
             "supported": true,
             "des-short": "google 谷歌搜索",
             "des": "google 谷歌搜索"
+        },
+        {
+            "name": "sticker_to_pic",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "1.286 kb",
+            "supported": true,
+            "des-short": "sticker_to_pic 将你回复的静态贴纸转换为图片",
+            "des": "sticker_to_pic 将你回复的静态贴纸转换为图片"
         }
     ]
 }
