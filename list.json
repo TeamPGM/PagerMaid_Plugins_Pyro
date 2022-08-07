@@ -639,6 +639,16 @@
             "supported": true,
             "des-short": "pic_to_sticker 将你回复的图片转换为贴纸",
             "des": "pic_to_sticker 将你回复的图片转换为贴纸"
+        },
+        {
+            "name": "getstickers",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "3.453 kb",
+            "supported": true,
+            "des-short": "getstickers 获取整个贴纸包的贴纸",
+            "des": "getstickers 获取整个贴纸包的贴纸"
         }
     ]
 }
