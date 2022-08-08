@@ -649,6 +649,16 @@
             "supported": true,
             "des-short": "getstickers 获取整个贴纸包的贴纸",
             "des": "getstickers 获取整个贴纸包的贴纸"
+        },
+        {
+            "name": "teletype",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "Godlike",
+            "size": "1.025 kb",
+            "supported": true,
+            "des-short": "Teletype (#62)",
+            "des": "Teletype (#62)"
         }
     ]
 }
