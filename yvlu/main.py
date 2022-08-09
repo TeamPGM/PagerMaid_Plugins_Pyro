@@ -2,6 +2,7 @@ import contextlib
 from asyncio import sleep
 
 from pyrogram.errors import Flood
+from pyrogram.errors.exceptions.bad_request_400 import ChatForwardsRestricted
 
 from pagermaid.listener import listener
 from pagermaid.enums import Client, Message
@@ -20,7 +21,10 @@ async def yv_lu(bot: Client, message: Message):
     with contextlib.suppress(Exception):
         await bot.unblock_user(bot_username)
     async with bot.conversation(bot_username) as conv:
-        await reply.forward(bot_username)
+        try:
+            await reply.forward(bot_username)
+        except ChatForwardsRestricted:
+            return await message.edit('群组消息不允许被转发。')
         await sleep(.1)
         chat_response = await conv.get_response()
         await conv.mark_as_read()
