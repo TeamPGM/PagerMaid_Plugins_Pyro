@@ -659,6 +659,16 @@
             "supported": true,
             "des-short": "Teletype (#62)",
             "des": "Teletype (#62)"
+        },
+        {
+            "name": "ip",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "2.599 kb",
+            "supported": true,
+            "des-short": "ip 查询 ip 归属地",
+            "des": "ip 查询 ip 归属地"
         }
     ]
 }
