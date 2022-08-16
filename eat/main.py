@@ -258,6 +258,8 @@ async def eat(client_: Client, context: Message):
                 except Exception as exception:
                     raise exception
     target_user_id = user.id
+    if not user.photo:
+        return await context.edit("出错了呜呜呜 ~ 此用户无头像。")
     photo = await client_.download_media(
         user.photo.big_file_id,
         f"plugins{sep}eat{sep}" + str(target_user_id) + ".jpg",)
