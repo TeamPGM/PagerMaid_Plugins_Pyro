@@ -669,6 +669,16 @@
             "supported": true,
             "des-short": "ip 查询 ip 归属地",
             "des": "ip 查询 ip 归属地"
+        },
+        {
+            "name": "aff",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "1.63 kb",
+            "supported": true,
+            "des-short": "aff 快速发送 aff",
+            "des": "aff 快速发送 aff"
         }
     ]
 }
