@@ -83,6 +83,9 @@ async def beian(context: Message):
     except ValueError:
         await context.edit("出错了呜呜呜 ~ 无效的参数。")
         return
+    except tld.exceptions.FldBadUrl:
+        await context.edit("出错了呜呜呜 ~ 无效的参数。")
+        return
     try:
         data = await icp_search(url)
     except:
