@@ -679,17 +679,6 @@
             "supported": true,
             "des-short": "aff 快速发送 aff",
             "des": "aff 快速发送 aff"
-        },
-        {
-            "name": "icp",
-            "version": "1.0",
-            "section": "chat",
-            "maintainer": "M1saka10010",
-            "size": "4.08 kb",
-            "supported": true,
-            "des-short": "icp 查询 ICP 备案信息",
-            "des": "icp 查询 ICP 备案信息"
         }
-
     ]
 }
