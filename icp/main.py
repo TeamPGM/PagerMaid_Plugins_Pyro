@@ -28,7 +28,7 @@ def post_data(path, data, content, token):
     return r
 
 
-def icp_search(domain):
+async def icp_search(domain):
     md5 = hashlib.md5()
     timeStamp = int(time.time())
     authKey = 'testtest'+str(timeStamp)
@@ -36,7 +36,8 @@ def icp_search(domain):
     authKey = md5.hexdigest()
     try:
         token = post_data('auth', 'authKey=%s&timeStamp=%s' % (authKey, str(timeStamp)),
-                          'application/x-www-form-urlencoded;charset=UTF-8', '0').json()
+                          'application/x-www-form-urlencoded;charset=UTF-8', '0')
+        token = token.json()
         if(token['code'] == 200):
             token = token['params']['bussiness']
         else:
@@ -46,7 +47,8 @@ def icp_search(domain):
         return e
     try:
         query = post_data('icpAbbreviateInfo/queryByCondition', '{"pageNum":"","pageSize":"","unitName":"%s"}' % (
-            domain), 'application/json;charset=UTF-8', token).json()
+            domain), 'application/json;charset=UTF-8', token)
+        query = query.json()
         if(query['code'] == 200):
             icpList = query['params']['list']
             if len(icpList) > 0:
@@ -64,7 +66,7 @@ def icp_search(domain):
 
 @listener(command="beian",
           description="查看域名是否已备案")
-async def beian(_: Client, context: Message):
+async def beian(context: Message):
     try:
         if context.arguments:
             url = context.arguments
@@ -82,7 +84,7 @@ async def beian(_: Client, context: Message):
         await context.edit("出错了呜呜呜 ~ 无效的参数。")
         return
     try:
-        data = icp_search(url)
+        data = await icp_search(url)
     except:
         await context.edit("出错了呜呜呜 ~ 查询失败。")
         return
