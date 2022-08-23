@@ -687,8 +687,8 @@
             "maintainer": "sourcery-ai[bot]",
             "size": "3.258 kb",
             "supported": true,
-            "des-short": "icp 查询域名是否已备案 (#66)\n\nCo-authored-by: m1saka <1287708285@qq.com>\r\nCo-authored-by: Sourcery AI <>\r\nCo-authored-by: xtaodada <xtao@xtaolink.cn>",
-            "des": "icp 查询域名是否已备案 (#66)\n\nCo-authored-by: m1saka <1287708285@qq.com>\r\nCo-authored-by: Sourcery AI <>\r\nCo-authored-by: xtaodada <xtao@xtaolink.cn>"
+            "des-short": "icp 查询域名是否已备案",
+            "des": "icp 查询域名是否已备案"
         }
     ]
 }
