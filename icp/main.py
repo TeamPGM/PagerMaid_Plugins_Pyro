@@ -13,8 +13,12 @@ from tld import get_fld
 
 def post_data(path, data, content, token):
     url = 'https://hlwicpfwc.miit.gov.cn/icpproject_query/api/'
-    clientIp = str(randint(1, 254))+'.'+str(randint(1, 254)) + \
-        '.'+str(randint(1, 254))+'.'+str(randint(1, 254))
+    clientIp = (
+        (f'{str(randint(1, 254))}.{str(randint(1, 254))}' + '.')
+        + str(randint(1, 254))
+        + '.'
+    ) + str(randint(1, 254))
+
     headers = {
         'Content-Type': content,
         'Origin': 'https://beian.miit.gov.cn/',
@@ -24,19 +28,23 @@ def post_data(path, data, content, token):
         'Client-IP': clientIp,
         'X-Forwarded-For': clientIp
     }
-    r = requests.post(url+path, data=data, headers=headers)
-    return r
+    return requests.post(url+path, data=data, headers=headers)
 
 
 async def icp_search(domain):
     md5 = hashlib.md5()
     timeStamp = int(time.time())
-    authKey = 'testtest'+str(timeStamp)
+    authKey = f'testtest{timeStamp}'
     md5.update(authKey.encode('utf-8'))
     authKey = md5.hexdigest()
     try:
-        token = post_data('auth', 'authKey=%s&timeStamp=%s' % (authKey, str(timeStamp)),
-                          'application/x-www-form-urlencoded;charset=UTF-8', '0')
+        token = post_data(
+            'auth',
+            f'authKey={authKey}&timeStamp={timeStamp}',
+            'application/x-www-form-urlencoded;charset=UTF-8',
+            '0',
+        )
+
         token = token.json()
         if(token['code'] == 200):
             token = token['params']['bussiness']
@@ -49,17 +57,15 @@ async def icp_search(domain):
         query = post_data('icpAbbreviateInfo/queryByCondition', '{"pageNum":"","pageSize":"","unitName":"%s"}' % (
             domain), 'application/json;charset=UTF-8', token)
         query = query.json()
-        if(query['code'] == 200):
-            icpList = query['params']['list']
-            if len(icpList) > 0:
-                for icp in icpList:
-                    return{'isBeian': True, 'msg': '成功', 'natureName': icp['natureName'], 'limitAccess': icp['limitAccess'], 'unitName': icp['unitName'], 'serviceLicence': icp['serviceLicence'], 'updateRecordTime': icp['updateRecordTime']}
-            else:
-                # raise Exception({'isBeian': False, 'msg': '成功'})
-                return{'isBeian': False, 'msg': '成功'}
-        else:
+        if query['code'] != 200:
             # raise Exception({'isBeian': False, 'msg': '查询失败'})
             return{'isBeian': False, 'msg': '查询失败'}
+        icpList = query['params']['list']
+        if len(icpList) <= 0:
+            # raise Exception({'isBeian': False, 'msg': '成功'})
+            return{'isBeian': False, 'msg': '成功'}
+        for icp in icpList:
+            return{'isBeian': True, 'msg': '成功', 'natureName': icp['natureName'], 'limitAccess': icp['limitAccess'], 'unitName': icp['unitName'], 'serviceLicence': icp['serviceLicence'], 'updateRecordTime': icp['updateRecordTime']}
     except Exception as e:
         return e
 
@@ -79,7 +85,7 @@ async def beian(context: Message):
             url = get_fld(url, fix_protocol=True)
         else:
             await context.edit("出错了呜呜呜 ~ 无效的参数。")
-        await context.edit("查询中..."+url)
+        await context.edit(f"查询中...{url}")
     except ValueError:
         await context.edit("出错了呜呜呜 ~ 无效的参数。")
         return
