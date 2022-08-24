@@ -33,7 +33,7 @@ async def nbnhhsh(message: Message):
     reply = ""
     if len(data) > 0:
         for hua in data:
-            reply += f"黑话 : {hua['name']}\n可能的意思: "
+            reply += f"黑话 : {hua['name']}\n可能的意思 : "
             if 'trans' in hua:
                 for keyWord in hua['trans']:
                     reply += f"{keyWord} "
