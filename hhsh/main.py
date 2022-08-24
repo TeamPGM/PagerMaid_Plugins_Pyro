@@ -35,7 +35,7 @@ async def nbnhhsh(message: Message):
         for hua in data:
             if 'trans' in hua:
                 reply += f"黑话 : {hua['name']}\n可能的意思 : "
-                if hua['trans'] == None:
+                if hua['trans'] is None:
                     reply += "这个缩写好像不太合法捏~"
                 else:
                     for keyWord in hua['trans']:
