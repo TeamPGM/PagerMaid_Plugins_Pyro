@@ -689,6 +689,16 @@
             "supported": true,
             "des-short": "icp 查询域名是否已备案",
             "des": "icp 查询域名是否已备案"
+        },
+        {
+            "name": "audio_to_voice",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "1.082 kb",
+            "supported": true,
+            "des-short": "audio_to_voice 将音乐文件转换为语音发送",
+            "des": "audio_to_voice 将音乐文件转换为语音发送"
         }
     ]
 }
