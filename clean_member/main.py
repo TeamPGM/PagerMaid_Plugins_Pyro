@@ -17,10 +17,10 @@ async def check_self_and_from(message: Message):
     data = await bot.get_chat_member(cid, (await bot.get_me()).id)
     if data.status not in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]:
         return False
-    if message.outgoing:
-        return True
     if not message.from_user:
         return False
+    if message.outgoing:
+        return True
     data = await bot.get_chat_member(cid, message.from_user.id)
     return data.status in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]
 
