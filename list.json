@@ -699,6 +699,16 @@
             "supported": true,
             "des-short": "audio_to_voice 将音乐文件转换为语音发送",
             "des": "audio_to_voice 将音乐文件转换为语音发送"
+        },
+        {
+            "name": "news60s",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "2.997 kb",
+            "supported": true,
+            "des-short": "news60s 60s 看世界新闻",
+            "des": "news60s 60s 看世界新闻"
         }
     ]
 }
