@@ -63,6 +63,8 @@ class WebSocket:
                 await self.connect()
             except Exception:
                 i += 1
+                if i == 3:
+                    await log("[ws] Connection lost, reconnect 3 times failed...")
                 await sleep(5)
                 continue
             await self.get()
@@ -73,8 +75,6 @@ class WebSocket:
                 break
             elif i < 3:
                 await log("[ws] Connection lost, reconnecting...")
-            elif i == 3:
-                await log("[ws] Connection lost, reconnect failed...")
 
     async def get(self):
         ws_ = self.connection
@@ -120,8 +120,11 @@ ws = WebSocket()
 
 @Hook.on_startup()
 async def connect_ws():
-    await ws.connect()
-    bot.loop.create_task(ws.keep_alive())
+    try:
+        await ws.connect()
+        bot.loop.create_task(ws.keep_alive())
+    except Exception as e:
+        await log(f"[ws] Connection failed: {e}")
 
 
 @listener(incoming=True, outgoing=True)
@@ -130,7 +133,7 @@ async def websocket_push(message: Message):
         await ws.push(message.__str__())
 
 
-@listener(command="websocket", description="Websocket Connect", parameters="<uri>")
+@listener(command="ws", description="Websocket Connect", parameters="<uri>")
 async def websocket_to_connect(message: Message):
     if message.arguments:
         uri = message.arguments
