@@ -73,8 +73,6 @@ class WebSocket:
                 await self.disconnect()
                 self.need_stop = False
                 break
-            elif i < 3:
-                await log("[ws] Connection lost, reconnecting...")
 
     async def get(self):
         ws_ = self.connection
@@ -133,7 +131,7 @@ async def websocket_push(message: Message):
         await ws.push(message.__str__())
 
 
-@listener(command="ws", description="Websocket Connect", parameters="<uri>")
+@listener(command="websocket", description="Websocket Connect", parameters="<uri>")
 async def websocket_to_connect(message: Message):
     if message.arguments:
         uri = message.arguments
