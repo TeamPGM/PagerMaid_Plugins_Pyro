@@ -162,7 +162,7 @@
         },
         {
             "name": "vip",
-            "version": "0.721",
+            "version": "0.731",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "14.4 kb",
@@ -172,7 +172,7 @@
         },
         {
             "name": "shift",
-            "version": "1.031",
+            "version": "1.041",
             "section": "daily",
             "maintainer": "xtaodada",
             "size": "5.3 kb",
@@ -222,7 +222,7 @@
         },
         {
             "name": "sticker",
-            "version": "0.05",
+            "version": "0.060000000000000005",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "4.94 kb",
@@ -242,7 +242,7 @@
         },
         {
             "name": "netease",
-            "version": "1.0",
+            "version": "1.01",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "2.91 kb",
@@ -272,7 +272,7 @@
         },
         {
             "name": "portball",
-            "version": "1.0",
+            "version": "1.01",
             "section": "chat",
             "maintainer": "luoshuijs",
             "size": "3.98 kb",
@@ -342,7 +342,7 @@
         },
         {
             "name": "speed_test",
-            "version": "1.013",
+            "version": "1.023",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "3.02 kb",
@@ -352,7 +352,7 @@
         },
         {
             "name": "tgbg",
-            "version": "1.0",
+            "version": "1.01",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "1.25 kb",
@@ -412,7 +412,7 @@
         },
         {
             "name": "atadmins",
-            "version": "1.0",
+            "version": "1.01",
             "section": "chat",
             "maintainer": "xtaodada、Pentacene",
             "size": "0.96 kb",
@@ -422,7 +422,7 @@
         },
         {
             "name": "getdel",
-            "version": "1.0",
+            "version": "1.01",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "1.73 kb",
@@ -452,7 +452,7 @@
         },
         {
             "name": "unban",
-            "version": "1.0",
+            "version": "1.01",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "2.5 kb",
