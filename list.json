@@ -709,6 +709,16 @@
             "supported": true,
             "des-short": "news60s 60s 看世界新闻",
             "des": "news60s 60s 看世界新闻"
+        },
+        {
+            "name": "websocket",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "5.384 kb",
+            "supported": true,
+            "des-short": "websocket 使用 ws 管理机器人",
+            "des": "websocket 使用 ws 管理机器人"
         }
     ]
 }
