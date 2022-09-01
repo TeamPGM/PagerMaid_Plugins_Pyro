@@ -712,7 +712,7 @@
         },
         {
             "name": "websocket",
-            "version": "1.02",
+            "version": "1.03",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "5.384 kb",
