@@ -5,14 +5,13 @@ from pyrogram.errors import UserAdminInvalid, BadRequest, ChatAdminRequired
 from pyrogram.types import ChatPermissions
 
 from pagermaid.listener import listener
-from pagermaid.utils import Message
+from pagermaid.enums import Client, Message
 
 
 @listener(command="portball", is_plugin=True, outgoing=True, need_admin=True,
           description="回复你要临时禁言的人的消息来实现XX秒的禁言",
           parameters="[理由]|<时间/秒>")
-async def portball(_, message: Message):
-    bot = message.bot
+async def portball(bot: Client, message: Message):
     if message.chat.type in (ChatType.GROUP, ChatType.SUPERGROUP):
         reply_to_message = message.reply_to_message
         if reply_to_message is not None:

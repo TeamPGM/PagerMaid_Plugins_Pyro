@@ -4,7 +4,7 @@ from pyrogram.types import Chat
 
 from pagermaid import bot
 from pagermaid.listener import listener
-from pagermaid.single_utils import Message
+from pagermaid.enums import Client, Message
 from pagermaid.utils import lang
 
 
@@ -44,7 +44,7 @@ async def get_uid(chat: Chat, message: Message):
           need_admin=True,
           groups_only=True,
           parameters="<reply|id|username>")
-async def unban(message: Message):
+async def unban(client: Client, message: Message):
     chat = message.chat
     try:
         uid, member = await get_uid(chat, message)
@@ -60,7 +60,7 @@ async def unban(message: Message):
         if not member:
             member = await bot.get_chat_member(chat.id, uid)
         if member.status in [ChatMemberStatus.RESTRICTED, ChatMemberStatus.BANNED]:
-            await message.bot.unban_chat_member(chat.id, uid)
+            await client.unban_chat_member(chat.id, uid)
         else:
             return await message.edit("此用户未被限制。")
     except UserNotParticipant:

@@ -5,7 +5,8 @@ from pyrogram.enums.chat_type import ChatType
 from pyrogram.errors.exceptions.flood_420 import FloodWait
 
 from pagermaid import log
-from pagermaid.single_utils import sqlite, Message
+from pagermaid.single_utils import sqlite
+from pagermaid.enums import Client, Message
 from pagermaid.utils import lang
 from pagermaid.listener import listener
 
@@ -17,7 +18,7 @@ import contextlib
           parameters="set <from channel> <to channel> 自动转发频道新消息（可以使用频道用户名或者 id）\n"
                      "del <from channel> 删除转发\n"
                      "backup <from channel> <to channel> 备份频道（可以使用频道用户名或者 id）")
-async def shift_set(message: Message):
+async def shift_set(client: Client, message: Message):
     if not 1 < len(message.parameter) < 4:
         await message.edit(f"{lang('error_prefix')}{lang('arg_error')}")
         return
@@ -26,14 +27,14 @@ async def shift_set(message: Message):
             return await message.edit(f"{lang('error_prefix')}{lang('arg_error')}")
         # 检查来源频道
         try:
-            channel = await message.bot.get_chat(int(message.parameter[1]))
+            channel = await client.get_chat(int(message.parameter[1]))
             if channel.type != ChatType.CHANNEL:
                 return await message.edit("出错了呜呜呜 ~ 无法识别的来源对话。")
             if channel.has_protected_content:
                 return await message.edit("出错了呜呜呜 ~ 无法识别的来源对话。")
         except Exception:
             try:
-                channel = await message.bot.get_chat(message.parameter[1])
+                channel = await client.get_chat(message.parameter[1])
                 if channel.type != ChatType.CHANNEL:
                     return await message.edit("出错了呜呜呜 ~ 无法识别的来源对话。")
                 if channel.has_protected_content:
@@ -44,10 +45,10 @@ async def shift_set(message: Message):
             return await message.edit('出错了呜呜呜 ~ 此对话位于白名单中。')
         # 检查目标频道
         try:
-            to = await message.bot.get_chat(int(message.parameter[2]))
+            to = await client.get_chat(int(message.parameter[2]))
         except Exception:
             try:
-                to = await message.bot.get_chat(message.parameter[2])
+                to = await client.get_chat(message.parameter[2])
             except Exception:
                 return await message.edit("出错了呜呜呜 ~ 无法识别的目标对话。")
         if to.id in [-1001441461877]:
@@ -61,10 +62,10 @@ async def shift_set(message: Message):
             return await message.edit(f"{lang('error_prefix')}{lang('arg_error')}")
         # 检查来源频道
         try:
-            channel = await message.bot.get_chat(int(message.parameter[1]))
+            channel = await client.get_chat(int(message.parameter[1]))
         except Exception:
             try:
-                channel = await message.bot.get_chat(message.parameter[1])
+                channel = await client.get_chat(message.parameter[1])
             except Exception:
                 return await message.edit("出错了呜呜呜 ~ 无法识别的来源对话。")
         try:
@@ -78,14 +79,14 @@ async def shift_set(message: Message):
             return await message.edit(f"{lang('error_prefix')}{lang('arg_error')}")
         # 检查来源频道
         try:
-            channel = await message.bot.get_chat(int(message.parameter[1]))
+            channel = await client.get_chat(int(message.parameter[1]))
             if channel.type != ChatType.CHANNEL:
                 return await message.edit("出错了呜呜呜 ~ 无法识别的来源对话。")
             if channel.has_protected_content:
                 return await message.edit("出错了呜呜呜 ~ 无法识别的来源对话。")
         except Exception:
             try:
-                channel = await message.bot.get_chat(message.parameter[1])
+                channel = await client.get_chat(message.parameter[1])
                 if channel.type != ChatType.CHANNEL:
                     return await message.edit("出错了呜呜呜 ~ 无法识别的来源对话。")
                 if channel.has_protected_content:
@@ -96,17 +97,17 @@ async def shift_set(message: Message):
             return await message.edit('出错了呜呜呜 ~ 此对话位于白名单中。')
         # 检查目标频道
         try:
-            to = await message.bot.get_chat(int(message.parameter[2]))
+            to = await client.get_chat(int(message.parameter[2]))
         except Exception:
             try:
-                to = await message.bot.get_chat(message.parameter[2])
+                to = await client.get_chat(message.parameter[2])
             except Exception:
                 return await message.edit("出错了呜呜呜 ~ 无法识别的目标对话。")
         if to.id in [-1001441461877]:
             return await message.edit('出错了呜呜呜 ~ 此对话位于白名单中。')
         # 开始遍历消息
         await message.edit(f'开始备份频道 {channel.id} 到 {to.id} 。')
-        async for msg in message.bot.search_messages(channel.id):
+        async for msg in client.search_messages(channel.id):
             await sleep(uniform(0.5, 1.0))
             await forward_msg(message, msg, to.id)
         await message.edit(f'备份频道 {channel.id} 到 {to.id} 已完成。')

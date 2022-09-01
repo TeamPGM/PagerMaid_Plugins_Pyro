@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from pyrogram.errors import FloodWait, ChatAdminRequired, UserAdminInvalid
 
 from pagermaid.listener import listener
-from pagermaid.single_utils import Message
+from pagermaid.enums import Client, Message
 
 
 @listener(command="getdel",
@@ -11,21 +11,21 @@ from pagermaid.single_utils import Message
           need_admin=True,
           parameters="清理",
           description="获取当前群组的死号数。")
-async def get_del(message: Message):
+async def get_del(client: Client, message: Message):
     """ PagerMaid get_del. """
     need_kick = message.arguments
     member_count = 0
     try:
         await message.edit('遍历成员中。。。')
         if need_kick:
-            user = await message.bot.get_chat_member(message.chat.id, (await message.bot.get_me()).id)
+            user = await client.get_chat_member(message.chat.id, (await client.get_me()).id)
             need_kick = bool(user.privileges and user.privileges.can_restrict_members)
-        async for member in message.bot.get_chat_members(message.chat.id):
+        async for member in client.get_chat_members(message.chat.id):
             if member.user.is_deleted:
                 member_count += 1
                 if need_kick:
                     try:
-                        await message.bot.ban_chat_member(
+                        await client.ban_chat_member(
                             message.chat.id,
                             member.user.id,
                             datetime.now() + timedelta(minutes=5))

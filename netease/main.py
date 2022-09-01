@@ -5,7 +5,7 @@ from pyrogram import filters
 
 from pagermaid import bot
 from pagermaid.listener import listener
-from pagermaid.single_utils import Message
+from pagermaid.enums import Message
 from pagermaid.utils import alias_command
 
 
@@ -26,7 +26,7 @@ async def netease_start() -> None:
 
 
 async def netease_search(keyword: str, message: Message):
-    async with message.bot.conversation("Music163bot") as conv:
+    async with bot.conversation("Music163bot") as conv:
         await conv.send_message(f"/search {keyword}")
         await conv.mark_as_read()
         answer: Message = await conv.get_response(filters=~filters.regex("搜索中..."))
@@ -44,7 +44,7 @@ async def netease_search(keyword: str, message: Message):
 
 
 async def netease_url(url: str, message: Message):
-    async with message.bot.conversation("Music163bot") as conv:
+    async with bot.conversation("Music163bot") as conv:
         await conv.send_message(url)
         await conv.mark_as_read()
         answer: Message = await conv.get_response(filters=filters.audio)
@@ -54,7 +54,7 @@ async def netease_url(url: str, message: Message):
 
 
 async def netease_id(music_id: str, message: Message):
-    async with message.bot.conversation("Music163bot") as conv:
+    async with bot.conversation("Music163bot") as conv:
         await conv.send_message(f"/music {music_id}")
         await conv.mark_as_read()
         answer: Message = await conv.get_response(filters=filters.audio)

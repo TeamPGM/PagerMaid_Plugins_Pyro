@@ -45,8 +45,8 @@ async def unblock_sticker_bot():
     await bot.unblock_user("Stickers")
 
 
-async def get_all_packs(message: Message):
-    async with message.bot.conversation(429000) as conv:
+async def get_all_packs():
+    async with bot.conversation(429000) as conv:
         await conv.ask("/start")
         await conv.mark_as_read()
         await conv.ask("/cancel")
@@ -113,7 +113,7 @@ class Sticker:
         raise CannotToStickerSetError()
 
     async def add_sticker(self):
-        async with self.message.bot.conversation(429000) as conv:
+        async with bot.conversation(429000) as conv:
             await conv.ask("/start")
             await conv.mark_as_read()
             await conv.ask("/cancel")
@@ -133,7 +133,7 @@ class Sticker:
         await self.generate_sticker_set()
         if not self.sticker_set:
             raise NoStickerSetNameError()
-        packs = await get_all_packs(self.message)
+        packs = await get_all_packs()
         if self.sticker_set not in packs:
             # TODO: add a way to add a new pack
             raise NoStickerSetNameError()

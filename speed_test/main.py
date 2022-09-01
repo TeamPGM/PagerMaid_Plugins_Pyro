@@ -1,13 +1,12 @@
 import contextlib
 
 from PIL import Image
-
 from os.path import exists
-
 from httpx import ReadTimeout
 
 from pagermaid.listener import listener
-from pagermaid.single_utils import Message, safe_remove
+from pagermaid.single_utils import safe_remove
+from pagermaid.enums import Client, Message
 from pagermaid.utils import lang, pip_install
 
 pip_install("speedtest-cli", alias="speedtest")
@@ -88,7 +87,7 @@ async def get_all_ids():
 @listener(command="speedtest",
           description=lang('speedtest_des'),
           parameters="(Server ID/测速点列表)")
-async def speedtest(message: Message):
+async def speedtest(client: Client, message: Message):
     """ Tests internet speed using speedtest. """
     if message.arguments == "测速点列表":
         msg = message
@@ -110,7 +109,7 @@ async def speedtest(message: Message):
     if not photo:
         return await msg.edit(des)
     try:
-        await message.bot.send_photo(message.chat.id, photo, caption=des)
+        await client.send_photo(message.chat.id, photo, caption=des)
     except Exception:
         return await msg.edit(des)
     await msg.safe_delete()
