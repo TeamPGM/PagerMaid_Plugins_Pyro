@@ -342,7 +342,7 @@
         },
         {
             "name": "speed_test",
-            "version": "1.023",
+            "version": "1.033",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "3.02 kb",
@@ -392,7 +392,7 @@
         },
         {
             "name": "netease_comment",
-            "version": "1.0",
+            "version": "1.01",
             "section": "chat",
             "maintainer": "xtaodada、KorenKrita",
             "size": "0.89 kb",
@@ -432,7 +432,7 @@
         },
         {
             "name": "hitokoto",
-            "version": "1.0",
+            "version": "1.01",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "1.6 kb",
@@ -442,7 +442,7 @@
         },
         {
             "name": "weather_lite",
-            "version": "1.0",
+            "version": "1.01",
             "section": "daily",
             "maintainer": "xtaodada",
             "size": "0.97 kb",
