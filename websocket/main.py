@@ -130,7 +130,7 @@ async def websocket_push(message: Message):
         await ws.push(message.__str__())
 
 
-@listener(command="ws", description="Websocket Connect", parameters="<uri>")
+@listener(command="websocket", description="Websocket Connect", parameters="<uri>")
 async def websocket_to_connect(message: Message):
     if message.arguments:
         uri = message.arguments
