@@ -1,13 +1,13 @@
 from pagermaid.listener import listener
-from pagermaid.single_utils import Message
+from pagermaid.enums import Message, AsyncClient
 
 
 @listener(command="netease_comment",
           description="随机一条网易云音乐评论。")
-async def netease(message: Message):
+async def netease(request: AsyncClient, message: Message):
     for _ in range(5):
         try:
-            req = await message.request.get("https://api.66mz8.com/api/music.163.php?format=json")
+            req = await request.get("https://api.66mz8.com/api/music.163.php?format=json")
             assert req.status_code == 200
             data = req.json()
             res = data['comments'] + '\n\n来自 @' + data[

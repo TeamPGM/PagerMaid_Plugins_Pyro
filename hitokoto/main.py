@@ -1,20 +1,20 @@
 from pagermaid.listener import listener
-from pagermaid.single_utils import Message
+from pagermaid.enums import Message, AsyncClient
 from pagermaid.utils import lang
 
 
 @listener(command="hitokoto",
           description=lang('hitokoto_des'))
-async def hitokoto(message: Message):
+async def hitokoto(request: AsyncClient, message: Message):
     hitokoto_while = 1
     hitokoto_json = None
     try:
-        hitokoto_json = (await message.request.get("https://v1.hitokoto.cn/?charset=utf-8")).json()
+        hitokoto_json = (await request.get("https://v1.hitokoto.cn/?charset=utf-8")).json()
     except ValueError:
         while hitokoto_while < 10:
             hitokoto_while += 1
             try:
-                hitokoto_json = (await message.request.get("https://v1.hitokoto.cn/?charset=utf-8")).json()
+                hitokoto_json = (await request.get("https://v1.hitokoto.cn/?charset=utf-8")).json()
                 break
             except Exception:
                 continue

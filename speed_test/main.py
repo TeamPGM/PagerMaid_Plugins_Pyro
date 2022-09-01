@@ -6,7 +6,7 @@ from httpx import ReadTimeout
 
 from pagermaid.listener import listener
 from pagermaid.single_utils import safe_remove
-from pagermaid.enums import Client, Message
+from pagermaid.enums import Client, Message, AsyncClient
 from pagermaid.utils import lang, pip_install
 
 pip_install("speedtest-cli", alias="speedtest")
@@ -31,7 +31,7 @@ def unit_convert(byte):
     return f"{round(byte, 2)} {units[zero]}"
 
 
-async def run_speedtest(message: Message):
+async def run_speedtest(request: AsyncClient, message: Message):
     test = Speedtest()
     server = int(message.arguments) if len(message.parameter) == 1 else None
     if server:
@@ -57,7 +57,7 @@ async def run_speedtest(message: Message):
         f"Timestamp: `{result['timestamp']}`"
     )
     if result["share"]:
-        data = await message.request.get(result["share"].replace("http:", "https:"), follow_redirects=True)
+        data = await request.get(result["share"].replace("http:", "https:"), follow_redirects=True)
         with open("speedtest.png", mode="wb") as f:
             f.write(data.content)
         with contextlib.suppress(Exception):
@@ -87,7 +87,7 @@ async def get_all_ids():
 @listener(command="speedtest",
           description=lang('speedtest_des'),
           parameters="(Server ID/测速点列表)")
-async def speedtest(client: Client, message: Message):
+async def speedtest(client: Client, message: Message, request: AsyncClient):
     """ Tests internet speed using speedtest. """
     if message.arguments == "测速点列表":
         msg = message
@@ -97,7 +97,7 @@ async def speedtest(client: Client, message: Message):
         if message.arguments == "测速点列表":
             des, photo = await get_all_ids()
         else:
-            des, photo = await run_speedtest(message)
+            des, photo = await run_speedtest(request, message)
     except SpeedtestHTTPError:
         return await msg.edit(lang('speedtest_ConnectFailure'))
     except ValueError:
