@@ -727,8 +727,8 @@
             "maintainer": "cdle",
             "size": "8 kb",
             "supported": true,
-            "des-short": "傻妞插件，用户可以通过此插件召唤傻妞，Repo：https://github.com/cdle/sillyGirl",
-            "des": "傻妞插件"
+            "des-short": "傻妞插件",
+            "des": "傻妞插件，用户可以通过此插件召唤傻妞，Repo：https://github.com/cdle/sillyGirl"
         }
     ]
 }
