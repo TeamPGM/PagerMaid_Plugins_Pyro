@@ -719,6 +719,16 @@
             "supported": true,
             "des-short": "websocket 使用 ws 管理机器人",
             "des": "websocket 使用 ws 管理机器人"
+        },
+        {
+            "name": "silly_girl",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "cdle",
+            "size": "8 kb",
+            "supported": true,
+            "des-short": "傻妞插件，用户可以通过此插件召唤傻妞，Repo：https://github.com/cdle/sillyGirl",
+            "des": "傻妞插件"
         }
     ]
 }
