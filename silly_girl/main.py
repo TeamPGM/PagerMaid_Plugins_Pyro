@@ -1,4 +1,3 @@
-
 from asyncio import sleep
 from pagermaid.listener import listener
 from pagermaid.enums import Message
@@ -8,43 +7,47 @@ from pagermaid import bot
 from pyrogram.enums.chat_type import ChatType
 from pagermaid.hook import Hook
 
-import json
 
 class SillyGirl:
     address = ""
     token = ""
     self_user_id = ""
     init = False
-    working = False
 
     def init_connect_info(self, address):
-        sillyGirl.self_user_id = bot.me.id
         self.init = True
+        self.self_user_id = bot.me.id
         if address:
             sqlite["silly_girl_address"] = address
         else:
-            address = sqlite.get("silly_girl_address")
-        if '@' in address:
+            address = sqlite.get("silly_girl_address", "")
+        try:
+            if '@' in address:
             s1 = address.split("//", 1)
             s2 = s1[1].split("@", 1)
             sillyGirl.token = s2[0]
-            address = f"{s1[0]}//{s2[1]}"
-        sillyGirl.address = address
+            self.address = f"{s1[0]}//{s2[1]}"
+        except:
+            self.address = ""
 
     async def polls(self):
         while True:
-            await self.poll([])
+            if self.address:
+                await self.poll([])
+            else:
+                return
 
     async def poll(self, data):
         try:
+            if not self.address:
+                return
             init = ''
-            if sillyGirl.init == False:
+            if not self.init:
                 init = "&init=true"
-                sillyGirl.init = True
+                self.init = True
             req_data = await client.post(
                 f"{self.address}/pgm?token={self.token}{init}", json=data
             )
-
         except Exception as e:
             print(e)
             await sleep(0.1)
@@ -53,7 +56,7 @@ class SillyGirl:
             await sleep(0.1)
             return
         try:
-            replies = json.loads(req_data.text)
+            replies = req_data.json()
             results = []
             for reply in replies:
                 if reply["delete"]:
@@ -80,7 +83,6 @@ class SillyGirl:
                         reply_to_message_id=reply["reply_to"],
                     )
                 elif reply["text"] != '':
-
                     message = await bot.send_message(reply["chat_id"], reply["text"], reply_to_message_id=reply["reply_to"])
                 if message:
                     results.append({
@@ -88,45 +90,46 @@ class SillyGirl:
                         'uuid': reply["uuid"],
                     })
             if len(results):
-                await sillyGirl.poll(results)
+                await self.poll(results)
         except Exception as e:
             print(e)
             await sleep(0.1)
-            return
+
 
 sillyGirl = SillyGirl()
+
 
 @Hook.on_startup()
 async def connect_sillyGirl():
     sillyGirl.init_connect_info("")
     bot.loop.create_task(sillyGirl.polls())
 
-    
 
-@listener(is_plugin=True,outgoing=True, ignore_edited=True, command="sillyGirl",description="连接到傻妞服务器", parameters="<auth>")
-async def Connect(message: Message):
-    try:                   
-        await edit_delete(message,"连接中...")
+@listener(command="sillyGirl", description="连接到傻妞服务器", parameters="<auth>")
+async def sillyGirl_connect(message: Message):
+    try:
+        await edit_delete(message, "连接中...")
         sillyGirl.init_connect_info(message.arguments)
     except Exception as e:
         print(e)
 
-@listener(outgoing=True,ignore_edited=True, incoming=True)
+
+@listener(outgoing=True, ignore_edited=True, incoming=True)
 async def handle_receive(message: Message):
     try:                   
         reply_to = message.id
         reply = message.reply_to_message
         reply_to_sender_id = 0
         sender_id = 0
-        if message.from_user :
+        if message.from_user:
             sender_id = message.from_user.id
             if reply:
                 reply_to = reply.id
                 reply_to_sender_id = reply.from_user.id
-        if sillyGirl.init != True:
+        if not sillyGirl.init:
             sillyGirl.init_connect_info("")
-        if sillyGirl.self_user_id == sender_id :
-            reply_to = 0 
+        if sillyGirl.self_user_id == sender_id:
+            reply_to = 0
         await sillyGirl.poll(
         [{
             'id': message.id,
@@ -140,6 +143,3 @@ async def handle_receive(message: Message):
         }])
     except Exception as e:
         print(e)
-    return
-
-    
