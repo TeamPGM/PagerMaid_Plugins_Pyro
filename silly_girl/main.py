@@ -28,7 +28,7 @@ class SillyGirl:
             s1 = address.split("//", 1)
             s2 = s1[1].split("@", 1)
             sillyGirl.token = s2[0]
-            address = s1[0]+"//"+s2[1]
+            address = f"{s1[0]}//{s2[1]}"
         sillyGirl.address = address
 
     async def polls(self):
@@ -41,12 +41,15 @@ class SillyGirl:
             if sillyGirl.init == False:
                 init = "&init=true"
                 sillyGirl.init = True
-            req_data = await client.post(self.address+"/pgm?token="+self.token+init, json=data)
+            req_data = await client.post(
+                f"{self.address}/pgm?token={self.token}{init}", json=data
+            )
+
         except Exception as e:
             print(e)
             await sleep(0.1)
             return
-        if not req_data.status_code == 200:
+        if req_data.status_code != 200:
             await sleep(0.1)
             return
         try:
@@ -77,7 +80,7 @@ class SillyGirl:
                         reply_to_message_id=reply["reply_to"],
                     )
                 elif reply["text"] != '':
-                    
+
                     message = await bot.send_message(reply["chat_id"], reply["text"], reply_to_message_id=reply["reply_to"])
                 if message:
                     results.append({
@@ -107,7 +110,6 @@ async def Connect(message: Message):
         sillyGirl.init_connect_info(message.arguments)
     except Exception as e:
         print(e)
-        pass
 
 @listener(outgoing=True,ignore_edited=True, incoming=True)
 async def handle_receive(message: Message):
@@ -138,7 +140,6 @@ async def handle_receive(message: Message):
         }])
     except Exception as e:
         print(e)
-        pass
     return
 
     
