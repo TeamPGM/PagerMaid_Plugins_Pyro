@@ -729,6 +729,16 @@
             "supported": true,
             "des-short": "傻妞插件",
             "des": "傻妞插件，用户可以通过此插件召唤傻妞，Repo：https://github.com/cdle/sillyGirl"
+        },
+        {
+            "name": "httpcat",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "0.927 kb",
+            "supported": true,
+            "des-short": "httpcat 获取 http 状态码图片",
+            "des": "httpcat 获取 http 状态码图片"
         }
     ]
 }
