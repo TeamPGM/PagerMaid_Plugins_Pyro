@@ -32,10 +32,13 @@ async def lottery_end():
     all_user = lottery_bot.get_subs()[:lottery_json["num"]]
     secret_generator = secrets.SystemRandom()
     win_user = []
-    for _ in range(min(lottery_json["win"], len(all_user))):
+    win_user_num = min(lottery_json["win"], len(all_user))
+    while True:
         temp = secret_generator.choice(all_user)
         if temp not in win_user:
             win_user.append(temp)
+        if len(win_user) >= win_user_num:
+            break
     win_text = end_text.format(
         lottery_json["title"],
         "\n".join(f"<a href=\"tg://user?id={uid}\">@{uid}</a>" for uid in win_user
