@@ -28,7 +28,7 @@ class SillyGirl:
             s1 = address.split("//", 1)
             s2 = s1[1].split("@", 1)
             sillyGirl.token = s2[0]
-            address = s1[0]+"//"+s2[1]
+            address = f"{s1[0]}//{s2[1]}"
         sillyGirl.address = address
 
     async def polls(self):
@@ -41,13 +41,16 @@ class SillyGirl:
             if sillyGirl.init == False:
                 init = "&init=true"
                 sillyGirl.init = True
-            req_data = await client.post(self.address+"/pgm?token="+self.token+init, json=data)
+            req_data = await client.post(
+                f"{self.address}/pgm?token={self.token}{init}", json=data
+            )
+
         except Exception as e:
             print(e)
             print(e,"???====")
             await sleep(0.1)
             return
-        if not req_data.status_code == 200:
+        if req_data.status_code != 200:
             await sleep(0.1)
             return
         try:
@@ -116,19 +119,17 @@ async def Connect(message: Message):
     except Exception as e:
         print(e,"+++")
         print(e)
-        pass
 
 @listener(outgoing=True,ignore_edited=True, incoming=True)
 async def handle_receive(message: Message):
-    try:      
+    try:  
         reply_to = message.id
-        reply = message.reply_to_message
         reply_to_sender_id = 0
         chat_id = message.chat.id
         sender_id = 0
-        if message.from_user :
+        if message.from_user:
             sender_id = message.from_user.id
-            if reply:
+            if reply := message.reply_to_message:
                 reply_to = reply.id
                 if reply.from_user:
                     reply_to_sender_id = reply.from_user.id
@@ -141,20 +142,24 @@ async def handle_receive(message: Message):
         if sillyGirl.init != True:
             sillyGirl.init_connect_info("")
         await sillyGirl.poll(
-        [{
-            'id': message.id,
-            'chat_id':  chat_id ,
-            'text': message.text,
-            'sender_id': sender_id,
-            'reply_to': reply_to,
-            'reply_to_sender_id': reply_to_sender_id,
-            'bot_id': sillyGirl.self_user_id,
-            'is_group': message.chat.type == ChatType.SUPERGROUP or message.chat.type == ChatType.CHANNEL,
-        }])
+            [
+                {
+                    'id': message.id,
+                    'chat_id': chat_id,
+                    'text': message.text,
+                    'sender_id': sender_id,
+                    'reply_to': reply_to,
+                    'reply_to_sender_id': reply_to_sender_id,
+                    'bot_id': sillyGirl.self_user_id,
+                    'is_group': message.chat.type
+                    in [ChatType.SUPERGROUP, ChatType.CHANNEL],
+                }
+            ]
+        )
+
     except Exception as e:
         print(e)
         print(e,"---")
-        pass
     return
 
     
