@@ -1,9 +1,10 @@
 import contextlib
 from asyncio import sleep
+from random import uniform
 
 from pyrogram.enums import ChatMemberStatus
 from pyrogram import filters
-from pyrogram.errors import ChatAdminRequired, FloodWait, UserAdminInvalid, PeerIdInvalid
+from pyrogram.errors import ChatAdminRequired, FloodWait, UserAdminInvalid, PeerIdInvalid, BadRequest
 
 from datetime import datetime, timedelta
 
@@ -28,11 +29,15 @@ async def check_self_and_from(message: Message):
 async def kick_chat_member(cid, uid, only_search: bool = False):
     if only_search:
         return
-    with contextlib.suppress(UserAdminInvalid, PeerIdInvalid):
-        await bot.ban_chat_member(
-            cid,
-            uid,
-            datetime.now() + timedelta(minutes=5))
+    try:
+        with contextlib.suppress(UserAdminInvalid, PeerIdInvalid, BadRequest):
+            await bot.ban_chat_member(
+                cid,
+                uid,
+                datetime.now() + timedelta(minutes=5))
+    except FloodWait as e:
+        await sleep(e.value + uniform(0.5, 1.0))
+        await kick_chat_member(cid, uid, only_search)
 
 
 async def process_clean_member(message: Message, mode: str, day: int, only_search: bool = False):
@@ -60,6 +65,9 @@ async def process_clean_member(message: Message, mode: str, day: int, only_searc
             if mode == "4" and member.user.is_deleted:
                 member_count += 1
                 await kick_chat_member(message.chat.id, member.user.id, only_search)
+            if mode == "5":
+                member_count += 1
+                await kick_chat_member(message.chat.id, member.user.id, only_search)
         if not only_search:
             await message.edit(f'成功清理了 `{member_count}` 人。')
         else:
@@ -83,7 +91,8 @@ async def clean_member(client: Client, message: Message):
                                "1. 按未上线时间清理\n"
                                "2. 按未发言时间清理（大群慎用）\n"
                                "3. 按发言数清理\n"
-                               "4. 清理死号\n")
+                               "4. 清理死号\n"
+                               "5. 清理所有人（大群慎用）")
     try:
         async with client.conversation(message.chat.id, filters=filters.user(uid)) as conv:
             await sleep(1)
@@ -104,7 +113,9 @@ async def clean_member(client: Client, message: Message):
                 res = await conv.get_response()
                 day = int(res.text)
                 await res.safe_delete()
-            elif mode != "4":
+            elif mode == "4":
+                pass
+            elif mode != "5":
                 raise ValueError("清理模式错误")
             await reply.edit("查找还是清理？")
             await sleep(1)
