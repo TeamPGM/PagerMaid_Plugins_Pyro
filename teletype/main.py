@@ -1,5 +1,7 @@
 from asyncio import sleep
 
+from pyrogram.errors.exceptions.bad_request_400 import MessageNotModified
+
 from pagermaid.listener import listener
 from pagermaid.utils import lang, Message
 
@@ -27,7 +29,7 @@ async def teletype(message: Message):
         await sleep(interval)
         try:
             await msg.edit(buffer)
-        except MessageNotModifiedError:
+        except MessageNotModified:
             pass
         except Exception:
             return
