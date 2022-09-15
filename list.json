@@ -652,7 +652,7 @@
         },
         {
             "name": "teletype",
-            "version": "1.01",
+            "version": "1.02",
             "section": "chat",
             "maintainer": "Godlike",
             "size": "1.025 kb",
