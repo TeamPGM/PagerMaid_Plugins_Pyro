@@ -739,6 +739,16 @@
             "supported": true,
             "des-short": "httpcat 获取 http 状态码图片",
             "des": "httpcat 获取 http 状态码图片"
+        },
+        {
+            "name": "set_status",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "1.661 kb",
+            "supported": true,
+            "des-short": "set_status 快速设置大会员自定义 emoji 状态",
+            "des": "set_status 快速设置大会员自定义 emoji 状态"
         }
     ]
 }
