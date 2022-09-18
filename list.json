@@ -749,6 +749,16 @@
             "supported": true,
             "des-short": "set_status 快速设置大会员自定义 emoji 状态",
             "des": "set_status 快速设置大会员自定义 emoji 状态"
+        },
+        {
+            "name": "get_status",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "2.304 kb",
+            "supported": true,
+            "des-short": "get_status 获取自己或者他人的大会员自定义 emoji 状态",
+            "des": "get_status 获取自己或者他人的大会员自定义 emoji 状态"
         }
     ]
 }
