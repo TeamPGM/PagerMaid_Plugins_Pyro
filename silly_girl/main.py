@@ -4,9 +4,12 @@ from pagermaid.listener import listener
 from pagermaid.enums import Message
 from pagermaid.single_utils import sqlite
 from pagermaid.utils import client, edit_delete
-from pagermaid import bot
+# from pagermaid import bot
 from pyrogram.enums.chat_type import ChatType
 from pagermaid.hook import Hook
+from datetime import datetime, timedelta
+from pagermaid.services import bot
+from pyrogram.types import ChatPermissions
 
 import json
 
@@ -28,7 +31,7 @@ class SillyGirl:
             s1 = address.split("//", 1)
             s2 = s1[1].split("@", 1)
             sillyGirl.token = s2[0]
-            address = f"{s1[0]}//{s2[1]}"
+            address = s1[0]+"//"+s2[1]
         sillyGirl.address = address
 
     async def polls(self):
@@ -41,22 +44,39 @@ class SillyGirl:
             if sillyGirl.init == False:
                 init = "&init=true"
                 sillyGirl.init = True
-            req_data = await client.post(
-                f"{self.address}/pgm?token={self.token}{init}", json=data
-            )
-
+            req_data = await client.post(self.address+"/pgm?token="+self.token+init, json=data)
         except Exception as e:
             print(e)
             print(e,"???====")
             await sleep(0.1)
             return
-        if req_data.status_code != 200:
+        if not req_data.status_code == 200:
             await sleep(0.1)
             return
         try:
             replies = json.loads(req_data.text)
             results = []
             for reply in replies:
+                if reply["command"]:
+                    try:
+                        id = reply["id"]
+                        cid = reply["chat_id"]
+                        uid = reply["sender_id"]
+                        if reply["command"] == "ban":
+                            if id != 0 :
+                                await bot.restrict_chat_member(cid, uid, ChatPermissions(),datetime.now() + timedelta(seconds=id))
+                            else:
+                                await bot.restrict_chat_member(cid, uid, ChatPermissions())
+                        elif reply["command"] == "unban":
+                            await bot.restrict_chat_member(cid, uid, ChatPermissions(),datetime.now() + timedelta(seconds=60))
+                        elif reply["command"] == "kick":
+                            if id != 0 :
+                                await bot.ban_chat_member(cid,uid,datetime.now() + timedelta(seconds=60))
+                            else:
+                                await bot.ban_chat_member(cid,uid)
+                    except Exception as e:
+                        print(e,"----")
+                    continue
                 if reply["delete"]:
                     try:
                         await bot.edit_message(reply["chat_id"], reply["id"], "打错字了，呱呱～")
@@ -119,17 +139,26 @@ async def Connect(message: Message):
     except Exception as e:
         print(e,"+++")
         print(e)
+        pass
 
 @listener(outgoing=True,ignore_edited=True, incoming=True)
 async def handle_receive(message: Message):
-    try:  
+    try:      
         reply_to = message.id
+        reply = message.reply_to_message
         reply_to_sender_id = 0
         chat_id = message.chat.id
         sender_id = 0
-        if message.from_user:
+        user_name = ""
+        chat_name = ""
+        if message.chat.title:
+            chat_name = message.chat.title
+        if message.from_user :
+            user_name = message.from_user.first_name
+            if message.from_user.last_name:
+                user_name+=" "+message.from_user.last_name
             sender_id = message.from_user.id
-            if reply := message.reply_to_message:
+            if reply:
                 reply_to = reply.id
                 if reply.from_user:
                     reply_to_sender_id = reply.from_user.id
@@ -141,25 +170,25 @@ async def handle_receive(message: Message):
                     reply_to_sender_id = message.reply_to_message.from_user.id
         if sillyGirl.init != True:
             sillyGirl.init_connect_info("")
+        # if reply_to_sender_id==0 or sillyGirl.self_user_id == reply_to_sender_id:
+        #     reply_to = 0
         await sillyGirl.poll(
-            [
-                {
-                    'id': message.id,
-                    'chat_id': chat_id,
-                    'text': message.text,
-                    'sender_id': sender_id,
-                    'reply_to': reply_to,
-                    'reply_to_sender_id': reply_to_sender_id,
-                    'bot_id': sillyGirl.self_user_id,
-                    'is_group': message.chat.type
-                    in [ChatType.SUPERGROUP, ChatType.CHANNEL],
-                }
-            ]
-        )
-
+        [{
+            'id': message.id,
+            'chat_id':  chat_id ,
+            'text': message.text ,
+            'sender_id': sender_id,
+            'reply_to': reply_to,
+            'reply_to_sender_id': reply_to_sender_id,
+            'bot_id': sillyGirl.self_user_id,
+            'is_group': message.chat.type == ChatType.SUPERGROUP or message.chat.type == ChatType.CHANNEL,
+            'user_name': user_name,
+            'chat_name': chat_name,
+        }])
     except Exception as e:
         print(e)
         print(e,"---")
+        pass
     return
 
     
