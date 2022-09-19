@@ -73,10 +73,7 @@ async def chitang(message: Message):
         await fadianJi.fecthFadian()
     if not fadianJi.data:
         return
-    query = message.arguments
-    if not query:
-        return await message.edit("请指定发电对象")
-    else:
+    if query := message.arguments:
         try:
             org = fadianJi.data
             al_list = org.get("data")
@@ -85,3 +82,5 @@ async def chitang(message: Message):
             return await message.edit(f'错误:{e}')
         else:
             return await message.edit(choice(al_list).format(name=query))
+    else:
+        return await message.edit("请指定发电对象")
