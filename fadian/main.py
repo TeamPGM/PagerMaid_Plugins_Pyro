@@ -38,7 +38,8 @@ class Fadian(object):
             ],
             "date": 0
         }
-        self.api = "https://raw.githubusercontent.com/sudoskys/Fadian/main/fadian.json"
+        self.api = "https://raw.githubusercontent.com/TeamPGM/PagerMaid_Plugins_Pyro/v2/fadian/fadian.json"
+        # self.api = "https://raw.githubusercontent.com/sudoskys/Fadian/main/fadian.json"
 
     async def fecthFadian(self):
         try:
@@ -58,7 +59,7 @@ async def init_data():
     await fadianJi.fecthFadian()
 
 
-@scheduler.scheduled_job("cron", hour="1", id="fa_dian_refresher_data")
+@scheduler.scheduled_job("cron", hour="2", id="fa_dian_refresher_data")
 async def fa_dian_refresher_data():
     await fadianJi.fecthFadian()
 
