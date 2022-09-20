@@ -41,9 +41,16 @@ async def download_cli(request: AsyncClient):
     except Exception:
         safe_remove(path+filename)
         return "下载测速二进制文件失败",None
-    proc = await create_subprocess_shell("chmod +x "+path+filename,shell=True,stdout=PIPE,stderr=PIPE,stdin=PIPE)
+    proc = await create_subprocess_shell(
+        f"chmod +x {path}{filename}",
+        shell=True,
+        stdout=PIPE,
+        stderr=PIPE,
+        stdin=PIPE,
+    )
+
     stdout, stderr = await proc.communicate()
-    return path if exists(path+"speedtest") else None
+    return path if exists(f"{path}speedtest") else None
     
 async def unit_convert(byte):
     """ Converts byte into readable formats. """
@@ -117,10 +124,8 @@ async def get_all_ids(request: AsyncClient):
     """ Get speedtest_server. """
     if not exists(speedtest_path):
         await download_cli(request)
-    result = None
     outs,errs,code = await start_speedtest(f"sudo {speedtest_path} -f json -L")
-    if code == 0:
-        result = loads(outs)
+    result = loads(outs) if code == 0 else None
     return (
         (
             "附近的测速点有：\n"
