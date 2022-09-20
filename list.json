@@ -764,11 +764,21 @@
             "name": "fadian",
             "version": "1.0",
             "section": "chat",
-            "maintainer": "sourcery-ai[bot]",
+            "maintainer": "sudoskys",
             "size": "8.805 kb",
             "supported": true,
-            "des-short": "fadian 促进群员感情的有趣插件&情话生成 (#82)\n\nCo-authored-by: Jasmine <coldlando@hotmail.com>\r\nCo-authored-by: Sourcery AI <>\r\nCo-authored-by: omg-xtao <100690902+omg-xtao@users.noreply.github.com>",
-            "des": "fadian 促进群员感情的有趣插件&情话生成 (#82)\n\nCo-authored-by: Jasmine <coldlando@hotmail.com>\r\nCo-authored-by: Sourcery AI <>\r\nCo-authored-by: omg-xtao <100690902+omg-xtao@users.noreply.github.com>"
+            "des-short": "fadian 促进群员感情的有趣插件&情话生成",
+            "des": "fadian 促进群员感情的有趣插件&情话生成"
+        },
+        {
+            "name": "trace",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "StracesS",
+            "size": "17.304 kb",
+            "supported": true,
+            "des-short": "trace 根据用户或者关键词自动点赞消息",
+            "des": "trace 根据用户或者关键词自动点赞消息"
         }
     ]
 }
