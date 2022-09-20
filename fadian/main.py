@@ -88,7 +88,16 @@ async def fa_dian_refresher_data():
           description="快速对着指定人物发电",
           parameters="<query>")
 async def fa_dian_process(message: Message):
+    if fa_dian.data.get("date") == 0:
+        await fa_dian.fetch()
     if not (query := message.arguments):
+        if user := message.from_user:
+            query = "死号" if user.is_deleted else user.first_name
+        elif channel := message.sender_chat:
+            query = channel.title
+        else:
+            return await message.edit("请指定发电对象")
+    if not query:
         return await message.edit("请指定发电对象")
     if data := fa_dian.data.get("data"):
         return await message.edit(choice(data).format(name=query))
