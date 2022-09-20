@@ -18,7 +18,7 @@ from pagermaid.utils import lang
 
 speedtest_path = "/var/lib/pagermaid/plugins/speedtest-cli/speedtest"
 
-async def download_cli(request: AsyncClient):
+async def download_cli(request):
     speedtest_version = "1.2.0"
     machine = str(platform.machine())
     if machine == "AMD64":
@@ -38,12 +38,19 @@ async def download_cli(request: AsyncClient):
             tar.extract(file_name, path)
         tar.close()
         safe_remove(path+filename)
+        safe_remove(f"{path}speedtest.5")
+        safe_remove(f"{path}speedtest.md")
     except Exception:
-        safe_remove(path+filename)
-        return "下载测速二进制文件失败",None
-    proc = await create_subprocess_shell("chmod +x "+path+filename,shell=True,stdout=PIPE,stderr=PIPE,stdin=PIPE)
+        return "解压测速文件失败",None
+    proc = await create_subprocess_shell(
+        f"chmod +x {speedtest_path}",
+        shell=True,
+        stdout=PIPE,
+        stderr=PIPE,
+        stdin=PIPE,
+    )
     stdout, stderr = await proc.communicate()
-    return path if exists(path+"speedtest") else None
+    return path if exists(f"{path}speedtest") else None
     
 async def unit_convert(byte):
     """ Converts byte into readable formats. """
@@ -65,15 +72,14 @@ async def unit_convert(byte):
 async def start_speedtest(command):
     """ Executes command and returns output, with the option of enabling stderr. """
     proc = await create_subprocess_shell(command,shell=True,stdout=PIPE,stderr=PIPE,stdin=PIPE)
-    result = None
     stdout, stderr = await proc.communicate()
     try:
-        result = str(stdout.decode().strip())
+        stdout = str(stdout.decode().strip())
         stderr = str(stderr.decode().strip())
     except UnicodeDecodeError:
-        result = str(stdout.decode('gbk').strip())
+        stdout = str(stdout.decode('gbk').strip())
         stderr = str(stderr.decode('gbk').strip())
-    return result,stderr,proc.returncode
+    return stdout,stderr,proc.returncode
     
 async def run_speedtest(request: AsyncClient, message: Message):
     if not exists(speedtest_path):
@@ -113,14 +119,12 @@ async def run_speedtest(request: AsyncClient, message: Message):
     return des, "speedtest.png" if exists("speedtest.png") else None
 
     
-async def get_all_ids(request: AsyncClient):
+async def get_all_ids(request):
     """ Get speedtest_server. """
     if not exists(speedtest_path):
         await download_cli(request)
-    result = None
     outs,errs,code = await start_speedtest(f"sudo {speedtest_path} -f json -L")
-    if code == 0:
-        result = loads(outs)
+    result = loads(outs) if code == 0 else None
     return (
         (
             "附近的测速点有：\n"
@@ -133,29 +137,6 @@ async def get_all_ids(request: AsyncClient):
         if result
         else ("附近没有测速点", None)
     )
-    #return result,None
-
-@listener(command="speedtest-cli",
-          description=lang('speedtest_des'),
-          parameters="(list/server id)")
-async def speedtest(client: Client, message: Message, request: AsyncClient):
-    """ Tests internet speed using speedtest. """
-    msg = message
-    if message.arguments == "list":
-        des, photo = await get_all_ids()
-    elif len(message.arguments) == 0 or str.isdigit(message.arguments):
-        msg: Message = await message.edit(lang('speedtest_processing'))
-        des, photo = await run_speedtest(request,message)
-    else:
-        return await msg.edit(lang('arg_error'))
-    if not photo:
-        return await msg.edit(des)
-    try:
-        await client.send_photo(message.chat.id, photo, caption=des)
-    except Exception:
-        return await msg.edit(des)
-    await msg.safe_delete()
-    safe_remove(photo)
 
 @listener(command="st",
           description=lang('speedtest_des'),
