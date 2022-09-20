@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-
-from typing import Optional, List, Dict, Tuple
+import contextlib
+from typing import Optional, List, Dict, Tuple, Union
 from functools import reduce
 
 from pyrogram.enums import MessageEntityType, ParseMode
@@ -17,7 +17,7 @@ pip_install("emoji")
 import emoji
 
 NATIVE_EMOJI = b'\xf0\x9f\x91\x8d\xf0\x9f\x91\x8e\xe2\x9d\xa4\xef\xb8\x8f\xf0\x9f\x94\xa5\xf0\x9f\xa5\xb0\xf0\x9f\x91\x8f\xf0\x9f\x98\x81\xf0\x9f\xa4\x94\xf0\x9f\xa4\xaf\xf0\x9f\x98\xb1\xf0\x9f\xa4\xac\xf0\x9f\x98\xa2\xf0\x9f\x8e\x89\xf0\x9f\xa4\xa9\xf0\x9f\xa4\xae\xf0\x9f\x92\xa9\xf0\x9f\x99\x8f\xf0\x9f\x91\x8c\xf0\x9f\x95\x8a\xf0\x9f\xa4\xa1\xf0\x9f\xa5\xb1\xf0\x9f\xa5\xb4\xf0\x9f\x98\x8d\xf0\x9f\x90\xb3\xe2\x9d\xa4\xef\xb8\x8f\xe2\x80\x8d\xf0\x9f\x94\xa5\xf0\x9f\x8c\x9a\xf0\x9f\x8c\xad\xf0\x9f\x92\xaf\xf0\x9f\xa4\xa3\xe2\x9a\xa1\xef\xb8\x8f\xf0\x9f\x8d\x8c\xf0\x9f\x8f\x86\xf0\x9f\x92\x94\xf0\x9f\xa4\xa8\xf0\x9f\x98\x90\xf0\x9f\x8d\x93\xf0\x9f\x8d\xbe\xf0\x9f\x92\x8b\xf0\x9f\x96\x95\xf0\x9f\x98\x88\xf0\x9f\x98\x82\xf0\x9f\x98\xad'.decode()
-SPECIAL_EMOJI = "❤⬅↔➡⬆↕⬇" # TO BE ADDED
+SPECIAL_EMOJI = "❤⬅↔➡⬆↕⬇"  # TO BE ADDED
 USAGE = f"""```Usage:
   Reply to a message:
     Trace      : .trace 👍👎🥰
@@ -37,7 +37,11 @@ cached_sqlite = {
     key: value for key, value in sqlite.items() if key.startswith("trace.")
 }
 
-async def edit_and_delete(message: Message, text: str, entities: List[MessageEntity]=[], seconds=5, parse_mode:ParseMode=ParseMode.DEFAULT):
+
+async def edit_and_delete(message: Message, text: str, entities: List[MessageEntity] = None,
+                          seconds=5, parse_mode: ParseMode = ParseMode.DEFAULT):
+    if entities is None:
+        entities = []
     global keep_log
     await message.edit(text, entities=entities, parse_mode=parse_mode)
     if seconds == -1 or keep_log:
@@ -45,11 +49,14 @@ async def edit_and_delete(message: Message, text: str, entities: List[MessageEnt
     await sleep(seconds)
     return await message.delete()
 
+
 async def print_usage(message: Message):
     return await edit_and_delete(message, USAGE, [], 15, ParseMode.MARKDOWN)
 
-async def get_users_by_userids(client: Client, uids: List[int]) -> List[User]:
+
+async def get_users_by_userids(client: Client, uids) -> List[User]:
     return await client.get_users(uids)
+
 
 async def get_all_traced(client: Client) -> Dict:
     uid_reactions = {
@@ -63,17 +70,15 @@ async def get_all_traced(client: Client) -> Dict:
         uid_reactions[user.id]["user"] = user
     return uid_reactions
 
+
 def count_offset(text: str) -> int:
     return sum(
-        1
-        if c in SPECIAL_EMOJI
-        or c not in SPECIAL_EMOJI
-        and not emoji.is_emoji(c)
-        else 2
-        for c in text
+        1 if c in SPECIAL_EMOJI or c not in SPECIAL_EMOJI and not emoji.is_emoji(c) else 2 for c in text
     )
 
-def append_emoji_to_text(text: str, reaction_list: List[ReactionEmoji | ReactionCustomEmoji], entities: List[MessageEntity]):
+
+def append_emoji_to_text(text: str, reaction_list: List[Union[ReactionEmoji, ReactionCustomEmoji]],
+                         entities: List[MessageEntity]):
     text += "["
     for reaction in reaction_list:
         if type(reaction) is ReactionEmoji:
@@ -91,14 +96,16 @@ def append_emoji_to_text(text: str, reaction_list: List[ReactionEmoji | Reaction
     text = text[:-2] + "]\n"
     return text, entities
 
-def get_keyword_emojis_from_message(message) -> Tuple[str, List[str|int]]:
+
+def get_keyword_emojis_from_message(message) -> Tuple[str, List[Union[str, int]]]:
     return (
         (message.parameter[0], get_emojis_from_message(message))
         if message
         else None
     )
 
-def get_emojis_from_message(message: Message) -> List[str|int]:
+
+def get_emojis_from_message(message: Message) -> Optional[List[Union[str, int]]]:
     if not message:
         return None
 
@@ -112,9 +119,9 @@ def get_emojis_from_message(message: Message) -> List[str|int]:
             break
         if emoji.is_emoji(c):
             if message.entities \
-            and len(message.entities) - 1 >= entity_i \
-            and message.entities[entity_i].type == MessageEntityType.CUSTOM_EMOJI \
-            and message.entities[entity_i].offset == index:
+                    and len(message.entities) - 1 >= entity_i \
+                    and message.entities[entity_i].type == MessageEntityType.CUSTOM_EMOJI \
+                    and message.entities[entity_i].offset == index:
                 emoji_list.append(message.entities[entity_i].custom_emoji_id)
                 entity_i += 1
             else:
@@ -126,6 +133,7 @@ def get_emojis_from_message(message: Message) -> List[str|int]:
             index += 1
     return emoji_list
 
+
 def get_name_and_username_from_message(message: Message):
     other_name = ""
     if message.reply_to_message.from_user.first_name:
@@ -135,7 +143,9 @@ def get_name_and_username_from_message(message: Message):
     other_username = message.reply_to_message.from_user.username
     return other_name, other_username
 
-def append_username_to_text(text: str, other_name:str , other_username: str, entities: List[MessageEntity], message: Message, user: Optional[User]=None):
+
+def append_username_to_text(text: str, other_name: str, other_username: str, entities: List[MessageEntity],
+                            message: Message, user: Optional[User] = None):
     if other_username:
         entities.append(MessageEntity(
             type=MessageEntityType.MENTION,
@@ -164,30 +174,34 @@ def append_username_to_text(text: str, other_name:str , other_username: str, ent
     text += ": "
     return text, entities
 
+
 def new_bold_string_entities(text: str) -> Tuple[str, List[MessageEntity]]:
     return append_bold_string("", text, [])
 
+
 def append_bold_string(text: str, append_text: str, entities: List[MessageEntity]) -> Tuple[str, List[MessageEntity]]:
     entities.append(MessageEntity(
-                        type=MessageEntityType.BOLD,
-                        offset=count_offset(text),
-                        length=count_offset(append_text)
-                    ))
+        type=MessageEntityType.BOLD,
+        offset=count_offset(text),
+        length=count_offset(append_text)
+    ))
     text += append_text
     return text, entities
 
-async def gen_reaction_list(emojis: List[str|int], bot: Client):
+
+async def gen_reaction_list(emojis, bot: Client):
     me = bot.me or await bot.get_me()
     reaction_list = []
     if not me.is_premium:  # Remove custom emojis if not premium (will it happen?)
         emojis = [x for x in emojis if type(x) is not int]
-    emojis = reduce(lambda x,y:x if y in x else x + [y],[[],]+emojis)  # Remove replicated
+    emojis = reduce(lambda x, y: x if y in x else x + [y], [[], ] + emojis)  # Remove replicated
     for emoji in emojis:
         if type(emoji) is int:
             reaction_list.append(ReactionCustomEmoji(document_id=emoji))
         elif type(emoji) is str and emoji in NATIVE_EMOJI:
             reaction_list.append(ReactionEmoji(emoticon=emoji))
     return reaction_list
+
 
 def append_log_status(text: str, entities: List[MessageEntity]) -> Tuple[str, List[MessageEntity]]:
     entities.append(
@@ -200,9 +214,10 @@ def append_log_status(text: str, entities: List[MessageEntity]) -> Tuple[str, Li
     text += f"\nKeep log: \n  {keep_log}"
     return text, entities
 
+
 @listener(command="trace",
-          is_plugin=True,
           need_admin=True,
+          diagnostics=False,
           description=USAGE)
 async def trace(bot: Client, message: Message):
     global keep_log
@@ -247,7 +262,8 @@ async def trace(bot: Client, message: Message):
                     other_name += traced_uids[traced_uid]["user"].last_name
                 other_username = traced_uids[traced_uid]["user"].username
 
-                text, entities = append_username_to_text(text, other_name, other_username, entities, message, traced_uids[traced_uid]["user"])
+                text, entities = append_username_to_text(text, other_name, other_username, entities, message,
+                                                         traced_uids[traced_uid]["user"])
                 text, entities = append_emoji_to_text(text, traced_uids[traced_uid]["reactions"], entities)
 
             text, entities = append_bold_string(text, "\nTraced keywords: \n", entities)
@@ -273,7 +289,7 @@ async def trace(bot: Client, message: Message):
                     cached_sqlite[f"trace.user_id.{message.reply_to_message.from_user.id}"] = reaction_list
                     await bot.invoke(
                         SendReaction(
-                            peer=await bot.resolve_peer(int(message.chat.id)), 
+                            peer=await bot.resolve_peer(int(message.chat.id)),
                             msg_id=message.reply_to_message_id,
                             reaction=reaction_list,
                             big=True
@@ -282,7 +298,8 @@ async def trace(bot: Client, message: Message):
                     text = "Successfully traced: \n"
                     # TODO: Add username
                     text, entities = append_emoji_to_text(text, reaction_list, [])
-                    return await edit_and_delete(message, text, entities=entities, seconds=5, parse_mode=ParseMode.MARKDOWN)
+                    return await edit_and_delete(message, text, entities=entities, seconds=5,
+                                                 parse_mode=ParseMode.MARKDOWN)
                 return await edit_and_delete(message, "No valid emojis found!")
             return await print_usage(message)
     elif len(message.parameter) == 2:  # log t|f; kw del
@@ -336,39 +353,43 @@ async def trace(bot: Client, message: Message):
             return await edit_and_delete(message, "No valid emojis found!")
     else:
         return await print_usage(message)
-    
-@listener(is_plugin=False, incoming=True, outgoing=False, ignore_edited=True)
+
+
+@listener(incoming=True, outgoing=False, ignore_edited=True)
 async def trace_user(client: Client, message: Message):
     if message.from_user is None:
         return
-    if reaction_list := cached_sqlite.get(
-        f"trace.user_id.{message.from_user.id}", None
-    ):
-        await client.invoke(
-            SendReaction(
-                peer=await client.resolve_peer(int(message.chat.id)), 
-                msg_id=message.id,
-                reaction=reaction_list,
-                big=True
+    with contextlib.suppress(Exception):
+        if reaction_list := cached_sqlite.get(
+                f"trace.user_id.{message.from_user.id}", None
+        ):
+            await client.invoke(
+                SendReaction(
+                    peer=await client.resolve_peer(int(message.chat.id)),
+                    msg_id=message.id,
+                    reaction=reaction_list,
+                    big=True
+                )
             )
-        )
 
-@listener(is_plugin=False, incoming=False, outgoing=False, ignore_edited=True)
+
+@listener(incoming=True, outgoing=True, ignore_edited=True)
 async def trace_keyword(client: Client, message: Message):
     if message.from_user is None:
         return
-    if message.text:
-        if keyword_list := cached_sqlite.get("trace.keywordlist", None):
-            for keyword in keyword_list:
-                if keyword in message.text:
-                    if reaction_list := cached_sqlite.get(
-                        f"trace.keyword.{keyword.encode().hex()}", None
-                    ):
-                        await client.invoke(
-                            SendReaction(
-                                peer=await client.resolve_peer(int(message.chat.id)), 
-                                msg_id=message.id,
-                                reaction=reaction_list,
-                                big=True
+    with contextlib.suppress(Exception):
+        if message.text:
+            if keyword_list := cached_sqlite.get("trace.keywordlist", None):
+                for keyword in keyword_list:
+                    if keyword in message.text:
+                        if reaction_list := cached_sqlite.get(
+                                f"trace.keyword.{keyword.encode().hex()}", None
+                        ):
+                            await client.invoke(
+                                SendReaction(
+                                    peer=await client.resolve_peer(int(message.chat.id)),
+                                    msg_id=message.id,
+                                    reaction=reaction_list,
+                                    big=True
+                                )
                             )
-                        )
