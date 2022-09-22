@@ -789,6 +789,16 @@
             "supported": true,
             "des-short": "clear_private_chat 通过指定关键词清除私聊",
             "des": "clear_private_chat 通过指定关键词清除私聊"
+        },
+        {
+            "name": "alicloud",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "4.684 kb",
+            "supported": true,
+            "des-short": "alicloud 查询阿里云盘不定期掉落福利",
+            "des": "alicloud 查询阿里云盘不定期掉落福利"
         }
     ]
 }
