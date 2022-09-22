@@ -779,6 +779,16 @@
             "supported": true,
             "des-short": "trace 根据用户或者关键词自动点赞消息",
             "des": "trace 根据用户或者关键词自动点赞消息"
+        },
+        {
+            "name": "clear_private_chat",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "1.701 kb",
+            "supported": true,
+            "des-short": "clear_private_chat 通过指定关键词清除私聊",
+            "des": "clear_private_chat 通过指定关键词清除私聊"
         }
     ]
 }
