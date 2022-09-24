@@ -799,6 +799,16 @@
             "supported": true,
             "des-short": "alicloud 查询阿里云盘不定期掉落福利",
             "des": "alicloud 查询阿里云盘不定期掉落福利"
+        },
+        {
+            "name": "aireply",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "jiesou",
+            "size": "3.86 kb",
+            "supported": true,
+            "des-short": "aireply 通过预设根据语义分析进行应答",
+            "des": "aireply 通过预设根据语义分析进行应答，支持设置白名单并全局开关"
         }
     ]
 }
