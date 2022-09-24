@@ -100,7 +100,7 @@ async def speedtest(client: Client, message: Message, request: AsyncClient):
             des, photo = await run_speedtest(request, message)
     except SpeedtestHTTPError:
         return await msg.edit(lang('speedtest_ConnectFailure'))
-    except ValueError:
+    except (ValueError, TypeError):
         return await msg.edit(lang('arg_error'))
     except (SpeedtestBestServerFailure, NoMatchedServers):
         return await msg.edit(lang('speedtest_ServerFailure'))
