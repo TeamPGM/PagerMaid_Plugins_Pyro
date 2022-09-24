@@ -37,7 +37,7 @@ if __name__ == "plugins.aireply":
 async def aireply(client: Client, message: Message):
     input_str = message.arguments
     chats = setting.chats()
-    
+
     if input_str == "on":
         sqlite[f"{setting.key_name}.toggle"] = True
         await edit_delete(message, "已启用自动回复")
@@ -85,11 +85,10 @@ async def replay_listener(_, message: Message):
             elif s.sentiments < 0.25:
                 reply = random.choice(["az", "嘶", "。", "正常", ".", "啊？"])
             elif len(msg) > 5 and len(msg) < 30:
-                isinterrogative = re.search("怎|吗|咋|.不.|何|什么", msg)
-                if isinterrogative:
-                   body = re.search( r"(?:这|那|你|我|他|有啥|.不.)?(.+?)[？\?]?$", msg)
-                   time.sleep(random.uniform(1, 2))
-                   reply = body.group(1) + "?"
+                if isinterrogative := re.search("怎|吗|咋|.不.|何|什么", msg):
+                    body = re.search( r"(?:这|那|你|我|他|有啥|.不.)?(.+?)[？\?]?$", msg)
+                    time.sleep(random.uniform(1, 2))
+                    reply = f"{body[1]}?"
             elif random.random() < 0.2:
                 reply = random.choice(["啊", "哦"])
             if reply != 0:
