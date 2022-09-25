@@ -48,9 +48,11 @@ async def ipinfo(message: Message):
                 url = url.hostname or url.path
                 await message.edit(await get_ip_info(url))
                 return
-        else:
-            url = urlparse(message.arguments)
-            url = url.hostname or url.path
+        elif message.arguments:
+            url_ = urlparse(message.arguments)
+            url = url_.hostname or url_.path
+            if ":" in url and "." not in url and not url_.hostname:
+                url = message.arguments
             await message.edit(await get_ip_info(url))
             return
         await message.edit('没有找到要查询的 ip/域名 ...')
