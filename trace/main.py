@@ -35,19 +35,21 @@ USAGE = f"""```Usage:
 **Available native emojis:** {NATIVE_EMOJI}
 """
 
-keep_log = True
 cached_sqlite = {
     key: value for key, value in sqlite.items() if key.startswith("trace.")
 }
+
+if cached_sqlite.get("trace.config.keep_log", None) is None:
+    sqlite["trace.config.keep_log"] = True
+    cached_sqlite["trace.config.keep_log"] = True
 
 
 async def edit_and_delete(message: Message, text: str, entities: List[MessageEntity] = None,
                           seconds=5, parse_mode: ParseMode = ParseMode.DEFAULT):
     if entities is None:
         entities = []
-    global keep_log
     await message.edit(text, entities=entities, parse_mode=parse_mode)
-    if seconds == -1 or keep_log:
+    if seconds == -1 or cached_sqlite["trace.config.keep_log"]:
         return
     await sleep(seconds)
     return await message.delete()
@@ -213,10 +215,10 @@ def append_log_status(text: str, entities: List[MessageEntity]) -> Tuple[str, Li
         MessageEntity(
             type=MessageEntityType.BOLD,
             offset=count_offset(text),
-            length=len(f"\nKeep log: \n  {keep_log}")
+            length=len(f"\nKeep log: \n  {cached_sqlite['trace.config.keep_log']}")
         )
     )
-    text += f"\nKeep log: \n  {keep_log}"
+    text += f"\nKeep log: \n  {cached_sqlite['trace.config.keep_log']}"
     return text, entities
 
 
@@ -225,7 +227,6 @@ def append_log_status(text: str, entities: List[MessageEntity]) -> Tuple[str, Li
           diagnostics=False,
           description=USAGE)
 async def trace(bot: Client, message: Message):
-    global keep_log
     '''
     # For debug use
     if len(message.parameter) and message.parameter[0] == "magicword":
@@ -312,12 +313,14 @@ async def trace(bot: Client, message: Message):
     elif len(message.parameter) == 2:  # log t|f; kw del
         if message.parameter[0] == "log":
             if message.parameter[1] == "true":
-                keep_log = True
+                sqlite["trace.config.keep_log"] = True
+                cached_sqlite["trace.config.keep_log"] = True
             elif message.parameter[1] == "false":
-                keep_log = False
+                sqlite["trace.config.keep_log"] = False
+                cached_sqlite["trace.config.keep_log"] = False
             else:
                 return await print_usage(message)
-            return await message.edit(str(f"**Keep log: \n  {keep_log}**"))
+            return await message.edit(str(f"**Keep log: \n  {cached_sqlite['trace.config.keep_log']}**"))
         elif message.parameter[1] == "del":
             keyword = message.parameter[0]
             keyword_encoded_hex = keyword.encode().hex()
