@@ -27,24 +27,35 @@ USAGE = f"""```Usage:
 
   List all   : .trace status
   Untrace all: .trace clean
+
   Keep log   : .trace log [true|false]
+  Toggle big : .trace big [true|false]
+
+  Use with caution:
+    Reset all  : .trace resettrace
 ```
 **Available native emojis:** {NATIVE_EMOJI}
 """
 
-keep_log = True
 cached_sqlite = {
     key: value for key, value in sqlite.items() if key.startswith("trace.")
 }
+
+if cached_sqlite.get("trace.config.keep_log", None) is None:
+    sqlite["trace.config.keep_log"] = True
+    cached_sqlite["trace.config.keep_log"] = True
+
+if cached_sqlite.get("trace.config.big", None) is None:
+    sqlite["trace.config.big"] = True
+    cached_sqlite["trace.config.big"] = True
 
 
 async def edit_and_delete(message: Message, text: str, entities: List[MessageEntity] = None,
                           seconds=5, parse_mode: ParseMode = ParseMode.DEFAULT):
     if entities is None:
         entities = []
-    global keep_log
     await message.edit(text, entities=entities, parse_mode=parse_mode)
-    if seconds == -1 or keep_log:
+    if seconds == -1 or cached_sqlite["trace.config.keep_log"]:
         return
     await sleep(seconds)
     return await message.delete()
@@ -79,6 +90,8 @@ def count_offset(text: str) -> int:
 
 def append_emoji_to_text(text: str, reaction_list: List[Union[ReactionEmoji, ReactionCustomEmoji]],
                          entities: List[MessageEntity]):
+    if reaction_list is None:
+        return text, entities
     text += "["
     for reaction in reaction_list:
         if type(reaction) is ReactionEmoji:
@@ -203,15 +216,24 @@ async def gen_reaction_list(emojis, bot: Client):
     return reaction_list
 
 
-def append_log_status(text: str, entities: List[MessageEntity]) -> Tuple[str, List[MessageEntity]]:
+def append_config(text: str, entities: List[MessageEntity]) -> Tuple[str, List[MessageEntity]]:
     entities.append(
         MessageEntity(
             type=MessageEntityType.BOLD,
             offset=count_offset(text),
-            length=len(f"\nKeep log: \n  {keep_log}")
+            length=len(f"\nKeep log: \n  {cached_sqlite['trace.config.keep_log']}")
         )
     )
-    text += f"\nKeep log: \n  {keep_log}"
+    text += f"\nKeep log: \n  {cached_sqlite['trace.config.keep_log']}"
+
+    entities.append(
+        MessageEntity(
+            type=MessageEntityType.BOLD,
+            offset=count_offset(text),
+            length=len(f"\nUse big : \n  {cached_sqlite['trace.config.keep_log']}")
+        )
+    )
+    text += f"\nUse big : \n  {cached_sqlite['trace.config.keep_log']}"
     return text, entities
 
 
@@ -220,7 +242,6 @@ def append_log_status(text: str, entities: List[MessageEntity]) -> Tuple[str, Li
           diagnostics=False,
           description=USAGE)
 async def trace(bot: Client, message: Message):
-    global keep_log
     '''
     # For debug use
     if len(message.parameter) and message.parameter[0] == "magicword":
@@ -237,7 +258,7 @@ async def trace(bot: Client, message: Message):
         del sqlite[f"trace.user_id.{other_id}"]
         del cached_sqlite[f"trace.user_id.{other_id}"]
 
-        text, entities = new_bold_string_entities("Sucessfully untraced: \n")
+        text, entities = new_bold_string_entities("Successfully untraced: \n")
         other_name, other_username = get_name_and_username_from_message(message)
         text, entities = append_username_to_text(text, other_name, other_username, entities, message)
         text, entities = append_emoji_to_text(text, prev_emojis, entities)
@@ -248,13 +269,10 @@ async def trace(bot: Client, message: Message):
             text, entities = (
                 new_bold_string_entities("Traced userlist:\n")
                 if message.parameter[0] == "status"
-                else new_bold_string_entities("Sucessfully untraced: \n")
+                else new_bold_string_entities("Successfully untraced: \n")
             )
 
             for traced_uid in traced_uids.keys():
-                if message.parameter[0] == "clean":  # Delete all trace
-                    del sqlite[f"trace.user_id.{traced_uid}"]
-                    del cached_sqlite[f"trace.user_id.{traced_uid}"]
                 other_name = ""
                 if traced_uids[traced_uid]["user"].first_name:
                     other_name += traced_uids[traced_uid]["user"].first_name
@@ -270,17 +288,22 @@ async def trace(bot: Client, message: Message):
             if traced_keywords := cached_sqlite.get("trace.keywordlist", None):
                 for keyword in traced_keywords:
                     reaction_list = cached_sqlite.get(f"trace.keyword.{keyword.encode().hex()}", None)
-                    if message.parameter[0] == "clean":
-                        del sqlite[f"trace.keyword.{keyword.encode().hex()}"]
-                        del cached_sqlite[f"trace.keyword.{keyword.encode().hex()}"]
                     text += f"  {keyword}: "
                     text, entities = append_emoji_to_text(text, reaction_list, entities)
-                if message.parameter[0] == "clean":
-                    del sqlite["trace.keywordlist"]
-                    del cached_sqlite["trace.keywordlist"]
             if message.parameter[0] == "status":
-                text, entities = append_log_status(text, entities)
+                text, entities = append_config(text, entities)
+            if message.parameter[0] == "clean":
+                for (k, v) in cached_sqlite:
+                    if k.startswith("trace."):
+                        del cached_sqlite[k]
+                        del sqlite[k]
             return await edit_and_delete(message, text, entities=entities, seconds=5, parse_mode=ParseMode.MARKDOWN)
+        elif message.parameter[0] == "resettrace":
+            for (k, v) in cached_sqlite:
+                if k.startswith("trace."):
+                    del cached_sqlite[k]
+                    del sqlite[k]
+            return await edit_and_delete(message, "**Database has been reset.**", seconds=5, parse_mode=ParseMode.MARKDOWN)
         else:
             if emojis := get_emojis_from_message(message):
                 reaction_list = await gen_reaction_list(emojis, bot)
@@ -292,7 +315,7 @@ async def trace(bot: Client, message: Message):
                             peer=await bot.resolve_peer(int(message.chat.id)),
                             msg_id=message.reply_to_message_id,
                             reaction=reaction_list,
-                            big=True
+                            big=cached_sqlite["trace.config.big"]
                         )
                     )
                     text = "Successfully traced: \n"
@@ -305,26 +328,41 @@ async def trace(bot: Client, message: Message):
     elif len(message.parameter) == 2:  # log t|f; kw del
         if message.parameter[0] == "log":
             if message.parameter[1] == "true":
-                keep_log = True
+                sqlite["trace.config.keep_log"] = True
+                cached_sqlite["trace.config.keep_log"] = True
             elif message.parameter[1] == "false":
-                keep_log = False
+                sqlite["trace.config.keep_log"] = False
+                cached_sqlite["trace.config.keep_log"] = False
             else:
                 return await print_usage(message)
-            return await message.edit(str(f"**Keep log: \n  {keep_log}**"))
+            return await message.edit(str(f"**Keep log: \n  {cached_sqlite['trace.config.keep_log']}**"))
+        if message.parameter[0] == "big":
+            if message.parameter[1] == "true":
+                sqlite["trace.config.big"] = True
+                cached_sqlite["trace.config.big"] = True
+            elif message.parameter[1] == "false":
+                sqlite["trace.config.big"] = False
+                cached_sqlite["trace.config.big"] = False
+            else:
+                return await print_usage(message)
+            return await message.edit(str(f"**Use big : \n  {cached_sqlite['trace.config.big']}**"))
         elif message.parameter[1] == "del":
             keyword = message.parameter[0]
             keyword_encoded_hex = keyword.encode().hex()
+            keywordlist = cached_sqlite["trace.keywordlist"]
+            if keyword not in keywordlist:
+                return await edit_and_delete(message, f"Keyword \"{keyword}\" is not traced.\n{keywordlist}")
             if not cached_sqlite.get(f"trace.keyword.{keyword_encoded_hex}"):
                 return await edit_and_delete(message, f"Keyword \"{keyword}\" is not traced.")
-            prev_emojis = cached_sqlite.get(f"trace.keyword.{keyword_encoded_hex}")
 
+            prev_emojis = cached_sqlite.get(f"trace.keyword.{keyword_encoded_hex}")
+            keywordlist.remove(keyword)
+            sqlite["trace.keywordlist"] = keywordlist
+            cached_sqlite["trace.keywordlist"] = keywordlist
             del sqlite[f"trace.keyword.{keyword_encoded_hex}"]
             del cached_sqlite[f"trace.keyword.{keyword_encoded_hex}"]
 
-            sqlite["trace.keywordlist"].remove(keyword)
-            cached_sqlite["trace.keywordlist"].remove(keyword)
-
-            text, entities = new_bold_string_entities("Sucessfully untraced keyword: \n")
+            text, entities = new_bold_string_entities("Successfully untraced keyword: \n")
             text += f"  {keyword}: "
             text, entities = append_emoji_to_text(text, prev_emojis, entities)
             return await edit_and_delete(message, text, entities=entities, seconds=5, parse_mode=ParseMode.MARKDOWN)
@@ -368,7 +406,7 @@ async def trace_user(client: Client, message: Message):
                     peer=await client.resolve_peer(int(message.chat.id)),
                     msg_id=message.id,
                     reaction=reaction_list,
-                    big=True
+                    big=cached_sqlite["trace.config.big"]
                 )
             )
 
@@ -390,6 +428,6 @@ async def trace_keyword(client: Client, message: Message):
                                     peer=await client.resolve_peer(int(message.chat.id)),
                                     msg_id=message.id,
                                     reaction=reaction_list,
-                                    big=True
+                                    big=cached_sqlite["trace.config.big"]
                                 )
                             )
