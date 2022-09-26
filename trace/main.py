@@ -216,7 +216,7 @@ async def gen_reaction_list(emojis, bot: Client):
     return reaction_list
 
 
-def append_log_status(text: str, entities: List[MessageEntity]) -> Tuple[str, List[MessageEntity]]:
+def append_config(text: str, entities: List[MessageEntity]) -> Tuple[str, List[MessageEntity]]:
     entities.append(
         MessageEntity(
             type=MessageEntityType.BOLD,
@@ -291,7 +291,7 @@ async def trace(bot: Client, message: Message):
                     text += f"  {keyword}: "
                     text, entities = append_emoji_to_text(text, reaction_list, entities)
             if message.parameter[0] == "status":
-                text, entities = append_log_status(text, entities)
+                text, entities = append_config(text, entities)
             if message.parameter[0] == "clean":
                 for (k, v) in cached_sqlite:
                     if k.startswith("trace."):
