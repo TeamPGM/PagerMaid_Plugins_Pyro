@@ -12,6 +12,7 @@ from pyrogram.enums import ChatMemberStatus, ParseMode
 
 
 @listener(command="premium",
+          groups_only=True,
           description="分遗产咯")
 async def premium(bot: Client, context: Message):
     context = await context.edit("Please wait...")
