@@ -27,4 +27,11 @@
 + 历史记录react
 + big/sleep长度参数的设置
 + 定时器
++ 群组权限
++ 黑白名单
 + 还有什么好玩的么？
+
+#### Bugs
+
++ disabled reaction检测
++ `count_offset` 对非2/1长度emoji的计数，比如国旗emoji的长度为4
