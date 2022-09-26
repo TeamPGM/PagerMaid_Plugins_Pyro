@@ -27,7 +27,9 @@ USAGE = f"""```Usage:
 
   List all   : .trace status
   Untrace all: .trace clean
+
   Keep log   : .trace log [true|false]
+  Toggle big : .trace big [true|false]
 
   Use with caution:
     Reset all  : .trace resettrace
@@ -42,6 +44,10 @@ cached_sqlite = {
 if cached_sqlite.get("trace.config.keep_log", None) is None:
     sqlite["trace.config.keep_log"] = True
     cached_sqlite["trace.config.keep_log"] = True
+
+if cached_sqlite.get("trace.config.big", None) is None:
+    sqlite["trace.config.big"] = True
+    cached_sqlite["trace.config.big"] = True
 
 
 async def edit_and_delete(message: Message, text: str, entities: List[MessageEntity] = None,
@@ -219,6 +225,15 @@ def append_log_status(text: str, entities: List[MessageEntity]) -> Tuple[str, Li
         )
     )
     text += f"\nKeep log: \n  {cached_sqlite['trace.config.keep_log']}"
+
+    entities.append(
+        MessageEntity(
+            type=MessageEntityType.BOLD,
+            offset=count_offset(text),
+            length=len(f"\nUse big : \n  {cached_sqlite['trace.config.keep_log']}")
+        )
+    )
+    text += f"\nUse big : \n  {cached_sqlite['trace.config.keep_log']}"
     return text, entities
 
 
@@ -300,7 +315,7 @@ async def trace(bot: Client, message: Message):
                             peer=await bot.resolve_peer(int(message.chat.id)),
                             msg_id=message.reply_to_message_id,
                             reaction=reaction_list,
-                            big=True
+                            big=cached_sqlite["trace.config.big"]
                         )
                     )
                     text = "Successfully traced: \n"
@@ -321,6 +336,16 @@ async def trace(bot: Client, message: Message):
             else:
                 return await print_usage(message)
             return await message.edit(str(f"**Keep log: \n  {cached_sqlite['trace.config.keep_log']}**"))
+        if message.parameter[0] == "big":
+            if message.parameter[1] == "true":
+                sqlite["trace.config.big"] = True
+                cached_sqlite["trace.config.big"] = True
+            elif message.parameter[1] == "false":
+                sqlite["trace.config.big"] = False
+                cached_sqlite["trace.config.big"] = False
+            else:
+                return await print_usage(message)
+            return await message.edit(str(f"**Use big : \n  {cached_sqlite['trace.config.big']}**"))
         elif message.parameter[1] == "del":
             keyword = message.parameter[0]
             keyword_encoded_hex = keyword.encode().hex()
@@ -381,7 +406,7 @@ async def trace_user(client: Client, message: Message):
                     peer=await client.resolve_peer(int(message.chat.id)),
                     msg_id=message.id,
                     reaction=reaction_list,
-                    big=True
+                    big=cached_sqlite["trace.config.big"]
                 )
             )
 
@@ -403,6 +428,6 @@ async def trace_keyword(client: Client, message: Message):
                                     peer=await client.resolve_peer(int(message.chat.id)),
                                     msg_id=message.id,
                                     reaction=reaction_list,
-                                    big=True
+                                    big=cached_sqlite["trace.config.big"]
                                 )
                             )
