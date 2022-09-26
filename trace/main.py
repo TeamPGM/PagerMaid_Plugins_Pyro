@@ -28,6 +28,9 @@ USAGE = f"""```Usage:
   List all   : .trace status
   Untrace all: .trace clean
   Keep log   : .trace log [true|false]
+
+  Use with caution:
+    Reset all  : .trace resettrace
 ```
 **Available native emojis:** {NATIVE_EMOJI}
 """
@@ -79,6 +82,8 @@ def count_offset(text: str) -> int:
 
 def append_emoji_to_text(text: str, reaction_list: List[Union[ReactionEmoji, ReactionCustomEmoji]],
                          entities: List[MessageEntity]):
+    if reaction_list is None:
+        return text, entities
     text += "["
     for reaction in reaction_list:
         if type(reaction) is ReactionEmoji:
@@ -252,9 +257,6 @@ async def trace(bot: Client, message: Message):
             )
 
             for traced_uid in traced_uids.keys():
-                if message.parameter[0] == "clean":  # Delete all trace
-                    del sqlite[f"trace.user_id.{traced_uid}"]
-                    del cached_sqlite[f"trace.user_id.{traced_uid}"]
                 other_name = ""
                 if traced_uids[traced_uid]["user"].first_name:
                     other_name += traced_uids[traced_uid]["user"].first_name
@@ -270,17 +272,22 @@ async def trace(bot: Client, message: Message):
             if traced_keywords := cached_sqlite.get("trace.keywordlist", None):
                 for keyword in traced_keywords:
                     reaction_list = cached_sqlite.get(f"trace.keyword.{keyword.encode().hex()}", None)
-                    if message.parameter[0] == "clean":
-                        del sqlite[f"trace.keyword.{keyword.encode().hex()}"]
-                        del cached_sqlite[f"trace.keyword.{keyword.encode().hex()}"]
                     text += f"  {keyword}: "
                     text, entities = append_emoji_to_text(text, reaction_list, entities)
-                if message.parameter[0] == "clean":
-                    del sqlite["trace.keywordlist"]
-                    del cached_sqlite["trace.keywordlist"]
             if message.parameter[0] == "status":
                 text, entities = append_log_status(text, entities)
+            if message.parameter[0] == "clean":
+                for (k, v) in cached_sqlite:
+                    if k.startswith("trace."):
+                        del cached_sqlite[k]
+                        del sqlite[k]
             return await edit_and_delete(message, text, entities=entities, seconds=5, parse_mode=ParseMode.MARKDOWN)
+        elif message.parameter[0] == "resettrace":
+            for (k, v) in cached_sqlite:
+                if k.startswith("trace."):
+                    del cached_sqlite[k]
+                    del sqlite[k]
+            return await edit_and_delete(message, "**Database has been reset.**", seconds=5, parse_mode=ParseMode.MARKDOWN)
         else:
             if emojis := get_emojis_from_message(message):
                 reaction_list = await gen_reaction_list(emojis, bot)
@@ -314,15 +321,18 @@ async def trace(bot: Client, message: Message):
         elif message.parameter[1] == "del":
             keyword = message.parameter[0]
             keyword_encoded_hex = keyword.encode().hex()
+            keywordlist = cached_sqlite["trace.keywordlist"]
+            if keyword not in keywordlist:
+                return await edit_and_delete(message, f"Keyword \"{keyword}\" is not traced.\n{keywordlist}")
             if not cached_sqlite.get(f"trace.keyword.{keyword_encoded_hex}"):
                 return await edit_and_delete(message, f"Keyword \"{keyword}\" is not traced.")
-            prev_emojis = cached_sqlite.get(f"trace.keyword.{keyword_encoded_hex}")
 
+            prev_emojis = cached_sqlite.get(f"trace.keyword.{keyword_encoded_hex}")
+            keywordlist.remove(keyword)
+            sqlite["trace.keywordlist"] = keywordlist
+            cached_sqlite["trace.keywordlist"] = keywordlist
             del sqlite[f"trace.keyword.{keyword_encoded_hex}"]
             del cached_sqlite[f"trace.keyword.{keyword_encoded_hex}"]
-
-            sqlite["trace.keywordlist"].remove(keyword)
-            cached_sqlite["trace.keywordlist"].remove(keyword)
 
             text, entities = new_bold_string_entities("Sucessfully untraced keyword: \n")
             text += f"  {keyword}: "
