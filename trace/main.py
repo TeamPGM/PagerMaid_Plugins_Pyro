@@ -243,7 +243,7 @@ async def trace(bot: Client, message: Message):
         del sqlite[f"trace.user_id.{other_id}"]
         del cached_sqlite[f"trace.user_id.{other_id}"]
 
-        text, entities = new_bold_string_entities("Sucessfully untraced: \n")
+        text, entities = new_bold_string_entities("Successfully untraced: \n")
         other_name, other_username = get_name_and_username_from_message(message)
         text, entities = append_username_to_text(text, other_name, other_username, entities, message)
         text, entities = append_emoji_to_text(text, prev_emojis, entities)
@@ -254,7 +254,7 @@ async def trace(bot: Client, message: Message):
             text, entities = (
                 new_bold_string_entities("Traced userlist:\n")
                 if message.parameter[0] == "status"
-                else new_bold_string_entities("Sucessfully untraced: \n")
+                else new_bold_string_entities("Successfully untraced: \n")
             )
 
             for traced_uid in traced_uids.keys():
@@ -337,7 +337,7 @@ async def trace(bot: Client, message: Message):
             del sqlite[f"trace.keyword.{keyword_encoded_hex}"]
             del cached_sqlite[f"trace.keyword.{keyword_encoded_hex}"]
 
-            text, entities = new_bold_string_entities("Sucessfully untraced keyword: \n")
+            text, entities = new_bold_string_entities("Successfully untraced keyword: \n")
             text += f"  {keyword}: "
             text, entities = append_emoji_to_text(text, prev_emojis, entities)
             return await edit_and_delete(message, text, entities=entities, seconds=5, parse_mode=ParseMode.MARKDOWN)
