@@ -39,7 +39,7 @@ async def get_result(message,request,r18=0):
     return setuList,delList if setuList else None
 
 @listener(command="zpr",
-          description="随机获取涩涩纸片人。",
+          description="随机获取一组涩涩纸片人。",
           parameters="{r18}")
 async def ghs(client: Client, message: Message, request: AsyncClient):
     msg = message
