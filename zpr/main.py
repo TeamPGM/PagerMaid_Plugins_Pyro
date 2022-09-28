@@ -25,9 +25,9 @@ async def get_result(message,request,r18=0):
     await message.edit("努力获取中 。。。")
     while i < 5:
         urls = result[i]['urls'][size]
+        imgname = (f"{result[i]['pid']}_{i}.png")
         try:
             img =  await request.get(urls)
-            imgname = (f"setu{i}.png")
             with open(imgname, mode="wb") as f:
                 f.write(img.content)
         except Exception:
@@ -40,7 +40,7 @@ async def get_result(message,request,r18=0):
 @listener(command="zpr",
           description="随机获取一组涩涩纸片人。",
           parameters="{r18}")
-async def ghs(client: Client, message: Message, request: AsyncClient):
+async def zpr(client: Client, message: Message, request: AsyncClient):
     msg = message
     await message.edit("正在前往二次元。。。")
 
@@ -54,9 +54,10 @@ async def ghs(client: Client, message: Message, request: AsyncClient):
     try:
         await message.edit("传送中。。。")
         await client.send_media_group(message.chat.id,photoList)
-        for i in range(5):
-            safe_remove(delList[i])
     except Exception:
         return await msg.edit("出错了，没有纸片人看了。")
+    for i in range(5):
+            safe_remove(delList[i])
     await msg.safe_delete()
+    
     
