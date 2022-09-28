@@ -1,5 +1,3 @@
-import json
-
 from pagermaid.listener import listener
 from pagermaid.single_utils import safe_remove
 from pagermaid.enums import Client, Message, AsyncClient
@@ -17,7 +15,7 @@ async def get_result(message, request, r18=0):
         return None, None, "连接二次元大门出错。。。"
     await message.edit("已进入二次元 . . .")
     try:
-        result = json.loads(data.text)['data']
+        result = data.json()['data']
     except Exception:
         return None, None, "解析JSON出错。"
     setuList = []  # 发送
@@ -41,21 +39,19 @@ async def get_result(message, request, r18=0):
           description="随机获取一组涩涩纸片人。",
           parameters="{r18}")
 async def zpr(client: Client, message: Message, request: AsyncClient):
-    msg = message
-    await message.edit("正在前往二次元。。。")
-
-    if message.arguments.upper().strip() == "R18":
-        photoList, delList, des = await get_result(message, request, r18=1)
-    else:
-        photoList, delList, des = await get_result(message, request)
-
+    arguments = message.arguments.upper().strip()
+    message = await message.edit("正在前往二次元。。。")
+    try:
+        photoList, delList, des = await get_result(message, request, r18=1 if arguments == "R18" else 0)
+    except Exception as e:
+        return await message.edit(f"发生错误：{e}")
     if not photoList:
-        return await msg.edit(des)
+        return await message.edit(des)
     try:
         await message.edit("传送中。。。")
         await client.send_media_group(message.chat.id, photoList)
         for i in range(5):
             safe_remove(delList[i])
     except Exception:
-        await client.send_message(des)
-    await msg.safe_delete()
+        await client.send_message(message.chat.id, des)
+    await message.safe_delete()
