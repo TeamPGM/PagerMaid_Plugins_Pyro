@@ -761,16 +761,6 @@
             "des": "fadian 促进群员感情的有趣插件&情话生成"
         },
         {
-            "name": "trace",
-            "version": "1.01",
-            "section": "chat",
-            "maintainer": "StracesS",
-            "size": "17.304 kb",
-            "supported": true,
-            "des-short": "trace 根据用户或者关键词自动点赞消息",
-            "des": "trace 根据用户或者关键词自动点赞消息"
-        },
-        {
             "name": "clear_private_chat",
             "version": "1.0",
             "section": "chat",
