@@ -799,6 +799,16 @@
             "supported": true,
             "des-short": "zpr 随机获取一组涩涩纸片人",
             "des": "zpr 随机获取一组涩涩纸片人"
+        },
+        {
+            "name": "ytdl",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "3.787 kb",
+            "supported": true,
+            "des-short": "ytdl Upload Youtube、Bilibili video to telegram",
+            "des": "ytdl Upload Youtube、Bilibili video to telegram"
         }
     ]
 }
