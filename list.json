@@ -761,16 +761,6 @@
             "des": "fadian 促进群员感情的有趣插件&情话生成"
         },
         {
-            "name": "trace",
-            "version": "1.01",
-            "section": "chat",
-            "maintainer": "StracesS",
-            "size": "17.304 kb",
-            "supported": true,
-            "des-short": "trace 根据用户或者关键词自动点赞消息",
-            "des": "trace 根据用户或者关键词自动点赞消息"
-        },
-        {
             "name": "clear_private_chat",
             "version": "1.0",
             "section": "chat",
@@ -799,6 +789,26 @@
             "supported": true,
             "des-short": "aireply 通过预设根据语义分析进行应答",
             "des": "aireply 通过预设根据语义分析进行应答，支持设置白名单并全局开关"
+        },
+        {
+            "name": "zpr",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "瓜瓜吖",
+            "size": "2.296 kb",
+            "supported": true,
+            "des-short": "zpr 随机获取一组涩涩纸片人",
+            "des": "zpr 随机获取一组涩涩纸片人"
+        },
+        {
+            "name": "ytdl",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "3.787 kb",
+            "supported": true,
+            "des-short": "ytdl Upload Youtube、Bilibili video to telegram",
+            "des": "ytdl Upload Youtube、Bilibili video to telegram"
         }
     ]
 }
