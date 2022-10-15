@@ -55,7 +55,10 @@ async def zpr(client: Client, message: Message, request: AsyncClient):
         await client.send_media_group(message.chat.id, photoList)
     except Exception as e:
         await client.send_message(message.chat.id, f"{des}\n\n错误信息：\n`{e}`")
-    for i in range(5):
-       if delList[i]:
-           safe_remove(delList[i])
+    try:
+        for i in range(5):
+           if delList[i]:
+               safe_remove(delList[i])
+    except:
+        pass
     await message.safe_delete()
