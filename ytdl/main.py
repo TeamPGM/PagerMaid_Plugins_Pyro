@@ -82,13 +82,14 @@ async def start_download(message: Message, url: str):
                 except Exception as e:
                     result["status"] = False
                     result["error"] = str(e)
-    if not result["status"]:
+    else:
         with contextlib.suppress(Exception):
             await message.edit(f"下载/发送文件失败，发生错误：{result['error']}")
     ytdl_is_downloading = False
     with contextlib.suppress(Exception):
         shutil.rmtree("data/ytdl")
-    await message.safe_delete()
+    if result["status"]:
+        await message.safe_delete()
 
 
 @listener(command="ytdl",
