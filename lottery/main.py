@@ -54,6 +54,8 @@ async def lottery_end():
 async def handle_lottery(_, message: Message):
     if not message.from_user:
         return
+    if message.from_user.is_bot:
+        return
     if not message.text:
         return
     if not lottery_json["start"]:
