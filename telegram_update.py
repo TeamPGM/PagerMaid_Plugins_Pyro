@@ -24,6 +24,8 @@ text = (
 url = f'https://api.telegram.org/bot{token}/sendMessage'
 for cid in ['-1001441461877', '-1001319957857']:
     push_content = {'chat_id': cid, 'disable_web_page_preview': 'True', 'parse_mode': 'markdown', 'text': text}
+    if cid == '-1001441461877':
+        push_content['message_thread_id'] = 1027828
     with contextlib.suppress(Exception):
         main_req = post(url, data=push_content)
     time.sleep(1)
