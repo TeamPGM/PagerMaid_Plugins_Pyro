@@ -162,7 +162,7 @@
         },
         {
             "name": "vip",
-            "version": "0.731",
+            "version": "0.741",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "14.4 kb",
@@ -232,7 +232,7 @@
         },
         {
             "name": "yvlu",
-            "version": "1.2511",
+            "version": "1.2611",
             "section": "chat",
             "maintainer": "xtaodada, xiluo",
             "size": "10.0 kb",
@@ -242,7 +242,7 @@
         },
         {
             "name": "netease",
-            "version": "1.02",
+            "version": "1.03",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "2.91 kb",
@@ -402,7 +402,7 @@
         },
         {
             "name": "atadmins",
-            "version": "1.01",
+            "version": "1.02",
             "section": "chat",
             "maintainer": "xtaodada、Pentacene",
             "size": "0.96 kb",
@@ -432,7 +432,7 @@
         },
         {
             "name": "weather_lite",
-            "version": "1.01",
+            "version": "1.02",
             "section": "daily",
             "maintainer": "xtaodada",
             "size": "0.97 kb",
@@ -632,7 +632,7 @@
         },
         {
             "name": "getstickers",
-            "version": "1.01",
+            "version": "1.02",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "3.453 kb",
@@ -682,7 +682,7 @@
         },
         {
             "name": "audio_to_voice",
-            "version": "1.0",
+            "version": "1.01",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "1.082 kb",
@@ -722,7 +722,7 @@
         },
         {
             "name": "httpcat",
-            "version": "1.0",
+            "version": "1.01",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "0.927 kb",
