@@ -48,27 +48,21 @@ async def get_result(message, request, r18=0):
           description="随机获取一组涩涩纸片人。",
           parameters="{r18}")
 async def zpr(client: Client, message: Message, request: AsyncClient):
-    msg = message
     arguments = message.arguments.upper().strip()
-    message_thread_id = msg.reply_to_top_message_id or msg.reply_to_message_id
-    await msg.edit("正在前往二次元。。。")
+    message_thread_id = message.reply_to_top_message_id or message.reply_to_message_id
+    message = await message.edit("正在前往二次元。。。")
     try:
-        photoList, zpr_path, des = await get_result(msg, request, r18=1 if arguments == "R18" else 0)
+        photoList, zpr_path, des = await get_result(message, request, r18=1 if arguments == "R18" else 0)
         if not photoList:
             shutil.rmtree(zpr_path)
-            return await msg.edit(des)
+            return await message.edit(des)
         with contextlib.suppress(Exception):
-            await msg.edit("传送中。。。")
+            await message.edit("传送中。。。")
         try:
-            await client.send_media_group(msg.chat.id, photoList)
-            # 在 ForumTopics 发送消息引起 RPCError: 400 - BadRequest [TOPIC_DELETED]，但是现在 pyrogram 没有该错误类型
+            await client.send_media_group(message.chat.id, photoList, reply_to_message_id=message_thread_id)
         except RPCError as e:
-            try:
-                await msg.reply_media_group(photoList, reply_to_message_id=message_thread_id)
-            except RPCError as e:
-                # 媒体权限错误
-                return await msg.edit("此群组不允许发送媒体。" if e.ID == "CHAT_SEND_MEDIA_FORBIDDEN" else f"发生错误：\n`{e}`")
+            return await message.edit("此群组不允许发送媒体。" if e.ID == "CHAT_SEND_MEDIA_FORBIDDEN" else f"发生错误：\n`{e}`")
     except Exception as e:
-        return await msg.edit(f"{des}\n\n发生错误：\n`{e}`")
+        return await message.edit(f"发生错误：\n`{e}`")
     shutil.rmtree(zpr_path)
-    await msg.safe_delete()
+    await message.safe_delete()
