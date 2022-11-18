@@ -18,5 +18,5 @@ async def at_admins(client: Client, message: Message):
     say = message.arguments or "召唤本群所有管理员"
     send_list = ' , '.join(admins)
     await client.send_message(message.chat.id, "%s：\n\n%s" % (say, send_list),
-                              reply_to_message_id=message.reply_to_message_id)
+                              reply_to_message_id=message.reply_to_message_id or message.reply_to_top_message_id)
     await message.safe_delete()

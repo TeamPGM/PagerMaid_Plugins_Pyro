@@ -53,7 +53,10 @@ async def weather_pic(client: Client, message: Message):
     async with client.conversation("PagerMaid_Modify_bot") as conv:
         answer: Message = await conv.ask(f"/weather {text}")
         await conv.mark_as_read()
-    await answer.copy(message.chat.id, reply_to_message_id=message.reply_to_message_id)
+    await answer.copy(
+        message.chat.id,
+        reply_to_message_id=message.reply_to_message_id or message.reply_to_top_message_id
+    )
     await message.safe_delete()
 
 
@@ -67,7 +70,10 @@ async def weather_he(client: Client, message: Message):
     async with client.conversation("PagerMaid_Modify_bot") as conv:
         answer: Message = await conv.ask(f"/weather_he {text}")
         await conv.mark_as_read()
-    await answer.copy(message.chat.id, reply_to_message_id=message.reply_to_message_id)
+    await answer.copy(
+        message.chat.id,
+        reply_to_message_id=message.reply_to_message_id or message.reply_to_top_message_id
+    )
     await message.safe_delete()
 
 
@@ -78,7 +84,10 @@ async def az_tts(client: Client, message: Message, mode: str):
     async with client.conversation("PagerMaid_Modify_bot") as conv:
         answer: Message = await conv.ask(f"/tts {text} {mode}")
         await conv.mark_as_read()
-    await answer.copy(message.chat.id, reply_to_message_id=message.reply_to_message_id)
+    await answer.copy(
+        message.chat.id,
+        reply_to_message_id=message.reply_to_message_id or message.reply_to_top_message_id
+    )
     await message.safe_delete()
 
 

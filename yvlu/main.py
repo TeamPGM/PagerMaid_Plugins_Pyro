@@ -31,13 +31,13 @@ async def yv_lu(bot: Client, message: Message):
     try:
         await chat_response.copy(
             message.chat.id,
-            reply_to_message_id=message.reply_to_message_id)
+            reply_to_message_id=message.reply_to_message_id or message.reply_to_top_message_id)
     except Flood as e:
         await sleep(e.value + 1)
         with contextlib.suppress(Exception):
             await chat_response.copy(
                 message.chat.id,
-                reply_to_message_id=message.reply_to_message_id)
+                reply_to_message_id=message.reply_to_message_id or message.reply_to_top_message_id)
     except Exception:
         pass
     await message.safe_delete()

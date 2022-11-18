@@ -39,7 +39,10 @@ async def netease_search(keyword: str, message: Message):
         await conv.mark_as_read()
         answer: Message = await conv.get_response(filters=filters.audio)
         await conv.mark_as_read()
-        await answer.copy(message.chat.id, reply_to_message_id=message.reply_to_message_id)
+        await answer.copy(
+            message.chat.id,
+            reply_to_message_id=message.reply_to_message_id or message.reply_to_top_message_id
+        )
         await message.safe_delete()
 
 
@@ -49,7 +52,10 @@ async def netease_url(url: str, message: Message):
         await conv.mark_as_read()
         answer: Message = await conv.get_response(filters=filters.audio)
         await conv.mark_as_read()
-        await answer.copy(message.chat.id, reply_to_message_id=message.reply_to_message_id)
+        await answer.copy(
+            message.chat.id,
+            reply_to_message_id=message.reply_to_message_id or message.reply_to_top_message_id
+        )
         await message.safe_delete()
 
 
@@ -59,7 +65,10 @@ async def netease_id(music_id: str, message: Message):
         await conv.mark_as_read()
         answer: Message = await conv.get_response(filters=filters.audio)
         await conv.mark_as_read()
-        await answer.copy(message.chat.id, reply_to_message_id=message.reply_to_message_id)
+        await answer.copy(
+            message.chat.id,
+            reply_to_message_id=message.reply_to_message_id or message.reply_to_top_message_id
+        )
         await message.safe_delete()
 
 
