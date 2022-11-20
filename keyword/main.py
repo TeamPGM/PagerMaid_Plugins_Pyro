@@ -79,7 +79,7 @@ class KeywordTask:
         text = message.text or message.caption
         key = self.key
         if self.regexp:
-            return re.search(key,text)
+            return bool(re.search(key, text))
         if not self.case:
             text = text.lower()
             key = key.lower()
@@ -119,8 +119,9 @@ class KeywordTask:
     async def process_keyword(self, message: Message):
         msg = None
         text = self.replace_reply(message)
+        reply_id = message.id if self.reply else message.reply_to_top_message_id
         with contextlib.suppress(Exception):
-            msg = await message.reply(text, quote=self.reply, parse_mode=ParseMode.HTML)
+            msg = await message.reply(text, parse_mode=ParseMode.HTML, reply_to_message_id=reply_id)
         if self.delete:
             await message.safe_delete()
         uid = message.from_user.id if message.from_user else message.sender_chat.id
@@ -187,6 +188,26 @@ class KeywordTask:
             raise ValueError("Invalid task format")
 
 
+class KeywordAlias:
+    def __init__(self):
+        self.aliases = sqlite.get("keyword_alias", {})
+        self.save()
+
+    def save(self):
+        sqlite["keyword_alias"] = self.aliases
+
+    def add(self, from_cid: int, to_cid: int):
+        self.aliases[from_cid] = to_cid
+        self.save()
+
+    def remove(self, from_cid: int):
+        self.aliases.pop(from_cid, None)
+        self.save()
+
+    def get(self, from_cid: int) -> Optional[int]:
+        return self.aliases.get(from_cid, None)
+
+
 class KeywordTasks:
     tasks: List[KeywordTask]
 
@@ -234,12 +255,18 @@ class KeywordTasks:
         return [task for task in self.tasks if task.cid == cid]
 
     async def check_and_reply(self, message: Message):
+        if keyword_alias.get(message.chat.id):
+            for task in self.get_tasks_for_chat(keyword_alias.get(message.chat.id)):
+                if task.check_need_reply(message):
+                    with contextlib.suppress(Exception):
+                        await task.process_keyword(message)
         for task in self.get_tasks_for_chat(message.chat.id):
             if task.check_need_reply(message):
                 with contextlib.suppress(Exception):
                     await task.process_keyword(message)
 
 
+keyword_alias = KeywordAlias()
 keyword_tasks = KeywordTasks()
 keyword_tasks.load_from_file()
 
@@ -265,13 +292,19 @@ async def from_msg_get_task_id(message: Message):
 async def keyword_set(message: Message):
     if message.arguments == "h" or len(message.parameter) == 0:
         return await message.edit("关键词回复\n\nhttps://telegra.ph/PagerMaid-keyword-07-12")
-    if len(message.parameter) == 1 and message.parameter[0] == "list":
-        if keyword_tasks.get_all_ids():
-            return await message.edit(
-                f"关键词任务：\n\n{keyword_tasks.print_all_tasks(show_all=False, cid=message.chat.id)}")
-        else:
-            return await message.edit("没有关键词任务。")
-    if len(message.parameter) == 2:
+    if len(message.parameter) == 1:
+        if message.parameter[0] == "list":
+            if keyword_tasks.get_all_ids():
+                return await message.edit(
+                    f"关键词任务：\n\n{keyword_tasks.print_all_tasks(show_all=False, cid=message.chat.id)}")
+            else:
+                return await message.edit("没有关键词任务。")
+        elif message.parameter[0] == "alias":
+            if keyword_alias.get(message.chat.id):
+                return await message.edit(f"当前群组的关键字将继承：{keyword_alias.get(message.chat.id)}")
+            else:
+                return await message.edit("当前群组没有继承。")
+    elif len(message.parameter) == 2:
         if message.parameter[0] == "rm":
             if uid := await from_msg_get_task_id(message):
                 keyword_tasks.remove(uid)
@@ -284,6 +317,19 @@ async def keyword_set(message: Message):
                     f"关键词任务：\n\n{keyword_tasks.print_all_tasks(show_all=True)}")
             else:
                 return await message.edit("没有关键词任务。")
+        elif message.parameter[0] == "alias":
+            if message.parameter[1] == "rm":
+                if not keyword_alias.get(message.chat.id):
+                    return await message.edit("当前群组没有继承。")
+                keyword_alias.remove(message.chat.id)
+                return await message.edit("已删除继承。")
+            else:
+                try:
+                    cid = int(message.parameter[1])
+                    keyword_alias.add(message.chat.id, cid)
+                    return await message.edit(f"已添加继承：{cid}")
+                except ValueError:
+                    return await message.edit("请输入正确的参数。")
     # add task
     task = KeywordTask(keyword_tasks.get_next_task_id())
     task.cid = message.chat.id
