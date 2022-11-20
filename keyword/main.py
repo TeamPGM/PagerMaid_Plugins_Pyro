@@ -153,6 +153,7 @@ class KeywordTask:
                 if i.startswith("include"):
                     self.include = True
                 elif i.startswith("exact"):
+                    self.include = False
                     self.exact = True
                 elif i.startswith("regexp"):
                     self.regexp = True
