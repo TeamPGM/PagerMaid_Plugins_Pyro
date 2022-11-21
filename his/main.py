@@ -1,8 +1,6 @@
 """
 Pagermaid_Pyro group message history query plugin. Plugin by @tom-snow (@caiji_shiwo)
 """
-# import contextlib
-
 from pagermaid import log
 from pagermaid.enums import Client, Message
 from pagermaid.listener import listener
@@ -77,19 +75,20 @@ class HisMsg:
     }
     MAX_COUNT = 30
 
-    def __init__(self, Config):
+    def __init__(self):
         try:
             self.lang_dict = self.LANGUAGES[Config.LANGUAGE]
         except:
             self.lang_dict = self.LANGUAGES["en"]
-    
+
     def lang(self, text: str, default: str = "") -> str:
         res = self.lang_dict.get(text, default)
         if res == "":
             res = text
         return res
 
-his_msg = HisMsg(Config)
+his_msg = HisMsg()
+
 
 @listener(command="his",
           groups_only=True,
@@ -156,4 +155,3 @@ async def his(bot: Client, message: Message):
     except Exception as e:
         await message.edit(f"[HIS_ERROR]: {e}")
         await log(f"[HIS_ERROR]: {e}")
-
