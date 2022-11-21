@@ -70,10 +70,13 @@ async def chat_transfer(message: Message):
         message: Message = await message.edit("导出中...")
         num = await export_chat_to_csv()
         if num:
-            await bot.send_document(message.chat.id,
-                                    "chats.csv",
-                                    caption=f"对话导出文件，成功导出了 {num} 个群组/频道",
-                                    thumb=f"pagermaid{sep}assets{sep}logo.jpg",)
+            await bot.send_document(
+                message.chat.id,
+                "chats.csv",
+                caption=f"对话导出文件，成功导出了 {num} 个群组/频道",
+                thumb=f"pagermaid{sep}assets{sep}logo.jpg",
+                reply_to_message_id=message.reply_to_top_message_id,
+            )
             safe_remove("chats.csv")
             await message.safe_delete()
         else:

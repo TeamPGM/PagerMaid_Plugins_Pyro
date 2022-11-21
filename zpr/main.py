@@ -11,6 +11,7 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36 Edg/106.0.1370.42'
 }
 
+
 async def get_result(message, request, r18=0):
     # r18: 0为非 R18，1为 R18，2为混合（在库中的分类，不等同于作品本身的 R18 标识）
     # num: 图片的数量
@@ -21,7 +22,11 @@ async def get_result(message, request, r18=0):
 
     size = "regular"
     des = "出错了，没有纸片人看了。"
-    data = await request.get((f"https://api.lolicon.app/setu/v2?num=5&r18={r18}&size={size}"), headers=headers, timeout=10)
+    data = await request.get(
+        f"https://api.lolicon.app/setu/v2?num=5&r18={r18}&size={size}",
+        headers=headers,
+        timeout=10,
+    )
     if data.status_code != 200:
         return None, None, "连接二次元大门出错。。。"
     await message.edit("已进入二次元 . . .")
@@ -29,19 +34,19 @@ async def get_result(message, request, r18=0):
         result = data.json()['data']
     except Exception:
         return None, None, "解析JSON出错。"
-    setuList = []  # 发送
+    setu_list = []  # 发送
     await message.edit("努力获取中 。。。")
     for i in range(5):
         urls = result[i]['urls'][size].replace('i.pixiv.re', 'img.misaka.gay')
-        imgname = (f"{result[i]['pid']}_{i}.jpg")
+        img_name = f"{result[i]['pid']}_{i}.jpg"
         try:
             img = await request.get(urls, headers=headers, timeout=10)
-            with open(f"{zpr_path}{imgname}", mode="wb") as f:
+            with open(f"{zpr_path}{img_name}", mode="wb") as f:
                 f.write(img.content)
         except Exception:
             return None, None, "连接二次元出错。。。"
-        setuList.append(InputMediaPhoto(f"{zpr_path}{imgname}"))
-    return setuList, zpr_path, des if setuList else None
+        setu_list.append(InputMediaPhoto(f"{zpr_path}{img_name}"))
+    return setu_list, zpr_path, des if setu_list else None
 
 
 @listener(command="zpr",
@@ -61,7 +66,8 @@ async def zpr(client: Client, message: Message, request: AsyncClient):
         try:
             await client.send_media_group(message.chat.id, photoList, reply_to_message_id=message_thread_id)
         except RPCError as e:
-            return await message.edit("此群组不允许发送媒体。" if e.ID == "CHAT_SEND_MEDIA_FORBIDDEN" else f"发生错误：\n`{e}`")
+            return await message.edit(
+                "此群组不允许发送媒体。" if e.ID == "CHAT_SEND_MEDIA_FORBIDDEN" else f"发生错误：\n`{e}`")
     except Exception as e:
         return await message.edit(f"发生错误：\n`{e}`")
     shutil.rmtree(zpr_path)

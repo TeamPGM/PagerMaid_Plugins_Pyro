@@ -450,6 +450,7 @@ async def eat(client_: Client, context: Message):
             await client_.send_document(
                 context.chat.id,
                 f"plugins{sep}eat{sep}eat.webp",
+                reply_to_message_id=context.reply_to_top_message_id
             )
             await final_msg.safe_delete()
         except TypeError:

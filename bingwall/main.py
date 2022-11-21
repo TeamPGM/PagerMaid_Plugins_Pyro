@@ -41,13 +41,17 @@ async def bingwall(message: Message):
                         filename,
                         caption=f"#bing wallpaper\n"
                                 f"{str(copy_right)}",
-                        quote=False)
+                        quote=False,
+                        reply_to_message_id=message.reply_to_top_message_id,
+                    )
                 else:
                     await message.reply_photo(
                         filename,
                         caption=f"#bing wallpaper\n"
                                 f"{str(copy_right)}",
-                        quote=False)
+                        quote=False,
+                        reply_to_message_id=message.reply_to_top_message_id,
+                    )
                 status = True
                 break  # 成功了就赶紧结束啦！
         except Exception:

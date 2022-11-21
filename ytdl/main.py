@@ -10,7 +10,7 @@ from pagermaid.utils import pip_install, lang
 from pagermaid.enums import Message
 from pagermaid.services import bot
 
-pip_install("yt-dlp", version="==2022.9.1", alias="yt_dlp")
+pip_install("yt-dlp", version="==2022.11.11", alias="yt_dlp")
 
 import yt_dlp
 
@@ -75,10 +75,20 @@ async def start_download(message: Message, url: str):
                 result['error'] = "文件太大，无法发送"
                 continue
             try:
-                await bot.send_video(cid, video=file, supports_streaming=True)
+                await bot.send_video(
+                    cid,
+                    video=file,
+                    supports_streaming=True,
+                    reply_to_message_id=message.reply_to_top_message_id,
+                )
             except Exception:
                 try:
-                    await bot.send_document(cid, document=file, force_document=True)
+                    await bot.send_document(
+                        cid,
+                        document=file,
+                        force_document=True,
+                        reply_to_message_id=message.reply_to_top_message_id,
+                    )
                 except Exception as e:
                     result["status"] = False
                     result["error"] = str(e)

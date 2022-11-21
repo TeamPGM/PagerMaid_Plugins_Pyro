@@ -5,7 +5,6 @@ from math import floor
 
 from pagermaid.listener import listener
 from pagermaid.enums import Message, Client
-from pagermaid.single_utils import safe_remove
 
 
 async def resize_image(photo):

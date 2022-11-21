@@ -109,7 +109,12 @@ async def speedtest(client: Client, message: Message, request: AsyncClient):
     if not photo:
         return await msg.edit(des)
     try:
-        await client.send_photo(message.chat.id, photo, caption=des, reply_to_message_id=message.reply_to_top_message_id or message.reply_to_message_id)
+        await client.send_photo(
+            message.chat.id,
+            photo,
+            caption=des,
+            reply_to_message_id=message.reply_to_top_message_id or message.reply_to_message_id,
+        )
     except Exception:
         return await msg.edit(des)
     await msg.safe_delete()

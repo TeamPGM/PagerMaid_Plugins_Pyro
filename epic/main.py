@@ -97,9 +97,10 @@ async def epic(message: Message):
                 with open("epic.jpg", "wb") as code:
                     code.write(r.content)
                 try:
-                    await message.reply_photo("epic.jpg", caption=msg, quote=False)
+                    await message.reply_photo("epic.jpg", caption=msg, quote=False,
+                                              reply_to_message_id=message.reply_to_top_message_id)
                 except Exception:
-                    await message.reply(msg, quote=False)
+                    await message.reply(msg, quote=False, reply_to_message_id=message.reply_to_top_message_id)
                 safe_remove("epic.jpg")
             else:
                 await message.reply(msg, quote=False)

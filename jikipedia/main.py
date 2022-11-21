@@ -116,7 +116,12 @@ async def jikipedia(message: Message):
         await message.edit(text, disable_web_page_preview=True)
     else:
         try:
-            await message.reply_photo(image, quote=False, caption=text)
+            await message.reply_photo(
+                image,
+                quote=False,
+                caption=text,
+                reply_to_message_id=message.reply_to_top_message_id,
+            )
             await message.safe_delete()
         except Exception:
             await message.edit(text, disable_web_page_preview=True)
