@@ -15,7 +15,7 @@ async def google(message: Message):
     """ Searches Google for a string. """
     query = message.arguments
     if not query:
-        if not message.reply_to_message_id:
+        if not message.reply_to_message:
             return await message.edit(lang('arg_error'))
         query = message.reply_to_message.text
     mg = MagicGoogle()
