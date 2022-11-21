@@ -12,7 +12,7 @@
         },
         {
             "name": "eat",
-            "version": "1.0581",
+            "version": "1.0681",
             "section": "profile",
             "maintainer": "SF_PICK",
             "size": "20.0 kb",
@@ -252,7 +252,7 @@
         },
         {
             "name": "sticker_transfer",
-            "version": "1.1",
+            "version": "1.11",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "4.9 kb",
@@ -292,7 +292,7 @@
         },
         {
             "name": "chat_transfer",
-            "version": "1.0",
+            "version": "1.01",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "3.52 kb",
@@ -332,7 +332,7 @@
         },
         {
             "name": "speed_test",
-            "version": "1.053",
+            "version": "1.063",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "3.02 kb",
@@ -342,7 +342,7 @@
         },
         {
             "name": "tgbg",
-            "version": "1.01",
+            "version": "1.02",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "1.25 kb",
@@ -362,7 +362,7 @@
         },
         {
             "name": "epic",
-            "version": "1.001",
+            "version": "1.011",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "5.79 kb",
@@ -392,7 +392,7 @@
         },
         {
             "name": "bingwall",
-            "version": "1.0",
+            "version": "1.01",
             "section": "chat",
             "maintainer": "xtaodada、ahhhiiii",
             "size": "2.0 kb",
@@ -482,7 +482,7 @@
         },
         {
             "name": "jikipedia",
-            "version": "1.02",
+            "version": "1.03",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "4.579 kb",
@@ -622,7 +622,7 @@
         },
         {
             "name": "pic_to_sticker",
-            "version": "1.0",
+            "version": "1.01",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "1.82 kb",
@@ -792,7 +792,7 @@
         },
         {
             "name": "zpr",
-            "version": "1.03",
+            "version": "1.04",
             "section": "chat",
             "maintainer": "瓜瓜吖",
             "size": "2.296 kb",
@@ -802,7 +802,7 @@
         },
         {
             "name": "ytdl",
-            "version": "1.01",
+            "version": "1.02",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "3.787 kb",
