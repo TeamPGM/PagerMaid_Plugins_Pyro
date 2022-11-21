@@ -117,9 +117,9 @@ async def his(bot: Client, message: Message):
     # 预期外的调用方式
     else:
         return await message.edit(his_msg.lang('help'))
-    
+
     await message.edit(his_msg.lang("processing"))
-    
+
     count = 0
     results = ""
     try:
@@ -146,9 +146,9 @@ async def his(bot: Client, message: Message):
                 message_text = his_msg.lang("service")["service"] + service_text
 
             if len(message_text) > 20: # 消息过长截取前面的
-                message_text = f"{count}.  " + message_text[:20] + "..."
+                message_text = f"{count}.  {message_text[:20]}..."
             else:
-                message_text = f"{count}. " + message_text
+                message_text = f"{count}. {message_text}"
             results += f"\n<a href=\"{message_link}\">{message_text}</a> \n"
 
         await message.edit(f"<b>Message History</b> | <code>{user}</code> | 🔍 \n{results}", disable_web_page_preview=True)
