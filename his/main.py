@@ -99,24 +99,26 @@ async def his(bot: Client, message: Message):
     user = ""
     num = 9999999
     chat_id = message.chat.id
-    # 指定用户和数量
-    if len(message.parameter) == 3 and message.parameter[1] == "-n":
-        user = message.parameter[0]
-        num = int(message.parameter[2])
-    # 指定用户
-    elif len(message.parameter) == 1:
-        user = message.parameter[0]
-    # 回复消息+指定数量
-    elif len(message.parameter) == 2 and (message.reply_to_message_id is not None) and message.parameter[0] == "-n" :
-        user = int(message.reply_to_message.from_user.id)
-        num = int(message.parameter[1])
-    # 回复消息
-    elif (message.reply_to_message_id is not None):
-        user = int(message.reply_to_message.from_user.id)
-    # 预期外的调用方式
-    else:
+        # 指定用户和数量
+    try:
+        if len(message.parameter) == 3 and message.parameter[1] == "-n":
+            user = message.parameter[0]
+            num = int(message.parameter[2])
+        # 指定用户
+        elif len(message.parameter) == 1:
+            user = message.parameter[0]
+        # 回复消息+指定数量
+        elif len(message.parameter) == 2 and (message.reply_to_message_id is not None) and message.parameter[0] == "-n" :
+            user = int(message.reply_to_message.from_user.id)
+            num = int(message.parameter[1])
+        # 回复消息
+        elif (message.reply_to_message_id is not None):
+            user = int(message.reply_to_message.from_user.id)
+        # 预期外的调用方式
+        else:
+            return await message.edit(his_msg.lang('help'))
+    except Exception:
         return await message.edit(his_msg.lang('help'))
-
     await message.edit(his_msg.lang("processing"))
 
     count = 0
