@@ -817,18 +817,18 @@
             "maintainer": "xtaodada",
             "size": "2.206 kb",
             "supported": true,
-            "des-short": "code 在线运行代码插件，支持输入\n\nfix #100",
-            "des": "code 在线运行代码插件，支持输入\n\nfix #100"
+            "des-short": "code 在线运行代码插件，支持输入",
+            "des": "code 在线运行代码插件，支持输入"
         },
         {
             "name": "his",
             "version": "1.0",
             "section": "chat",
-            "maintainer": "sourcery-ai[bot]",
+            "maintainer": "tom-snow",
             "size": "6.762 kb",
             "supported": true,
-            "des-short": "his 群成员历史消息记录查询\n\nCo-authored-by: A lucky guy <79245287+tom-snow@users.noreply.github.com>\r\nCo-authored-by: Sourcery AI <>\r\nCo-authored-by: omg-xtao <100690902+omg-xtao@users.noreply.github.com>",
-            "des": "his 群成员历史消息记录查询\n\nCo-authored-by: A lucky guy <79245287+tom-snow@users.noreply.github.com>\r\nCo-authored-by: Sourcery AI <>\r\nCo-authored-by: omg-xtao <100690902+omg-xtao@users.noreply.github.com>"
+            "des-short": "his 群成员历史消息记录查询",
+            "des": "his 群成员历史消息记录查询"
         }
     ]
 }
