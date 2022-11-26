@@ -829,6 +829,16 @@
             "supported": true,
             "des-short": "his 群成员历史消息记录查询",
             "des": "his 群成员历史消息记录查询"
+        },
+        {
+            "name": "clear_blocked",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "1.837 kb",
+            "supported": true,
+            "des-short": "clear_blocked 清理所有已拉黑用户",
+            "des": "clear_blocked 清理所有已拉黑用户"
         }
     ]
 }
