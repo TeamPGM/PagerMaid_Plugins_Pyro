@@ -4,6 +4,7 @@ from asyncio import sleep
 
 from pyrogram.errors import FloodWait
 from pyrogram.raw.functions.contacts import GetBlocked
+from pyrogram.raw.types.contacts import BlockedSlice
 
 from pagermaid.listener import listener
 from pagermaid.enums import Client, Message
@@ -27,12 +28,14 @@ async def clear_blocked_func(client: Client, message: Message):
                 with contextlib.suppress(Exception):
                     await message.edit(f"🧹 Clearing blocked users...\n\nWill run after {e.value} seconds.")
                 await sleep(e.value + 1)
+                with contextlib.suppress(Exception):
+                    await message.edit("🧹 Clearing blocked users...")
                 await client.unblock_user(user.id)
                 success += 1
             except Exception:
                 failed += 1
         offset += 100
-        if offset > blocked.count:
+        if (isinstance(blocked, BlockedSlice) and offset > blocked.count) or not isinstance(blocked, BlockedSlice):
             break
     return success, failed, skipped
 
