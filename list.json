@@ -839,6 +839,16 @@
             "supported": true,
             "des-short": "clear_blocked 清理所有已拉黑用户",
             "des": "clear_blocked 清理所有已拉黑用户"
+        },
+        {
+            "name": "autodel",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "3.965 kb",
+            "supported": true,
+            "des-short": "autodel 定时删除消息",
+            "des": "autodel 定时删除消息"
         }
     ]
 }
