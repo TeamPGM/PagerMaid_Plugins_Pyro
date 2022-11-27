@@ -1,0 +1,36 @@
+name: Plugins Data To Telegraph
+
+on:
+  workflow_dispatch: ~
+  push:
+    branches:
+      - v2
+    paths:
+      - 'list.json'
+      - 'telegraph_update.py'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    # 此步骤使用 GitHub 的 https://github.com/actions/checkout
+    - name: checkout actions
+      uses: actions/checkout@v3
+
+    # 设置python环境
+    # 此步骤使用 GitHub 的 https://github.com/actions/setup-python
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v3
+      with:
+        python-version: 3.9
+
+    # 安装依赖
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install telegraph
+
+    # 更新数据
+    - name: Update Telegraph
+      run: |
+        python telegraph_update.py ${{ secrets.TELEGRAPH_TOKEN }}

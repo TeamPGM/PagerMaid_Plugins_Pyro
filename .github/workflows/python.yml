@@ -10,6 +10,7 @@ on:
       - 'list.json'
       - 'telegram_update.py'
       - 'update_list.py'
+      - 'telegraph_update.py'
 
 jobs:
   build:
