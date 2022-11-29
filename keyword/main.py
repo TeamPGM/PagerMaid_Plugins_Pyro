@@ -227,6 +227,15 @@ class KeywordTasks:
                 return True
         return False
 
+    def remove_by_ids(self, task_ids: List[int]):
+        success, failed = 0, 0
+        for task_id in task_ids:
+            if self.remove(task_id):
+                success += 1
+            else:
+                failed += 1
+        return success, failed
+
     def get(self, task_id: int) -> Optional[KeywordTask]:
         return next((task for task in self.tasks if task.task_id == task_id), None)
 
@@ -271,18 +280,14 @@ keyword_tasks = KeywordTasks()
 keyword_tasks.load_from_file()
 
 
-async def from_msg_get_task_id(message: Message):
-    uid = -1
+async def from_msg_get_task_ids(message: Message) -> List[int]:
+    id_list = message.parameter[1].split(",")
     try:
-        uid = int(message.parameter[1])
+        id_list = [int(i) for i in id_list]
     except ValueError:
         await message.edit("请输入正确的参数")
         message.continue_propagation()
-    ids = keyword_tasks.get_all_ids()
-    if uid not in ids:
-        await message.edit("该任务不存在")
-        message.continue_propagation()
-    return uid
+    return id_list
 
 
 @listener(command="keyword",
@@ -306,11 +311,11 @@ async def keyword_set(message: Message):
                 return await message.edit("当前群组没有继承。")
     elif len(message.parameter) == 2:
         if message.parameter[0] == "rm":
-            if uid := await from_msg_get_task_id(message):
-                keyword_tasks.remove(uid)
+            if id_list := await from_msg_get_task_ids(message):
+                success, failed = keyword_tasks.remove_by_ids(id_list)
                 keyword_tasks.save_to_file()
                 keyword_tasks.load_from_file()
-                return await message.edit(f"已删除任务 {uid}")
+                return await message.edit(f"已删除任务成功 {success} 个，失败 {failed} 个。")
         elif message.parameter[0] == "list":
             if keyword_tasks.get_all_ids():
                 return await message.edit(
