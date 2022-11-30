@@ -72,19 +72,31 @@ async def super_ban(message: Message):
     try:
         uid, channel, delete_all, sender = await get_uid(chat, message)
     except (ValueError, PeerIdInvalid, UsernameInvalid, FloodWait):
-        return await message.edit(lang("arg_error"))
+        await message.edit(lang("arg_error"))
+        await sleep(3)
+        return await message.delete()
     if not uid:
-        return await message.edit(lang("arg_error"))
+        await message.edit(lang("arg_error"))
+        await sleep(3)
+        return await message.delete()
     if channel:
         if uid == chat.id:
-            return await message.edit(lang("arg_error"))
+            await message.edit(lang("arg_error"))
+            await sleep(3)
+            return await message.delete()
         try:
             await ban_one(chat, uid)
         except ChatAdminRequired:
-            return await message.edit(lang("sb_no_per"))
+            await message.edit(lang("sb_no_per"))
+            await sleep(3)
+            return await message.delete()
         except Exception as e:
-            return await message.edit(f"出现错误：{e}")
-        return await message.edit(lang("sb_channel"))
+            await message.edit(f"出现错误：{e}")
+            await sleep(3)
+            return await message.delete()
+        await message.edit(lang("sb_channel"))
+        await sleep(3)
+        return await message.delete()
     try:
         common = await bot.get_common_chats(uid)
     except PeerIdInvalid:
@@ -120,3 +132,5 @@ async def super_ban(message: Message):
     await message.edit(text)
     groups = f'\n{lang("sb_pro")}\n' + "\n".join(groups) if groups else ''
     await log(f'{text}\nuid: `{uid}` {groups}')
+    await sleep(3)
+    await message.delete()
