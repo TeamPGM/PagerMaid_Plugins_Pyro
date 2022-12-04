@@ -1,6 +1,7 @@
 import contextlib
 
 from asyncio import sleep
+from typing import Optional
 
 from pyrogram.raw.functions.messages import GetStickerSet
 from pyrogram.raw.functions.stickers import CreateStickerSet
@@ -66,8 +67,8 @@ class Sticker:
     should_forward: Message
     is_animated: bool
     is_video: bool
-    document: InputDocument
-    document_path: str
+    document: Optional[InputDocument]
+    document_path: Optional[str]
     software: str = "PagerMaid-Pyro"
 
     def __init__(self, message: Message, sticker_set: str = "", emoji: str = "😀",
@@ -81,6 +82,8 @@ class Sticker:
         self.should_create = False
         self.is_animated = False
         self.is_video = False
+        self.document = None
+        self.document_path = None
 
     @staticmethod
     def get_custom_sticker_set():
