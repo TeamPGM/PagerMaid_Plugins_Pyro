@@ -4,9 +4,11 @@ from pyrogram.enums import ChatType
 from pyrogram.errors import ChatAdminRequired, FloodWait, PeerIdInvalid, UserAdminInvalid, UsernameInvalid
 from pyrogram.types import Chat
 
-from pagermaid import log, bot
+from pagermaid import log
 from pagermaid.listener import listener
-from pagermaid.single_utils import Message
+from pagermaid.scheduler import add_delete_message_job
+from pagermaid.services import bot
+from pagermaid.enums import Message
 from pagermaid.utils import lang
 
 
@@ -72,19 +74,25 @@ async def super_ban(message: Message):
     try:
         uid, channel, delete_all, sender = await get_uid(chat, message)
     except (ValueError, PeerIdInvalid, UsernameInvalid, FloodWait):
-        return await message.edit(lang("arg_error"))
+        await message.edit(lang("arg_error"))
+        return add_delete_message_job(message, 10)
     if not uid:
-        return await message.edit(lang("arg_error"))
+        await message.edit(lang("arg_error"))
+        return add_delete_message_job(message, 10)
     if channel:
         if uid == chat.id:
-            return await message.edit(lang("arg_error"))
+            await message.edit(lang("arg_error"))
+            return add_delete_message_job(message, 10)
         try:
             await ban_one(chat, uid)
         except ChatAdminRequired:
-            return await message.edit(lang("sb_no_per"))
+            await message.edit(lang("sb_no_per"))
+            return add_delete_message_job(message, 10)
         except Exception as e:
-            return await message.edit(f"出现错误：{e}")
-        return await message.edit(lang("sb_channel"))
+            await message.edit(f"出现错误：{e}")
+            return add_delete_message_job(message, 10)
+        await message.edit(lang("sb_channel"))
+        return add_delete_message_job(message, 10)
     try:
         common = await bot.get_common_chats(uid)
     except PeerIdInvalid:
@@ -120,3 +128,4 @@ async def super_ban(message: Message):
     await message.edit(text)
     groups = f'\n{lang("sb_pro")}\n' + "\n".join(groups) if groups else ''
     await log(f'{text}\nuid: `{uid}` {groups}')
+    add_delete_message_job(message, 10)
