@@ -67,6 +67,7 @@ class Sticker:
     should_forward: Message
     is_animated: bool
     is_video: bool
+    nums: int
     document: Optional[InputDocument]
     document_path: Optional[str]
     software: str = "PagerMaid-Pyro"
@@ -82,6 +83,7 @@ class Sticker:
         self.should_create = False
         self.is_animated = False
         self.is_video = False
+        self.nums = 1
         self.document = None
         self.document_path = None
 
@@ -103,6 +105,7 @@ class Sticker:
             self.custom_sticker_set = True
 
     async def generate_sticker_set(self, time: int = 1):
+        self.nums = time
         if not self.sticker_set or time > 1:
             me = await bot.get_me()
             if not me.username:
@@ -158,7 +161,11 @@ class Sticker:
 
     async def create_sticker_set(self):
         me = await bot.get_me()
-        title = f"@{me.username} 的私藏" if me.username else self.sticker_set
+        title = f"@{me.username} 的私藏（{self.nums}）" if me.username else self.sticker_set
+        if self.is_video:
+            title += "（Video）"
+        elif self.is_animated:
+            title += "（Animated）"
         try:
             await bot.invoke(
                 CreateStickerSet(
@@ -234,8 +241,12 @@ class Sticker:
                f"使用命令 <code>,{alias_command('s')} cancel</code> 取消自定义保存贴纸包"
 
 
-@listener(command="s",
-          need_admin=True)
+@listener(
+    command="s",
+    parameters="<贴纸包名/cancel>",
+    description="保存贴纸到自己的贴纸包",
+    need_admin=True,
+)
 async def sticker(message: Message):
     one_sticker = Sticker(message, should_forward=message.reply_to_message)
     if not message.reply_to_message:
