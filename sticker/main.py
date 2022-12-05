@@ -3,6 +3,7 @@ import contextlib
 from asyncio import sleep
 from typing import Optional
 
+from pyrogram.errors import PeerIdInvalid
 from pyrogram.raw.functions.messages import GetStickerSet
 from pyrogram.raw.functions.stickers import CreateStickerSet
 from pyrogram.raw.types import InputStickerSetShortName, InputDocument, InputStickerSetItem
@@ -117,7 +118,7 @@ class Sticker:
                 self.sticker_set += "_animated"
         try:
             await self.check_pack_full()
-        except NoStickerSetNameError as e:
+        except NoStickerSetNameError:
             self.should_create = True
         except StickerSetFullError:
             await self.generate_sticker_set(time + 1)
@@ -275,6 +276,8 @@ async def sticker(message: Message):
     try:
         await one_sticker.process_sticker()
         await one_sticker.to_sticker_set()
+    except PeerIdInvalid:
+        return await message.edit("请先私聊一次 @Stickers 机器人")
     except Exception as e:
         return await message.edit(f"收藏到贴纸包失败：{e}")
     await message.edit(f"收藏到贴纸包 {one_sticker.mention()} 成功")
