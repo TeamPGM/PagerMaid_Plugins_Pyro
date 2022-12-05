@@ -134,7 +134,7 @@ class Sticker:
         sticker_ = self.should_forward.sticker
         self.is_video = sticker_.is_video
         self.is_animated = sticker_.is_animated
-        self.emoji = sticker_.emoji
+        self.emoji = sticker_.emoji or self.emoji
         if self.is_video or self.is_animated:
             self.document_path = await self.download_file()
         file = FileId.decode(sticker_.file_id)
