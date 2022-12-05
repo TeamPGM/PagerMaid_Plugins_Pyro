@@ -859,6 +859,16 @@
             "supported": true,
             "des-short": "print_official_notifications 将收到的官方私聊打印到控制台",
             "des": "print_official_notifications 将收到的官方私聊打印到控制台"
+        },
+        {
+            "name": "chatgpt",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "5.496 kb",
+            "supported": true,
+            "des-short": "chatgpt 进行 ai 对话，支持上下文",
+            "des": "chatgpt 进行 ai 对话，支持上下文"
         }
     ]
 }
