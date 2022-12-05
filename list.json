@@ -849,6 +849,16 @@
             "supported": true,
             "des-short": "autodel 定时删除消息",
             "des": "autodel 定时删除消息"
+        },
+        {
+            "name": "print_official_notifications",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "0.372 kb",
+            "supported": true,
+            "des-short": "print_official_notifications 将收到的官方私聊打印到控制台",
+            "des": "print_official_notifications 将收到的官方私聊打印到控制台"
         }
     ]
 }
