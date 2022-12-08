@@ -1,3 +1,5 @@
+""" https://github.com/A-kirami/nonebot-plugin-chatgpt """
+
 import contextlib
 import threading
 import uuid
@@ -18,7 +20,7 @@ from asyncChatGPT.asyncChatGPT import Chatbot
 
 class AsyncChatbot:
     def __init__(self) -> None:
-        self.config = {"session_token": self.get_token()}
+        self.config = {"session_token": self.get_token()} if self.get_token() else {}
         self.bot = Chatbot(config=self.config, refresh=False)
 
     def __call__(
@@ -105,11 +107,9 @@ async def chat_bot_func(message: Message):
         try:
             msg = await chat_bot(**chat_bot_session[from_id]).get_chat_response(message.arguments)
         except Exception as e:
-            msg = str(e)
+            msg = f"可能是 Session Token 过期了，请重新设置。\n{str(e)}"
         if not msg:
             msg = "无法获取到回复，可能是网络波动，请稍后再试。"
-        elif msg == "Incorrect response from OpenAI API":
-            msg = "可能是 Session Token 过期了，请重新设置。"
         with contextlib.suppress(Exception):
             await message.edit(msg)
         chat_bot_session[from_id]["conversation_id"] = chat_bot.bot.conversation_id
