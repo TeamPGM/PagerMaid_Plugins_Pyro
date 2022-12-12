@@ -112,7 +112,7 @@ class SendTask:
                 self.minute = self.check_time(data[i - 1], 0, 60)
             elif data[i] == "hours":
                 format_right = True
-                self.hour = self.check_time(data[i - 1], 0, 24)
+                self.hour = self.check_time(data[i - 1], 0, 168)
             elif data[i] == "times":
                 self.interval = True
                 self.time_limit = int(self.check_time(data[i - 1], min_value=1))
