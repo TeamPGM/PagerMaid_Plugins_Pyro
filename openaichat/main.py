@@ -83,7 +83,7 @@ async def chat_bot_func(message: Message):
     from_id = message.sender_chat.id if message.sender_chat else from_id
     if not from_id:
         from_id = message.chat.id
-    if len(message.parameter) == 2:
+    if len(message.parameter) >= 2:
         if message.parameter[0] == "set":
             token = message.parameter[1]
             if not token.startswith("sk-"):
@@ -97,7 +97,7 @@ async def chat_bot_func(message: Message):
         elif message.parameter[0] == "template":
             arg = message.parameter[1]
             if arg == "set":
-                set_template(message.parameter[2] or '')
+                set_template(message.parameter[2] if message.parameter[2] else "")
                 return await message.edit("设置回应模板成功。")
             elif arg == "get":
                 return await message.edit(get_template())
