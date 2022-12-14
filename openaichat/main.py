@@ -1,12 +1,9 @@
 import contextlib
 import threading
-import uuid
 
 from collections import defaultdict
 
-from typing import Optional
-
-from pagermaid.services import scheduler, sqlite
+from pagermaid.services import sqlite
 from pagermaid.enums import Message
 from pagermaid.listener import listener
 from pagermaid.utils import pip_install
@@ -15,45 +12,65 @@ pip_install("openai", "==0.25.0")
 
 import openai
 
+
 async def get_chat_response(prompt: str) -> str:
     return openai.Completion.create(
-      model="text-davinci-003",
-      prompt=prompt,
-      temperature=0.9,
-      max_tokens=150,
-      top_p=1,
-      frequency_penalty=0.0,
-      presence_penalty=0.6,
-      stop=[" Human:", " AI:"]
+        model="text-davinci-003",
+        prompt=prompt,
+        temperature=0.9,
+        max_tokens=150,
+        top_p=1,
+        frequency_penalty=0.0,
+        presence_penalty=0.6,
+        stop=[" Human:", " AI:"]
     ).choices[0].text
+
 
 chat_bot_session = defaultdict(dict)
 chat_bot_lock = threading.Lock()
 
+
 def set_api_key(api_key: str) -> None:
     sqlite["openaichat_api_key"] = api_key
     openai.api_key = api_key
+
+
 def get_api_key() -> str:
     return sqlite.get("openaichat_api_key", None)
+
+
 def del_api_key():
     del sqlite["openaichat_api_key"]
 
+
 def set_template(template: str) -> None:
     sqlite["openaichat_template"] = template
+
+
 def get_template() -> str:
     return sqlite.get("openaichat_template", None)
-default_template="{0}\n====\n{1}\nPowered by OpenAI Chat (text-davinci-003)"
 
+
+def formatted_response(prompt: str, message: str) -> str:
+    if not get_template():
+        set_template(default_template)
+    try:
+        return get_template().format(prompt, message)
+    except Exception:
+        return default_template.format(prompt, message)
+
+
+default_template = "{0}\n====\n{1}\nPowered by OpenAI Chat (text-davinci-003)"
 openai.api_key = get_api_key()
-
 chat_bot_help = "使用 OpenAI Chat 聊天\n" \
                 "基于 text-davinci-003 模型，与 ChatGPT 的效果有些许不同\n" \
                 "代码参考了原先的 ChatGPT 插件\n\n" \
-                "参数：\n\n- 无参数：进入聊天模式\n" \
+                "参数：\n\n- 问题：询问 ai\n" \
                 "- reset：重置聊天话题\n" \
                 "- set <api_key>：设置 OpenAI API Key，获取 API Key： https://beta.openai.com/account/api-keys \n" \
                 "- del：删除 OpenAI API Key\n" \
                 "- template {set|get|reset} <template>: 设置/获取/重置回应模板。回应模板中的 {0} 将替换为问题，{1} 将替换为回答"
+
 
 @listener(
     command="openaichat",
@@ -99,11 +116,8 @@ async def chat_bot_func(message: Message):
     if not get_api_key():
         return await message.edit("请先通过参数 `set [api_key]` 设置 OpenAI API Key。")
     with chat_bot_lock:
-        def formatted_response(prompt: str, message: str) -> str:
-            if not get_template():
-               set_template(default_template)
-            return (get_template().format(prompt, message))
-        await message.edit(formatted_response(message.arguments, '处理中...'))
+        with contextlib.suppress(Exception):
+            message: Message = await message.edit(formatted_response(message.arguments, "处理中..."))
         try:
             chat_thread = chat_bot_session[from_id]["chat_thread"] if chat_bot_session[from_id] else ""
             prompt = f"{chat_thread}\n Human:{message.arguments}\n AI:"
