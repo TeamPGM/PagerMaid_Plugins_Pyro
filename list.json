@@ -862,7 +862,7 @@
         },
         {
             "name": "openaichat",
-            "version": "1.0",
+            "version": "1.1",
             "section": "chat",
             "maintainer": "jiechus",
             "size": "4.857 kb",
