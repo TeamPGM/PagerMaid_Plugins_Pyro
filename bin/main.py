@@ -1,9 +1,12 @@
 import json
-import requests
 from json.decoder import JSONDecodeError
 from pyrogram import Client
 from pagermaid.listener import listener
-from pagermaid.utils import Message
+from pagermaid.utils import Message, pip_install
+
+pip_install("requests")
+
+import requests
 
 
 @listener(command="bin", 
