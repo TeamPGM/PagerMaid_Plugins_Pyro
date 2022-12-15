@@ -83,7 +83,7 @@ async def chat_bot_func(message: Message):
     from_id = message.sender_chat.id if message.sender_chat else from_id
     if not from_id:
         from_id = message.chat.id
-    if len(message.parameter) == 2:
+    if len(message.parameter) >= 2:
         if message.parameter[0] == "set":
             token = message.parameter[1]
             if not token.startswith("sk-"):
@@ -96,14 +96,14 @@ async def chat_bot_func(message: Message):
             return await message.edit("设置 API Key 成功，可以开始使用了。")
         elif message.parameter[0] == "template":
             arg = message.parameter[1]
-            if arg == "set":
-                set_template(message.parameter[2] or '')
-                return await message.edit("设置回应模板成功。")
-            elif arg == "get":
+            if arg == "get":
                 return await message.edit(get_template())
             elif arg == "reset":
                 set_template(default_template)
                 return await message.edit("重置回应模板成功。")
+            elif arg == "set" and len(message.parameter) >= 3:
+                set_template(message.parameter[2] or "")
+                return await message.edit("设置回应模板成功。")
     elif message.arguments == "reset":
         with contextlib.suppress(KeyError):
             del chat_bot_session[from_id]
