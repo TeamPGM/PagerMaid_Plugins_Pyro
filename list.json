@@ -869,6 +869,16 @@
             "supported": true,
             "des-short": "openaichat",
             "des": "openaichat"
+        },
+        {
+            "name": "copy_sticker_set",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "3.211 kb",
+            "supported": true,
+            "des-short": "copy_sticker_set 复制整个贴纸包",
+            "des": "copy_sticker_set 复制整个贴纸包"
         }
     ]
 }
