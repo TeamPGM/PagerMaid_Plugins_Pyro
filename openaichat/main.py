@@ -101,7 +101,7 @@ async def chat_bot_func(message: Message):
             elif arg == "reset":
                 set_template(default_template)
                 return await message.edit("重置回应模板成功。")
-            elif arg == "set":
+            elif arg == "set" and len(message.parameter) >= 3:
                 set_template(message.parameter[2] or "")
                 return await message.edit("设置回应模板成功。")
     elif message.arguments == "reset":
