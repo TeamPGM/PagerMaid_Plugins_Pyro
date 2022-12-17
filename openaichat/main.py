@@ -1,5 +1,6 @@
 import contextlib
 import threading
+import re
 
 from collections import defaultdict
 
@@ -54,6 +55,7 @@ def get_template() -> str:
 def formatted_response(prompt: str, message: str) -> str:
     if not get_template():
         set_template(default_template)
+    message = re.sub(r'^\s+', r'', message)
     try:
         return get_template().format(prompt, message)
     except Exception:
@@ -127,7 +129,7 @@ async def chat_bot_func(message: Message):
             msg = await get_chat_response(prompt)
             chat_bot_session[from_id]["chat_thread"] = prompt + msg
         except Exception as e:
-            msg = f"可能是 API Key 过期了，请重新设置。\n{repr(e)}"
+            msg = f"可能是 API Key 过期或网络/输入错误，请重新设置。\n{repr(e)}"
         if not msg:
             msg = "无法获取到回复，可能是网络波动，请稍后再试。"
         with contextlib.suppress(Exception):
