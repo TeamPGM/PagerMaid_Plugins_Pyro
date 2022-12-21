@@ -879,6 +879,16 @@
             "supported": true,
             "des-short": "copy_sticker_set 复制整个贴纸包",
             "des": "copy_sticker_set 复制整个贴纸包"
+        },
+        {
+            "name": "annualreport",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "cloudreflection",
+            "size": "2.67 kb",
+            "supported": true,
+            "des-short": "annualreport TG年度报告",
+            "des": "annualreport TG年度报告"
         }
     ]
 }
