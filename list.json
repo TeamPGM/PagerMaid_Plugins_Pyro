@@ -889,6 +889,16 @@
             "supported": true,
             "des-short": "gfw 查询ip或域名是否被墙",
             "des": "gfw 查询ip或域名是否被墙"
+        },
+        {
+            "name": "annualreport",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "cloudreflection",
+            "size": "2.67 kb",
+            "supported": true,
+            "des-short": "annualreport TG年度报告",
+            "des": "annualreport TG年度报告"
         }
     ]
 }
