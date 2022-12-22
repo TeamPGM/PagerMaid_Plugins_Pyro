@@ -879,6 +879,16 @@
             "supported": true,
             "des-short": "copy_sticker_set 复制整个贴纸包",
             "des": "copy_sticker_set 复制整个贴纸包"
+        },
+        {
+            "name": "gfw",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "M1saka10010",
+            "size": "2.04 kb",
+            "supported": true,
+            "des-short": "gfw 查询ip或域名是否被墙",
+            "des": "gfw 查询ip或域名是否被墙"
         }
     ]
 }
