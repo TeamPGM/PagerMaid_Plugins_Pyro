@@ -16,7 +16,7 @@ def is_ip(ip):
 def get_ip(domain):
     try:
         ip = socket.gethostbyname(domain)
-    except Exception as e:
+    except Exception:
         return None
     return ip
 
@@ -39,22 +39,23 @@ async def gfw(message: Message):
     if not text:
         return await message.edit("请输入或回复一个IP或域名。")
     try:
-        message: Message = await message.edit(f"{text} 查询中...")
-    except Exception:
-        return await message.edit("出错了呜呜呜 ~ 无效的参数。")
-    try:
         if not is_ip(text):
-            if get_ip(text) != None:
-                text = get_ip(text)
-            else:
+            if get_ip(text) is None:
                 return await message.edit("出错了呜呜呜 ~ 无效的参数。")
+            else:
+                text = get_ip(text)
+        try:
+            message: Message = await message.edit(f"{text} 查询中...")
+        except Exception:
+            return await message.edit("出错了呜呜呜 ~ 无效的参数。")
         data = await post(text)
         data = data.json()
     except Exception as e:
         return await message.edit(f"出错了呜呜呜 ~ 查询失败。{e}")
 
-    if data['success'] == True:
-        if data['data']['tcp']['cn'] == data['data']['tcp']['!cn'] and data['data']['icmp']['cn'] == data['data']['icmp']['!cn']:
+    if data['success']:
+        if data['data']['tcp']['cn'] == data['data']['tcp']['!cn'] and data['data']['icmp']['cn'] == \
+                data['data']['icmp']['!cn']:
             if data['data']['tcp']['cn'] == False and data['data']['icmp']['cn'] == False:
                 reply = f"IP: {text}\n状态: 全球不通，不能判断是否被墙"
             else:
