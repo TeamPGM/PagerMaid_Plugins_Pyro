@@ -44,10 +44,10 @@ async def gfw(message: Message):
         return await message.edit("出错了呜呜呜 ~ 无效的参数。")
     try:
         if not is_ip(text):
-            if get_ip(text) != None:
-                text = get_ip(text)
-            else:
+            if get_ip(text) is None:
                 return await message.edit("出错了呜呜呜 ~ 无效的参数。")
+            else:
+                text = get_ip(text)
         data = await post(text)
         data = data.json()
     except Exception as e:
