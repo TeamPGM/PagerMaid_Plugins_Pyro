@@ -36,10 +36,9 @@ def chaos(x, y, chaosrate):
         return '\n'
     if x in {'…………'}:
         return '……'
-    else:
-        if y == 'n' and random.random() < 0.2:
-            x = '⭕' * len(x)
-        return f'……{x}'
+    if y == 'n' and random.random() < 0.2:
+        x = '⭕' * len(x)
+    return f'……{x}'
 
 
 def chs2yin(s, chaosrate=0.8):
@@ -53,17 +52,16 @@ async def yinglish(_: Client, context: Message):
         try:
             await context.edit("支持库 `jieba` 未安装...\n正在尝试自动安装...")
             result: str = await execute(f'{executable} -m pip install jieba')
-            if len(result) > 0:
-                await context.edit("支持库 `jieba` 安装完成，请重启 PagerMaid-Pyro 。")
-                return
-            else:
+            if not result:
                 await context.edit(
                     f"自动安装失败..请尝试手动安装 `{executable} -m pip install jieba` 随后，请重启 PagerMaid-Pyro 。")
-                return
+            else:
+                await context.edit("支持库 `jieba` 安装完成，请重启 PagerMaid-Pyro 。")
+            return
         except:
             return
     if context.text and not context.via_bot and not context.arguments:
-        await context.edit(f"你没说话我转换个啥")
+        await context.edit("你没说话我转换个啥")
     elif context.text and context.arguments and not context.via_bot:
         outputtext = chs2yin(context.arguments)
         await context.edit(f"{outputtext}")
