@@ -55,7 +55,7 @@ async def yinglish(_: Client, context: Message):
             result: str = await execute(f'{executable} -m pip install jieba')
             if len(result) > 0:
                 await context.edit("支持库 `jieba` 安装完成，请重启 PagerMaid-Pyro 。")
-                exit(0)
+                return
             else:
                 await context.edit(
                     f"自动安装失败..请尝试手动安装 `{executable} -m pip install jieba` 随后，请重启 PagerMaid-Pyro 。")
