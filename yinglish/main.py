@@ -1,6 +1,5 @@
 from pyrogram import Client
 import random
-from asyncio import sleep
 from sys import executable
 from pagermaid.listener import listener
 from pagermaid.utils import Message, execute
@@ -53,11 +52,9 @@ async def yinglish(_: Client, context: Message):
     if not imported:
         try:
             await context.edit("支持库 `jieba` 未安装...\n正在尝试自动安装...")
-            await execute(f'{executable} -m pip install jieba')
-            await sleep(10)
-            result = await execute(f'{executable} -m pip show jieba')
+            result: str = await execute(f'{executable} -m pip install jieba')
             if len(result) > 0:
-                await context.edit('支持库 `jieba` 安装成功...\n正在尝试自动重启...')
+                await context.edit("支持库 `jieba` 安装完成，请重启 PagerMaid-Pyro 。")
                 exit(0)
             else:
                 await context.edit(
