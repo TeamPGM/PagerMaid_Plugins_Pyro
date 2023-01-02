@@ -909,6 +909,16 @@
             "supported": true,
             "des-short": "yinglish 能把中文和英文翻译成淫语的翻译机！",
             "des": "yinglish 能把中文和英文翻译成淫语的翻译机！"
+        },
+        {
+            "name": "pfp",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "2.603 kb",
+            "supported": true,
+            "des-short": "pfp 快速设置头像",
+            "des": "pfp 快速设置头像"
         }
     ]
 }
