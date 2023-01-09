@@ -919,6 +919,16 @@
             "supported": true,
             "des-short": "pfp 快速设置头像",
             "des": "pfp 快速设置头像"
+        },
+        {
+            "name": "qr",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "2.678 kb",
+            "supported": true,
+            "des-short": "qr 二维码相关操作",
+            "des": "qr 二维码相关操作"
         }
     ]
 }
