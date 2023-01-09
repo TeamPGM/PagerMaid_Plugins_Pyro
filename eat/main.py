@@ -7,7 +7,7 @@ from random import randint
 
 from pyrogram import Client
 from pyrogram.enums import MessageEntityType
-from pyrogram.errors import PeerIdInvalid, UsernameNotOccupied
+from pyrogram.errors import UsernameNotOccupied, UsernameInvalid
 from pyrogram.types import User, Chat
 
 from pagermaid.single_utils import sqlite, safe_remove
@@ -249,14 +249,12 @@ async def eat(client_: Client, context: Message):
                         user = await client_.get_users(user)
                     except IndexError:
                         user = await client_.get_chat(user)  # noqa
-                except PeerIdInvalid:
-                    return await context.edit(f"{lang('error_prefix')}{lang('profile_e_nof')}")
-                except UsernameNotOccupied:
+                except (UsernameNotOccupied, UsernameInvalid):
                     return await context.edit(f"{lang('error_prefix')}{lang('profile_e_nou')}")
                 except OverflowError:
                     return await context.edit(f"{lang('error_prefix')}{lang('profile_e_long')}")
                 except Exception as exception:
-                    raise exception
+                    return await context.edit(f"{lang('error_prefix')}{lang('profile_e_nof')}")
     target_user_id = user.id
     if not user.photo:
         return await context.edit("出错了呜呜呜 ~ 此用户无头像。")
