@@ -19,14 +19,17 @@ from pyqrcode import create
           parameters="<string>")
 async def gen_qr(client: Client, message: Message):
     """ Generate QR codes. """
-    text = message.obtain_message()
+    if message.reply_to_message:
+        text = message.reply_to_message.text
+    elif message.text:
+        text = message.text
     if not text:
         await message.edit(lang('error_prefix'))
         return
     if not Config.SILENT:
         await message.edit(lang('genqr_process'))
     try:
-        create(text, error="L", mode="binary").png("qr.webp", scale=6)
+        create(text, error="L", encoding="utf-8").png("qr.webp", scale=6)
         await client.send_document(
             message.chat.id,
             document="qr.webp",
