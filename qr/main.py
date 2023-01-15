@@ -26,7 +26,7 @@ async def gen_qr(client: Client, message: Message):
     if not Config.SILENT:
         await message.edit(lang('genqr_process'))
     try:
-        create(text, error="L", mode="binary").png("qr.webp", scale=6)
+        create(text, error="L", encoding="utf-8", mode="binary").png("qr.webp", scale=6)
         await client.send_document(
             message.chat.id,
             document="qr.webp",
