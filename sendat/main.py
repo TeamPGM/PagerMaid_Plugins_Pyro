@@ -5,6 +5,7 @@ import pytz
 from typing import Optional, List
 
 from pagermaid import bot
+from pagermaid.config import Config
 from pagermaid.listener import listener
 from pagermaid.scheduler import scheduler
 from pagermaid.single_utils import sqlite, Message
@@ -212,7 +213,7 @@ class SendTasks:
                           args=[task, self])
 
     def register_date_task(self, task: SendTask):
-        date_now = datetime.datetime.now(pytz.timezone("Asia/Shanghai"))
+        date_now = datetime.datetime.now(pytz.timezone(Config.TIME_ZONE))
         date_will = date_now.replace(hour=int(task.hour), minute=int(task.minute), second=int(task.second))
         if date_will < date_now:
             date_will += datetime.timedelta(days=1)
