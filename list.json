@@ -929,6 +929,16 @@
             "supported": true,
             "des-short": "qr 二维码相关操作",
             "des": "qr 二维码相关操作"
+        },
+        {
+            "name": "no_reactions",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "3.288 kb",
+            "supported": true,
+            "des-short": "no_reactions 自动已读某个对话的消息表情表态",
+            "des": "no_reactions 自动已读某个对话的消息表情表态"
         }
     ]
 }
