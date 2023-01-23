@@ -939,6 +939,16 @@
             "supported": true,
             "des-short": "no_reactions 自动已读某个对话的消息表情表态",
             "des": "no_reactions 自动已读某个对话的消息表情表态"
+        },
+        {
+            "name": "no_mentions",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "2.075 kb",
+            "supported": true,
+            "des-short": "no_mentions 自动消除某个对话的 @ 提醒",
+            "des": "no_mentions 自动消除某个对话的 @ 提醒"
         }
     ]
 }
