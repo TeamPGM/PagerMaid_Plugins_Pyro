@@ -2,7 +2,7 @@
     "list": [
         {
             "name": "xtao-some",
-            "version": "1.021",
+            "version": "1.031",
             "section": "daily",
             "maintainer": "xtaodada",
             "size": "12.9 kb",
@@ -12,7 +12,7 @@
         },
         {
             "name": "eat",
-            "version": "1.0781",
+            "version": "1.0881",
             "section": "profile",
             "maintainer": "SF_PICK",
             "size": "20.0 kb",
@@ -52,7 +52,7 @@
         },
         {
             "name": "calculator",
-            "version": "1.1",
+            "version": "1.11",
             "section": "chat",
             "maintainer": "Pentacene,zhxycn",
             "size": "1.48 kb",
@@ -62,7 +62,7 @@
         },
         {
             "name": "base64",
-            "version": "1.00",
+            "version": "1.01",
             "section": "chat",
             "maintainer": "zhxycn,xtaodada",
             "size": "1.14 kb",
@@ -82,7 +82,7 @@
         },
         {
             "name": "bc",
-            "version": "1.232",
+            "version": "1.242",
             "section": "chat",
             "maintainer": "Pentacene",
             "size": "4.2 kb",
@@ -92,7 +92,7 @@
         },
         {
             "name": "bin",
-            "version": "1.022",
+            "version": "1.032",
             "section": "daily",
             "maintainer": "paulkm",
             "size": "2.09 kb",
@@ -132,7 +132,7 @@
         },
         {
             "name": "weather",
-            "version": "1.122",
+            "version": "1.1320000000000001",
             "section": "daily",
             "maintainer": "xtaodada",
             "size": "3.1 kb",
@@ -162,7 +162,7 @@
         },
         {
             "name": "vip",
-            "version": "0.741",
+            "version": "0.751",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "14.4 kb",
@@ -222,7 +222,7 @@
         },
         {
             "name": "sticker",
-            "version": "0.10999999999999999",
+            "version": "0.11999999999999998",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "4.94 kb",
@@ -242,7 +242,7 @@
         },
         {
             "name": "netease",
-            "version": "1.03",
+            "version": "1.04",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "2.91 kb",
@@ -272,7 +272,7 @@
         },
         {
             "name": "sb",
-            "version": "1.02",
+            "version": "1.03",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "3.5 kb",
@@ -352,7 +352,7 @@
         },
         {
             "name": "lottery",
-            "version": "1.034",
+            "version": "1.044",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "4.72 kb",
@@ -402,7 +402,7 @@
         },
         {
             "name": "atadmins",
-            "version": "1.02",
+            "version": "1.03",
             "section": "chat",
             "maintainer": "xtaodada、Pentacene",
             "size": "0.96 kb",
@@ -432,7 +432,7 @@
         },
         {
             "name": "weather_lite",
-            "version": "1.02",
+            "version": "1.03",
             "section": "daily",
             "maintainer": "xtaodada",
             "size": "0.97 kb",
@@ -442,7 +442,7 @@
         },
         {
             "name": "unban",
-            "version": "1.01",
+            "version": "1.02",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "2.5 kb",
@@ -452,7 +452,7 @@
         },
         {
             "name": "1A2B",
-            "version": "1.02",
+            "version": "1.03",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "2.49 kb",
@@ -482,7 +482,7 @@
         },
         {
             "name": "jikipedia",
-            "version": "1.03",
+            "version": "1.04",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "4.579 kb",
@@ -502,7 +502,7 @@
         },
         {
             "name": "vctools",
-            "version": "1.0",
+            "version": "1.01",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "1.533 kb",
@@ -522,7 +522,7 @@
         },
         {
             "name": "covid",
-            "version": "1.01",
+            "version": "1.02",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "3.582 kb",
@@ -532,7 +532,7 @@
         },
         {
             "name": "dictionary",
-            "version": "1.0",
+            "version": "1.01",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "1.172 kb",
@@ -542,7 +542,7 @@
         },
         {
             "name": "urbandictionary",
-            "version": "1.0",
+            "version": "1.01",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "1.239 kb",
@@ -562,7 +562,7 @@
         },
         {
             "name": "da",
-            "version": "1.0",
+            "version": "1.01",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "1.413 kb",
@@ -582,7 +582,7 @@
         },
         {
             "name": "rate",
-            "version": "1.0",
+            "version": "1.01",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "4.268 kb",
@@ -592,7 +592,7 @@
         },
         {
             "name": "unixtime",
-            "version": "1.0",
+            "version": "1.01",
             "section": "chat",
             "maintainer": "zhxycn",
             "size": "1.372 kb",
@@ -602,7 +602,7 @@
         },
         {
             "name": "google",
-            "version": "1.01",
+            "version": "1.02",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "1.151 kb",
@@ -642,7 +642,7 @@
         },
         {
             "name": "teletype",
-            "version": "1.02",
+            "version": "1.03",
             "section": "chat",
             "maintainer": "Godlike",
             "size": "1.025 kb",
@@ -652,7 +652,7 @@
         },
         {
             "name": "ip",
-            "version": "1.01",
+            "version": "1.02",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "2.599 kb",
@@ -662,7 +662,7 @@
         },
         {
             "name": "aff",
-            "version": "1.01",
+            "version": "1.02",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "1.63 kb",
@@ -672,7 +672,7 @@
         },
         {
             "name": "icp",
-            "version": "1.0",
+            "version": "1.01",
             "section": "chat",
             "maintainer": "sourcery-ai[bot]",
             "size": "3.258 kb",
@@ -702,7 +702,7 @@
         },
         {
             "name": "websocket",
-            "version": "1.03",
+            "version": "1.04",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "5.384 kb",
@@ -712,7 +712,7 @@
         },
         {
             "name": "silly_girl",
-            "version": "1.02",
+            "version": "1.03",
             "section": "chat",
             "maintainer": "cdle",
             "size": "8 kb",
@@ -722,7 +722,7 @@
         },
         {
             "name": "httpcat",
-            "version": "1.01",
+            "version": "1.02",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "0.927 kb",
@@ -732,7 +732,7 @@
         },
         {
             "name": "set_status",
-            "version": "1.0",
+            "version": "1.01",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "1.661 kb",
@@ -752,7 +752,7 @@
         },
         {
             "name": "fadian",
-            "version": "1.01",
+            "version": "1.02",
             "section": "chat",
             "maintainer": "sudoskys",
             "size": "8.805 kb",
@@ -762,7 +762,7 @@
         },
         {
             "name": "clear_private_chat",
-            "version": "1.0",
+            "version": "1.01",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "1.701 kb",
@@ -772,7 +772,7 @@
         },
         {
             "name": "alicloud",
-            "version": "1.0",
+            "version": "1.01",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "4.684 kb",
@@ -802,7 +802,7 @@
         },
         {
             "name": "ytdl",
-            "version": "1.02",
+            "version": "1.03",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "3.787 kb",
@@ -882,7 +882,7 @@
         },
         {
             "name": "gfw",
-            "version": "1.0",
+            "version": "1.01",
             "section": "chat",
             "maintainer": "M1saka10010",
             "size": "2.04 kb",
@@ -922,7 +922,7 @@
         },
         {
             "name": "qr",
-            "version": "1.01",
+            "version": "1.02",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "2.678 kb",
@@ -932,7 +932,7 @@
         },
         {
             "name": "no_reactions",
-            "version": "1.0",
+            "version": "1.01",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "3.288 kb",
@@ -942,7 +942,7 @@
         },
         {
             "name": "no_mentions",
-            "version": "1.0",
+            "version": "1.01",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "2.075 kb",
