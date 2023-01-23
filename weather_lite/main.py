@@ -5,7 +5,7 @@ from pagermaid.single_utils import safe_remove
 
 @listener(command="weather_lite",
           description="查询天气",
-          parameters="<城市>")
+          parameters="[城市]")
 async def weather_lite(request: AsyncClient, message: Message):
     if not message.arguments:
         return await message.edit("请输入城市名称")

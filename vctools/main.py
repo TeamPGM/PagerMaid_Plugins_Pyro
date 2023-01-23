@@ -9,7 +9,7 @@ from pagermaid.enums import Client, Message
 @listener(command="vctools",
           admins_only=True,
           groups_only=True,
-          parameters="<开启/关闭>",
+          parameters="[开启/关闭]",
           description="开启/关闭群组直播间")
 async def vctools(bot: Client, message: Message):
     if not message.arguments:

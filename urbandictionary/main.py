@@ -4,7 +4,7 @@ from pagermaid.utils import alias_command
 
 
 @listener(command="urbandictionary",
-          parameters="<单词>",
+          parameters="[单词]",
           description="解释英语俚语词汇")
 async def get_urban_mean(message: Message, httpx: AsyncClient):
     """ To fetch meaning of the given word from urban dictionary. """

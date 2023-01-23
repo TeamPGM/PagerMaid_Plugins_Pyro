@@ -96,7 +96,7 @@ async def alicloud_startup() -> None:
 
 @listener(command="alicloud",
           description="获取阿里云盘掉落福利信息",
-          parameters="<订阅/退订>")
+          parameters="[订阅/退订]")
 async def set_alicloud_notice(message: Message):
     if not message.arguments:
         try:

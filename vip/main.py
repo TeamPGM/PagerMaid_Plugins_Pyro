@@ -6,7 +6,7 @@ from pagermaid.enums import Client, Message
 
 @listener(command="duckduckgo",
           description="Duckduckgo 搜索",
-          parameters="<query>")
+          parameters="[query]")
 async def duckduckgo(client: Client, message: Message):
     text = message.arguments
     if not text:
@@ -19,7 +19,7 @@ async def duckduckgo(client: Client, message: Message):
 
 @listener(command="caiyun",
           description="彩云翻译",
-          parameters="<query>")
+          parameters="[query]")
 async def caiyun_translate(client: Client, message: Message):
     text = message.arguments
     if not text:
@@ -32,7 +32,7 @@ async def caiyun_translate(client: Client, message: Message):
 
 @listener(command="weather",
           description="使用彩云天气 api 查询国内实时天气。",
-          parameters="<位置>")
+          parameters="[位置]")
 async def weather(client: Client, message: Message):
     text = message.arguments
     if not text:
@@ -45,7 +45,7 @@ async def weather(client: Client, message: Message):
 
 @listener(command="weather_pic",
           description="使用彩云天气 api 查询国内实时天气，但是显示图片。",
-          parameters="<位置>")
+          parameters="[位置]")
 async def weather_pic(client: Client, message: Message):
     text = message.arguments
     if not text:
@@ -62,7 +62,7 @@ async def weather_pic(client: Client, message: Message):
 
 @listener(command="weather_he",
           description="使用和风天气 api 查询国内实时天气，但是显示图片。",
-          parameters="<位置>")
+          parameters="[位置]")
 async def weather_he(client: Client, message: Message):
     text = message.arguments
     if not text:
@@ -93,34 +93,34 @@ async def az_tts(client: Client, message: Message, mode: str):
 
 @listener(command="tts_nan",
           description="通过 Azure 文本到语音 基于字符串生成 简体男声 语音消息。",
-          parameters="<字符串>")
+          parameters="[字符串]")
 async def az_tts_nan(client: Client, message: Message):
     await az_tts(client, message, "")
 
 
 @listener(command="tts_nv",
           description="通过 Azure 文本到语音 基于字符串生成 简体女声 语音消息。",
-          parameters="<字符串>")
+          parameters="[字符串]")
 async def az_tts_nv(client: Client, message: Message):
     await az_tts(client, message, "nv")
 
 
 @listener(command="tts_tw",
           description="通过 Azure 文本到语音 基于字符串生成 繁体男声 语音消息。",
-          parameters="<字符串>")
+          parameters="[字符串]")
 async def az_tts_tw(client: Client, message: Message):
     await az_tts(client, message, "tw")
 
 
 @listener(command="tts_ne",
           description="通过 Azure 文本到语音 基于字符串生成 简体新闻男声 语音消息。",
-          parameters="<字符串>")
+          parameters="[字符串]")
 async def az_tts_ne(client: Client, message: Message):
     await az_tts(client, message, "ne")
 
 
 @listener(command="tts_en",
           description="通过 Azure 文本到语音 基于字符串生成 英文男声 语音消息。",
-          parameters="<字符串>")
+          parameters="[字符串]")
 async def az_tts_en(client: Client, message: Message):
     await az_tts(client, message, "en")

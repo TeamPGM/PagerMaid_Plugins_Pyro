@@ -6,7 +6,7 @@ from base64 import b64decode, b64encode
 
 @listener(command="b64e",
           description="将文本转为Base64",
-          parameters="<text>")
+          parameters="[text]")
 async def b64e(_: Client, message: Message):
     msg = message.arguments
     if not msg:
@@ -18,7 +18,7 @@ async def b64e(_: Client, message: Message):
 
 @listener(command="b64d",
           description="将Base64转为文本",
-          parameters="<text>")
+          parameters="[text]")
 async def b64d(_: Client, message: Message):
     msg = message.arguments
     if not msg:

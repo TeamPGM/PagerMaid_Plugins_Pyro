@@ -12,7 +12,7 @@ no_mentions_sub = Sub("no_mentions")
 
 @listener(command="no_mentions",
           description="自动消除某个对话的 @ 提醒",
-          parameters="<true|false|status>")
+          parameters="[true|false|status]")
 async def no_mentions(_: Client, message: Message):
     if len(message.parameter) != 1:
         await message.edit(f"[no_mentions] {lang('error_prefix')}{lang('arg_error')}")

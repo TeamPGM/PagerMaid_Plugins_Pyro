@@ -27,7 +27,7 @@ async def set_custom_emoji(bot: Client, custom_emoji_id: int):
 
 
 @listener(command="set_status",
-          parameters="<大会员自定义 emoji>",
+          parameters="[大会员自定义 emoji]",
           need_admin=True,
           description="快速设置大会员自定义 emoji 状态")
 async def set_emoji_status(bot: Client, message: Message):

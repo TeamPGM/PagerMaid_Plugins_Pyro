@@ -104,7 +104,7 @@ async def start_download(message: Message, url: str):
 
 @listener(command="ytdl",
           description="Upload Youtube、Bilibili video to telegram",
-          parameters="<url>")
+          parameters="[url]")
 async def ytdl(message: Message):
     global ytdl_is_downloading
     if not message.arguments:

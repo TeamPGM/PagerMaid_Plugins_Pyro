@@ -11,7 +11,7 @@ from pagermaid.utils import alias_command
           groups_only=True,
           need_admin=True,
           description="删除群内所有消息。（非群组管理员只删除自己的消息）",
-          parameters="<true>")
+          parameters="[true]")
 async def da(bot: Client, message: Message):
     if message.arguments != "true":
         return await message.edit(f"[da] 呜呜呜，请执行 `,{alias_command('da')} true` 来删除所有消息。")

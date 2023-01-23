@@ -7,7 +7,7 @@ from pagermaid.enums import Client, Message
 @listener(command="atadmins",
           description="一键 AT 本群管理员（仅在群组中有效）",
           groups_only=True,
-          parameters="<要说的话>")
+          parameters="[要说的话]")
 async def at_admins(client: Client, message: Message):
     admins = []
     async for m in client.get_chat_members(message.chat.id, filter=ChatMembersFilter.ADMINISTRATORS):

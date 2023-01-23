@@ -101,7 +101,7 @@ NewsBot = NewsData()
 
 @listener(command="covid",
           description="获取新冠疫情信息。",
-          parameters="<地区>")
+          parameters="[地区]")
 async def covid_info(message: Message):
     global POLICY_ID, NewsBot
     if not POLICY_ID:

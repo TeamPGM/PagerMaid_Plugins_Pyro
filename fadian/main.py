@@ -86,7 +86,7 @@ async def fa_dian_refresher_data():
 
 @listener(command="fadian",
           description="快速对着指定人物发电",
-          parameters="<query>")
+          parameters="[query]")
 async def fa_dian_process(message: Message):
     if fa_dian.data.get("date") == 0:
         await fa_dian.fetch()

@@ -28,7 +28,7 @@ async def post(host):
 
 
 @listener(command="gfw",
-          parameters="<text>",
+          parameters="[text]",
           description="查询是否被墙")
 async def gfw(message: Message):
     text = None

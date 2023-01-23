@@ -15,18 +15,18 @@ class Rate:
     def __init__(self):
         if Config.LANGUAGE == "en":
             self.lang_rate = {
-                "des": "Currency exchange rate plugin", "arg": "<from_> <to_> <NUM>",
+                "des": "Currency exchange rate plugin", "arg": "[from_] [to_] [NUM]",
                 "help": "Currency exchange rate plugin\n\n"
-                        f"Usage: `,{alias_command('rate')} <from_> <to_> <NUM> where <NUM> is "
+                        f"Usage: `,{alias_command('rate')} [from_] [to_] [NUM] where [NUM] is "
                         "optional`\n\nAvailable currencies: \n",
                 "nc": "is not available.\n\nAvailable currencies: \n",
                 "notice": "Data are updated daily.",
                 "warning": "Data are updated daily."}
         else:
             self.lang_rate = {
-                "des": "货币汇率插件", "arg": "<from_> <to_> <NUM>",
+                "des": "货币汇率插件", "arg": "[from_] [to_] [NUM]",
                 "help": "这是货币汇率插件\n\n"
-                        f"使用方法: `,{alias_command('rate')} <from_> <to_> <NUM>，其中 <NUM> 是可省略的`\n\n"
+                        f"使用方法: `,{alias_command('rate')} [from_] [to_] [NUM]，其中 [NUM] 是可省略的`\n\n"
                         "支持货币: \n",
                 "nc": "不是支持的货币. \n\n支持货币: \n",
                 "notice": "数据每日八点更新",

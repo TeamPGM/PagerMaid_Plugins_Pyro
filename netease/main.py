@@ -74,7 +74,7 @@ async def netease_id(music_id: str, message: Message):
 
 @listener(command="netease",
           description="Netease Music",
-          parameters="<query>",)
+          parameters="[query]",)
 async def netease_music(message: Message):
     if not message.arguments:
         return await message.edit(Netease_Help_Msg)

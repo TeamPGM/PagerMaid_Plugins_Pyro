@@ -11,7 +11,7 @@ import requests
 
 @listener(command="bin", 
           description="查询信用卡信息", 
-          parameters="<bin（4到8位数字）>")
+          parameters="[bin（4到8位数字）]")
 async def card(_: Client, message: Message):
     await message.edit('正在查询中...')
     try:

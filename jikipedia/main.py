@@ -90,7 +90,7 @@ class JIKIPedia:
 
 
 @listener(command="jikipedia",
-          parameters="<关键词>",
+          parameters="[关键词]",
           description="梗查询")
 async def jikipedia(message: Message):
     if not message.arguments:

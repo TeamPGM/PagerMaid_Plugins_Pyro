@@ -36,7 +36,7 @@ async def get_ip_info(url: str) -> str:
 
 @listener(command="ip",
           description="IPINFO （或者回复一句话）",
-          parameters="<ip/域名>")
+          parameters="[ip/域名]")
 async def ipinfo(message: Message):
     reply = message.reply_to_message
     message: Message = await message.edit('正在查询中...')

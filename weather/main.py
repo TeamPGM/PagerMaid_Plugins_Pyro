@@ -38,7 +38,7 @@ def calcWindDirection(windDirection):
 
 @listener(command="weather",
           description="查询天气",
-          parameters="<城市>")
+          parameters="[城市]")
 async def weather(_: Client, message: Message):
     if not message.arguments:
         return await message.edit("出错了呜呜呜 ~ 无效的参数。")

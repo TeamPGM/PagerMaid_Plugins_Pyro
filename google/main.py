@@ -10,7 +10,7 @@ from magic_google import MagicGoogle
 
 @listener(command="google",
           description=lang('google_des'),
-          parameters="<query>")
+          parameters="[query]")
 async def google(message: Message):
     """ Searches Google for a string. """
     query = message.arguments

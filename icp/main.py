@@ -56,7 +56,7 @@ async def icp_search(domain):
 
 
 @listener(command="icp",
-          parameters="<域名>",
+          parameters="[域名]",
           description="查询域名是否已备案")
 async def icp_bei_an(message: Message):
     url = None

@@ -8,7 +8,7 @@ from pagermaid.utils import lang, Message
 
 @listener(is_plugin=False, command="teletype",
           description=lang('teletype_des'),
-          parameters="<message>")
+          parameters="[message]")
 async def teletype(message: Message):
     if not message.arguments:
         return await message.edit("出错了呜呜呜 ~ 空白的参数。")

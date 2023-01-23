@@ -16,7 +16,7 @@ from pyqrcode import create
 
 @listener(is_plugin=False, outgoing=True, command="genqr",
           description=lang('genqr_des'),
-          parameters="<string>")
+          parameters="[string]")
 async def gen_qr(client: Client, message: Message):
     """ Generate QR codes. """
     text = message.obtain_message()

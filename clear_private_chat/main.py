@@ -27,7 +27,7 @@ async def delete_private_chat(cid: int):
 @listener(command="clear_private_chat",
           need_admin=True,
           description="通过指定关键词清除私聊",
-          parameters="<关键词>")
+          parameters="[关键词]")
 async def clear_private_chat(message: Message):
     """ 通过指定关键词清除私聊记录 """
     if not message.arguments:

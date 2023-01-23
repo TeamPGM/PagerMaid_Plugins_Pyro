@@ -35,7 +35,7 @@ async def guess(_: Client, message: Message):
 
 @listener(is_plugin=True, command="wiki", 
           description="查询维基百科词条",
-          parameters="<词组>")
+          parameters="[词组]")
 async def wiki(_: Client, message: Message):
     text = message.arguments
     if not text:

@@ -102,7 +102,7 @@ async def create_lottery(chat_id: int, num: int, win: int, title: str, keyword: 
 @listener(command="lottery",
           groups_only=True,
           need_admin=True,
-          parameters="<奖品数/人数> <关键词> <标题> / 强制开奖",
+          parameters="[奖品数/人数] [关键词] [标题] / 强制开奖",
           description=f"举行抽奖活动\n\n例如：,{alias_command('lottery')} 1/10 测试 测试")
 async def lottery(message: Message):
     if not message.arguments:

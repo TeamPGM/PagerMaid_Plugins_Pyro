@@ -46,7 +46,7 @@ def init() -> None:
 
 @listener(command="bc",
           description="coins",
-          parameters="<num> <coin1> <coin2>")
+          parameters="[num] [coin1] [coin2]")
 async def coin(_: Client, message: Message) -> None:
     """ coin change """
     init()

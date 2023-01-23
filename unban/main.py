@@ -43,7 +43,7 @@ async def get_uid(chat: Chat, message: Message):
           description="解除封禁一位用户",
           need_admin=True,
           groups_only=True,
-          parameters="<reply|id|username>")
+          parameters="[reply|id|username]")
 async def unban(client: Client, message: Message):
     chat = message.chat
     try:

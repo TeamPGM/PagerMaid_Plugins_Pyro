@@ -198,7 +198,7 @@ async def downloadFileByIds(ids, context):
                       "当第二个参数是/开头时，在/后面加url则从url下载配置文件保存到本地，如果就一个/，则直接更新配置文件，删除则是/delete；或者/后面加模版id可以手动更新指定模版配置\n\n"
                       "当第二个参数是-开头时，在-后面加上模版id，即可设置默认模版-eat直接使用该模版，删除默认模版是-eat -\n\n"
                       "当第二个参数是!或者！开头时，列出当前可用模版",
-          parameters="<username/uid> [随意内容]")
+          parameters="[username/uid] [随意内容]")
 async def eat(client_: Client, context: Message):
     if len(context.parameter) > 2:
         await context.edit("出错了呜呜呜 ~ 无效的参数。")

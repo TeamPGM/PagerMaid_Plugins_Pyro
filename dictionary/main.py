@@ -12,7 +12,7 @@ dictionary_data = PyDictionary()
 
 
 @listener(command="dictionary",
-          parameters="<单词>",
+          parameters="[单词]",
           description="查询英语单词的意思")
 async def get_word_mean(message: Message):
     """ Look up a word in the dictionary. """

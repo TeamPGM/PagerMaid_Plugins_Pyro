@@ -19,7 +19,7 @@ no_reactions_sub = Sub("no_reactions")
 
 @listener(command="no_reactions",
           description="自动已读某个对话的消息表态",
-          parameters="<true|false|status>")
+          parameters="[true|false|status]")
 async def no_reactions(_: Client, message: Message):
     if len(message.parameter) != 1:
         await message.edit(f"[no_reactions] {lang('error_prefix')}{lang('arg_error')}")

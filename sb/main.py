@@ -68,7 +68,7 @@ async def get_uid(chat: Chat, message: Message):
           description=lang('sb_des'),
           need_admin=True,
           groups_only=True,
-          parameters="<reply|id|username> <do_not_del_all>")
+          parameters="[reply|id|username> <do_not_del_all]")
 async def super_ban(message: Message):
     chat = message.chat
     try:

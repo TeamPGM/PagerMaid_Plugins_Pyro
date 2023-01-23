@@ -134,7 +134,7 @@ async def connect_sillyGirl():
 
     
 
-@listener(is_plugin=True,outgoing=True, ignore_edited=True, command="sillyGirl",description="连接到傻妞服务器", parameters="<auth>")
+@listener(is_plugin=True,outgoing=True, ignore_edited=True, command="sillyGirl",description="连接到傻妞服务器", parameters="[auth]")
 async def Connect(message: Message):
     try:                   
         await edit_delete(message,"连接中，建议重启...")

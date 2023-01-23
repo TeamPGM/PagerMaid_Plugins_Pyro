@@ -4,7 +4,7 @@ from pagermaid.enums import Client, Message, AsyncClient
 from pagermaid.listener import listener
 
 
-@listener(command="httpcat", description="获取 HTTP 状态码的图片。", parameters="<http 状态码>")
+@listener(command="httpcat", description="获取 HTTP 状态码的图片。", parameters="[http 状态码]")
 async def httpcat(client: Client, message: Message, request: AsyncClient):
     try:
         code = int(message.arguments)

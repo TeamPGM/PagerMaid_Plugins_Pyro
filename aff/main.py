@@ -25,7 +25,7 @@ def del_aff() -> None:
 
 @listener(command="aff",
           description="在别人要打算买机场的时候光速发出自己的aff信息(请尽量配合短链接)",
-          parameters="<save|remove> (可选，回复一条消息，用于保存|删除aff信息)")
+          parameters="[save|remove] (可选，回复一条消息，用于保存|删除aff信息)")
 async def aff(message: Message):
     if not message.parameter:
         msg, web_page = get_aff()
