@@ -222,7 +222,7 @@ async def recommend(client: Client, message: Message) -> None:
 
 @command("help", "获取插件帮助")
 async def help(client: Client, message: Message) -> None:
-    await message.edit(f"pixiv 插件使用帮助: {HELP_URL}", disable_web_page_preview=True)
+    await message.edit(f"{PLUGIN_NAME} 插件使用帮助: {HELP_URL}", disable_web_page_preview=True)
 
 
 @listener(
