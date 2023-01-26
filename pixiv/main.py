@@ -124,9 +124,11 @@ def generate_usage() -> str:
     )
 
 
-def illust_filter(illusts: List[Illust], keywords: str) -> List[Illust]:
+def illust_sensitive_content_filter(
+    illusts: List[Illust], keywords: str
+) -> List[Illust]:
     excluded = ["R-18", "R-18G"]
-    needed = set(keywords.split())
+    needed = set(keywords.split()).intersection(excluded)
     excluded = set(excluded).difference(needed)
 
     return [
@@ -135,6 +137,11 @@ def illust_filter(illusts: List[Illust], keywords: str) -> List[Illust]:
         if not excluded.intersection(illust.tags)
         and (needed.intersection(illust.tags) if needed else True)
     ]
+
+
+def illust_filter_by_tags(illusts: List[Illust], keywords: str) -> List[Illust]:
+    needed = set(keywords.split())
+    return [illust for illust in illusts if needed.intersection(illust.tags) or True]
 
 
 async def get_api() -> AppPixivAPI:
@@ -180,9 +187,9 @@ async def send_illust(client: Client, chat_id: int, illust: Illust) -> None:
 
 
 async def report_error(origin_message: Message, ex: Exception) -> None:
-    message = f"{ex}"
-    await origin_message.edit(str(ex))
-    logs.error(ex)
+    message = f"{type(ex).__name__}: {ex}"
+    await origin_message.edit("呜呜呜 ~ 出错了:\n" + message)
+    logs.error(message)
 
 
 @command("search", "通过关键词（可传入多个）搜索 Pixiv 相关插图，并随机选取一张图发送", "<关键词> ... [R-18 / R-18G]")
@@ -190,7 +197,7 @@ async def search(client: Client, message: Message) -> None:
     keywords = message.arguments
 
     if not keywords:
-        await message.edit("未指定关键词")
+        await message.edit("没有关键词我怎么搜索？")
         return
 
     api = await get_api()
@@ -198,7 +205,10 @@ async def search(client: Client, message: Message) -> None:
         keywords, search_target="partial_match_for_tags"
     )  # partial match
     illusts = [Illust.from_response(illust) for illust in response.illusts]
-    filtered_illusts = illust_filter(illusts, keywords)
+    filtered_illusts = illust_sensitive_content_filter(illusts, keywords)
+    if not filtered_illusts:
+        await message.edit("呜呜呜 ~ 没有找到相应结果。")
+        return
     illust = random.choice(filtered_illusts)
     await send_illust(client, message.chat.id, illust)
     await message.safe_delete()
@@ -214,7 +224,12 @@ async def recommend(client: Client, message: Message) -> None:
     api = await get_api()
     response: Any = await api.illust_recommended()
     illusts = [Illust.from_response(illust) for illust in response.illusts]
-    filtered_illusts = illust_filter(illusts, keywords)
+    filtered_illusts = illust_filter_by_tags(
+        illust_sensitive_content_filter(illusts, keywords), keywords
+    )
+    if not filtered_illusts:
+        await message.edit("呜呜呜 ~ 没有找到相应结果。")
+        return
     illust = random.choice(filtered_illusts)
     await send_illust(client, message.chat.id, illust)
     await message.safe_delete()
@@ -222,7 +237,9 @@ async def recommend(client: Client, message: Message) -> None:
 
 @command("help", "获取插件帮助")
 async def help(client: Client, message: Message) -> None:
-    await message.edit(f"{PLUGIN_NAME} 插件使用帮助: {HELP_URL}", disable_web_page_preview=True)
+    await message.edit(
+        f"{PLUGIN_NAME} 插件使用帮助: {HELP_URL}", disable_web_page_preview=True
+    )
 
 
 @listener(
@@ -234,7 +251,7 @@ async def message_handler(client: Client, message: Message) -> None:
     command: str = message.parameter[0]
     info = command_map.get(command)
     if not info:
-        await message.edit(f"未知指令 {command}，请发送 {PREFIX}help {PLUGIN_NAME} 获取帮助")
+        await message.edit(f"我看不懂你发了什么诶。要不发送 {PREFIX}help {PLUGIN_NAME} 看看？")
         return
     new_message = copy.copy(message)
     new_message.arguments = new_message.arguments[len(command) + 1 :]
