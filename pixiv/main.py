@@ -107,14 +107,17 @@ class HandlerInfo(NamedTuple):
 command_map: Dict[str, HandlerInfo] = {}
 
 
-def command(command: str, description: str, usage: str = ""):
-    def decorator(func: Callable[[Client, Message], Awaitable[None]]):
+def command(
+    command: str, description: str, usage: str = ""
+) -> Callable[[Handler], Handler]:
+    def decorator(func: Handler):
         command_map[command] = HandlerInfo(func, usage, description)
+        return func
 
     return decorator
 
 
-def generate_usage():
+def generate_usage() -> str:
     return "\n".join(
         f"`{PREFIX}{PLUGIN_NAME} {command} {info.usage}`\n{info.description}"
         for command, info in command_map.items()
@@ -134,7 +137,7 @@ def illust_filter(illusts: List[Illust], keywords: str) -> List[Illust]:
     ]
 
 
-async def get_api():
+async def get_api() -> AppPixivAPI:
     api = AppPixivAPI(proxy=PluginConfig.proxy)
 
     if PluginConfig.refresh_token is None:
