@@ -167,7 +167,7 @@ async def send_illust(client: Client, chat_id: int, illust: Illust) -> None:
             else ""
         )
         + (
-            f'作者: <a href="https://www.pixiv.net/user/{illust.author_id}">{illust.author_name}</a> ({illust.author_account})\n'
+            f'作者: <a href="https://www.pixiv.net/users/{illust.author_id}">{illust.author_name}</a> ({illust.author_account})\n'
             if "author" in elements
             else ""
         )
