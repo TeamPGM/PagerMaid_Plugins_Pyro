@@ -251,7 +251,7 @@ async def message_handler(client: Client, message: Message) -> None:
     command: str = message.parameter[0]
     info = command_map.get(command)
     if not info:
-        await message.edit(f"我看不懂你发了什么诶。要不发送 {PREFIX}help {PLUGIN_NAME} 看看？")
+        await message.edit(f"我看不懂你发了什么诶。要不发送 `{PREFIX}help {PLUGIN_NAME}` 看看？")
         return
     new_message = copy.copy(message)
     new_message.arguments = new_message.arguments[len(command) + 1 :]
