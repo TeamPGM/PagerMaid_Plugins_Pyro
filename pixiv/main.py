@@ -1,5 +1,6 @@
 # pyright: basic
 
+import contextlib
 import copy
 import os
 import random
@@ -16,8 +17,8 @@ from pagermaid.utils import pip_install
 
 
 def install_dependencies() -> None:
-    pip_install("pixivpy-async")
-    pip_install("aiohttp_socks")
+    pip_install("pixivpy-async", alias="pixivpy_async")
+    pip_install("aiohttp-socks", alias="aiohttp_socks")
 
 
 install_dependencies()
@@ -26,20 +27,18 @@ from pixivpy_async import AppPixivAPI
 
 VERSION = "1.00"
 PREFIX = ","
-CONFIG_PATH = r"pixiv.yml"
+CONFIG_PATH = r"data/pixiv.yml"
 PLUGIN_NAME = "pixiv"
-
 HELP_URL = r"https://www.huajitech.net/pagermaid-pixiv-plugin-help/"
+_config: Dict[str, Any] = {}
+pixiv_api: Optional[AppPixivAPI] = None
 
-
-try:
+with contextlib.suppress(Exception):
     with open(CONFIG_PATH, mode="r") as config_file:
         _config: Dict[str, Any] = yaml.safe_load(config_file)
-except FileNotFoundError:
-    _config: Dict[str, Any] = {}
 
 
-def strtolist(value: Optional[str]) -> List[str]:
+def str_to_list(value: Optional[str]) -> List[str]:
     return value.split(",") if value else []
 
 
@@ -54,18 +53,18 @@ class PluginConfig:
     ) or _config.get("refresh_token")
 
     message_elements: List[str] = (
-        strtolist(os.environ.get("PLUGIN_PIXIV_MESSAGE_ELEMENTS"))
-        or _config.get("message_elements")
-        or [
-            "image",
-            "id",
-            "title",
-            "caption",
-            "tags",
-            "resolution",
-            "upload_time",
-            "author",
-        ]
+            str_to_list(os.environ.get("PLUGIN_PIXIV_MESSAGE_ELEMENTS"))
+            or _config.get("message_elements")
+            or [
+                "image",
+                "id",
+                "title",
+                "caption",
+                "tags",
+                "resolution",
+                "upload_time",
+                "author",
+            ]
     )
 
 
@@ -108,10 +107,10 @@ command_map: Dict[str, HandlerInfo] = {}
 
 
 def command(
-    command: str, description: str, usage: str = ""
+        com: str, description: str, usage: str = ""
 ) -> Callable[[Handler], Handler]:
     def decorator(func: Handler):
-        command_map[command] = HandlerInfo(func, usage, description)
+        command_map[com] = HandlerInfo(func, usage, description)
         return func
 
     return decorator
@@ -119,13 +118,13 @@ def command(
 
 def generate_usage() -> str:
     return "\n".join(
-        f"`{PREFIX}{PLUGIN_NAME} {command} {info.usage}`\n{info.description}"
-        for command, info in command_map.items()
+        f"`{PREFIX}{PLUGIN_NAME} {com} {info.usage}`\n{info.description}"
+        for com, info in command_map.items()
     )
 
 
 def illust_sensitive_content_filter(
-    illusts: List[Illust], keywords: str
+        illusts: List[Illust], keywords: str
 ) -> List[Illust]:
     excluded = ["R-18", "R-18G"]
     needed = set(keywords.split()).intersection(excluded)
@@ -145,39 +144,43 @@ def illust_filter_by_tags(illusts: List[Illust], keywords: str) -> List[Illust]:
 
 
 async def get_api() -> AppPixivAPI:
-    api = AppPixivAPI(proxy=PluginConfig.proxy)
+    global pixiv_api
+    if pixiv_api:
+        return pixiv_api
+    pixiv_api = AppPixivAPI(proxy=PluginConfig.proxy)
 
     if PluginConfig.refresh_token is None:
         logs.info(f"未设置 {PLUGIN_NAME} 插件登录所需的 refresh_token，将以游客身份工作。")
     else:
-        await api.login(refresh_token=PluginConfig.refresh_token)
+        await pixiv_api.login(refresh_token=PluginConfig.refresh_token)
 
-    return api
+    return pixiv_api
 
 
 async def send_illust(client: Client, chat_id: int, illust: Illust) -> None:
     elements = PluginConfig.message_elements
 
     caption = (
-        (f"**{illust.title}**\n" if "title" in elements else "")
-        + (f"__{illust.caption}__\n\n" if "caption" in elements else "")
-        + (
-            f'ID: <a href="https://www.pixiv.net/artworks/{illust.id}">{illust.id}</a>\n'
-            if "id" in elements
-            else ""
-        )
-        + (
-            f'作者: <a href="https://www.pixiv.net/users/{illust.author_id}">{illust.author_name}</a> ({illust.author_account})\n'
-            if "author" in elements
-            else ""
-        )
-        + (f'标签: {", ".join(illust.tags)}\n' if "tags" in elements else "")
-        + (
-            f"分辨率: {illust.resolution[0]}x{illust.resolution[1]}\n"
-            if "resolution" in elements
-            else ""
-        )
-        + (f"上传时间: {illust.upload_time}" if "upload_time" in elements else "")
+            (f"**{illust.title}**\n" if "title" in elements else "")
+            + (f"__{illust.caption}__\n\n" if "caption" in elements else "")
+            + (
+                f'ID: <a href="https://www.pixiv.net/artworks/{illust.id}">{illust.id}</a>\n'
+                if "id" in elements
+                else ""
+            )
+            + (
+                f'作者: <a href="https://www.pixiv.net/users/{illust.author_id}">{illust.author_name}</a> '
+                f'({illust.author_account})\n'
+                if "author" in elements
+                else ""
+            )
+            + (f'标签: {", ".join(illust.tags)}\n' if "tags" in elements else "")
+            + (
+                f"分辨率: {illust.resolution[0]}x{illust.resolution[1]}\n"
+                if "resolution" in elements
+                else ""
+            )
+            + (f"上传时间: {illust.upload_time}" if "upload_time" in elements else "")
     )
 
     if "image" in elements:
@@ -236,7 +239,7 @@ async def recommend(client: Client, message: Message) -> None:
 
 
 @command("help", "获取插件帮助")
-async def help(client: Client, message: Message) -> None:
+async def help_cmd(_: Client, message: Message) -> None:
     await message.edit(
         f"{PLUGIN_NAME} 插件使用帮助: {HELP_URL}", disable_web_page_preview=True
     )
@@ -248,13 +251,16 @@ async def help(client: Client, message: Message) -> None:
     parameters=f"{{{'|'.join(command_map.keys())}}}",
 )
 async def message_handler(client: Client, message: Message) -> None:
-    command: str = message.parameter[0]
-    info = command_map.get(command)
+    try:
+        com: str = message.parameter[0]
+    except IndexError:
+        com = ""
+    info = command_map.get(com)
     if not info:
         await message.edit(f"我看不懂你发了什么诶。要不发送 `{PREFIX}help {PLUGIN_NAME}` 看看？")
         return
     new_message = copy.copy(message)
-    new_message.arguments = new_message.arguments[len(command) + 1 :]
+    new_message.arguments = new_message.arguments[len(com) + 1:]
     new_message.parameter = new_message.parameter[1:]
     new_message.bind(client)
     try:
