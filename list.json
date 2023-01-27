@@ -949,6 +949,16 @@
             "supported": true,
             "des-short": "no_mentions 自动消除某个对话的 @ 提醒",
             "des": "no_mentions 自动消除某个对话的 @ 提醒"
+        },
+        {
+            "name": "pixiv",
+            "version": "1.00",
+            "section": "chat",
+            "maintainer": "ricky8955555",
+            "size": "7.851 kb",
+            "supported": true,
+            "des-short": "提供 Pixiv 相关服务",
+            "des": "提供 Pixiv 相关服务"
         }
     ]
 }
