@@ -158,13 +158,13 @@ async def get_api() -> AppPixivAPI:
     return pixiv_api
 
 
-@scheduler.scheduled_job("interval", minutes=30, id="pixiv_refresh_token")
-async def refresh_token() -> None:
-    if PluginConfig.refresh_token is None:
+@scheduler.scheduled_job("interval", minutes=30, id="pixiv_fetch_token")
+async def fetch_token() -> None:
+    if not PluginConfig.refresh_token:
         return
     api = await get_api()
     if api:
-        await api.auth(refresh_token=PluginConfig.refresh_token)
+        await api.login(refresh_token=PluginConfig.refresh_token)
 
 
 async def send_illust(client: Client, chat_id: int, illust: Illust) -> None:
