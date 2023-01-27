@@ -141,7 +141,7 @@ def illust_sensitive_content_filter(
 
 def illust_filter_by_tags(illusts: List[Illust], keywords: str) -> List[Illust]:
     needed = set(keywords.split())
-    return [illust for illust in illusts if needed.intersection(illust.tags) or True]
+    return [illust for illust in illusts if (needed.intersection(illust.tags) if needed else True)]
 
 
 async def get_api() -> AppPixivAPI:
