@@ -1,0 +1,1 @@
+print_official_notifications 将收到的官方私聊打印到控制台

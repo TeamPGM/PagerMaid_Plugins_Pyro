@@ -132,7 +132,7 @@
         },
         {
             "name": "weather",
-            "version": "1.1320000000000001",
+            "version": "1.133",
             "section": "daily",
             "maintainer": "xtaodada",
             "size": "3.1 kb",
@@ -222,7 +222,7 @@
         },
         {
             "name": "sticker",
-            "version": "0.11999999999999998",
+            "version": "0.12",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "4.94 kb",
@@ -232,7 +232,7 @@
         },
         {
             "name": "yvlu",
-            "version": "1.2611",
+            "version": "1.27",
             "section": "chat",
             "maintainer": "xtaodada, xiluo",
             "size": "10.0 kb",
@@ -458,7 +458,7 @@
             "size": "2.49 kb",
             "supported": true,
             "des-short": "Play a game of 1A2B",
-            "des": "Play a game of 1A2B, command:,1a2b"
+            "des": "Play a game of 1A2B, command:,1a2b\n\n# 例如\n\n,1a2b start\n\n,1a2b 1234\n\n,1a2b 5678\n\n..."
         },
         {
             "name": "listusernames",
@@ -674,7 +674,7 @@
             "name": "icp",
             "version": "1.01",
             "section": "chat",
-            "maintainer": "sourcery-ai[bot]",
+            "maintainer": "Ricky8955555",
             "size": "3.258 kb",
             "supported": true,
             "des-short": "icp 查询域名是否已备案",
@@ -728,7 +728,7 @@
             "size": "0.927 kb",
             "supported": true,
             "des-short": "httpcat 获取 http 状态码图片",
-            "des": "httpcat 获取 http 状态码图片"
+            "des": "httpcat 获取 http 状态码图片\n\n### 100\n\n,httpcat 100\n\n![](https://http.cat/100)"
         },
         {
             "name": "set_status",
@@ -904,7 +904,7 @@
             "name": "yinglish",
             "version": "1.0",
             "section": "chat",
-            "maintainer": "sourcery-ai[bot]",
+            "maintainer": "yidaozhanyaqwq",
             "size": "1.368 kb",
             "supported": true,
             "des-short": "yinglish 能把中文和英文翻译成淫语的翻译机！",

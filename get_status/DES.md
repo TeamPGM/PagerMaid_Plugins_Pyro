@@ -1,0 +1,1 @@
+get_status 获取自己或者他人的大会员自定义 emoji 状态

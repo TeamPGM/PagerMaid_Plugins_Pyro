@@ -1,0 +1,1 @@
+getstickers 获取整个贴纸包的贴纸

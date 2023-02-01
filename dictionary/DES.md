@@ -1,0 +1,1 @@
+dictionary 查询英语单词的意思

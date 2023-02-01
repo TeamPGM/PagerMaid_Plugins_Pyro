@@ -1,0 +1,1 @@
+傻妞插件，用户可以通过此插件召唤傻妞，Repo：https://github.com/cdle/sillyGirl

@@ -1,0 +1,1 @@
+查询天气。指令：,weather_lite

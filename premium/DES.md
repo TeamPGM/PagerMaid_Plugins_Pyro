@@ -1,0 +1,1 @@
+列出本群premium用户数量(指令: ,premium)

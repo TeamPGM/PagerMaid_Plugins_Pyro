@@ -1,0 +1,1 @@
+copy_sticker_set 复制整个贴纸包
