@@ -13,11 +13,11 @@ from pagermaid.listener import listener
 import contextlib
 
 
-@listener(is_plugin=False, outgoing=True, command="shift",
+@listener(command="shift",
           description='开启转发频道新消息功能',
-          parameters="set <from channel> <to channel> 自动转发频道新消息（可以使用频道用户名或者 id）\n"
-                     "del <from channel> 删除转发\n"
-                     "backup <from channel> <to channel> 备份频道（可以使用频道用户名或者 id）")
+          parameters="set [from channel] [to channel] 自动转发频道新消息（可以使用频道用户名或者 id）\n"
+                     "del [from channel] 删除转发\n"
+                     "backup [from channel] [to channel] 备份频道（可以使用频道用户名或者 id）")
 async def shift_set(client: Client, message: Message):
     if not 1 < len(message.parameter) < 4:
         await message.edit(f"{lang('error_prefix')}{lang('arg_error')}")
