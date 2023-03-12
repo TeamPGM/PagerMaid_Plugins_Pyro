@@ -39,7 +39,7 @@ async def get_result(message, request, r18=2):
     for i in range(5):
         urls = result[i]['urls'][size].replace('i.pixiv.re', pixiv_img_host)
         img_name = f"{result[i]['pid']}_{i}.jpg"
-        file_path = zpr_path / img_name
+        file_path = data_path / img_name
         try:
             img = await request.get(urls, headers=headers, timeout=10)
             if img.status_code != 200:
@@ -73,5 +73,5 @@ async def zpr(client: Client, message: Message, request: AsyncClient):
                 "此群组不允许发送媒体。" if e.ID == "CHAT_SEND_MEDIA_FORBIDDEN" else f"发生错误：\n`{e}`")
     except Exception as e:
         return await message.edit(f"发生错误：\n`{e}`")
-    shutil.rmtree(zpr_path)
+    shutil.rmtree("data/zpr")
     await message.safe_delete()
