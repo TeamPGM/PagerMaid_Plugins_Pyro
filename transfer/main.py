@@ -5,6 +5,8 @@ from os.path import exists, isfile
 from pagermaid.enums import Client, Message
 from pagermaid.listener import listener
 
+from pathlib import Path
+
 
 async def make_zip(source_dir, output_filename):
     zipf = zipfile.ZipFile(output_filename, "w")
@@ -23,7 +25,7 @@ async def make_zip(source_dir, output_filename):
 async def transfer(bot: Client, message: Message):
     params = message.parameter
     if len(params) < 2:
-        message: Message = await message.edit("参数缺失，请使用 `upload [filepath]` 或 `download [filepath]`")
+        message: Message = await message.edit("参数缺失，请使用 `upload [filepath (包括扩展名)]` 或 `download [filepath (包括扩展名)]`")
         await message.delay_delete(3)
         return
     params[1] = " ".join(params[1:])
@@ -46,18 +48,17 @@ async def transfer(bot: Client, message: Message):
         message: Message = await message.edit("上传完毕")
     elif params[0] == "download":
         if reply := message.reply_to_message:
-            message: Message = await message.edit('无法下载此类型的文件。')
-            try:
-                _file = await reply.download(in_memory=True)
-            except Exception:
-                await message.edit('无法下载此类型的文件。')
-                return
-            if not exists(file_list[0]):
-                with open(file_list[0], "wb") as f:
-                    f.write(_file.getvalue())
-                message: Message = await message.edit(f"保存成功, 保存路径 `{file_list[0]}`")
-            else:
+            file_path = Path(file_list[0])
+            if exists(file_path):
                 message: Message = await message.edit("路径已存在文件")
+            else:
+                message: Message = await message.edit('下载中。。。')
+                try:
+                    _file = await reply.download(file_name=file_list[0])
+                except Exception:
+                    await message.edit('无法下载此类型的文件。')
+                    return
+                message: Message = await message.edit(f"保存成功, 保存路径 `{file_list[0]}`")
         else:
             message: Message = await message.edit("未回复消息或回复消息中不包含文件")
     else:
