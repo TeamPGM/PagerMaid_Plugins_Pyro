@@ -7,12 +7,13 @@ from pagermaid.enums import Client, Message, AsyncClient
 from pyrogram.types import InputMediaPhoto
 from pyrogram.errors import RPCError
 
+pixiv_img_host = "pixiv.yuki.sh"
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36 Edg/106.0.1370.42'
 }
 
 
-async def get_result(message, request, r18=0):
+async def get_result(message, request, r18=2):
     # r18: 0为非 R18，1为 R18，2为混合（在库中的分类，不等同于作品本身的 R18 标识）
     # num: 图片的数量
     # size: 返回图片的尺寸质量
@@ -37,7 +38,7 @@ async def get_result(message, request, r18=0):
     setu_list = []  # 发送
     await message.edit("努力获取中 。。。")
     for i in range(5):
-        urls = result[i]['urls'][size].replace('i.pixiv.re', 'img.misaka.gay')
+        urls = result[i]['urls'][size].replace('i.pixiv.re', pixiv_img_host)
         img_name = f"{result[i]['pid']}_{i}.jpg"
         try:
             img = await request.get(urls, headers=headers, timeout=10)
@@ -45,7 +46,7 @@ async def get_result(message, request, r18=0):
                 f.write(img.content)
         except Exception:
             return None, None, "连接二次元出错。。。"
-        setu_list.append(InputMediaPhoto(f"{zpr_path}{img_name}"))
+        setu_list.append(InputMediaPhoto(media=f"{zpr_path}{img_name}"))
     return setu_list, zpr_path, des if setu_list else None
 
 
@@ -57,7 +58,7 @@ async def zpr(client: Client, message: Message, request: AsyncClient):
     message_thread_id = message.reply_to_top_message_id or message.reply_to_message_id
     message = await message.edit("正在前往二次元。。。")
     try:
-        photoList, zpr_path, des = await get_result(message, request, r18=1 if arguments == "R18" else 0)
+        photoList, zpr_path, des = await get_result(message, request, r18=2 if arguments == "R18" else 0)
         if not photoList:
             shutil.rmtree(zpr_path)
             return await message.edit(des)
