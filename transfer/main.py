@@ -44,10 +44,8 @@ async def transfer(bot: Client, message: Message):
                     os.remove(f"/tmp/{token}.zip")
             index += 1
         message: Message = await message.edit("上传完毕")
-        await message.delay_delete(3)
     elif params[0] == "download":
-        reply: Message = message.reply_to_message
-        if reply:
+        if reply := message.reply_to_message:
             message: Message = await message.edit('无法下载此类型的文件。')
             try:
                 _file = await reply.download(in_memory=True)
@@ -58,13 +56,11 @@ async def transfer(bot: Client, message: Message):
                 with open(file_list[0], "wb") as f:
                     f.write(_file.getvalue())
                 message: Message = await message.edit(f"保存成功, 保存路径 `{file_list[0]}`")
-                await message.delay_delete(3)
             else:
                 message: Message = await message.edit("路径已存在文件")
-                await message.delay_delete(3)
         else:
             message: Message = await message.edit("未回复消息或回复消息中不包含文件")
-            await message.delay_delete(3)
     else:
         message: Message = await message.edit("未知命令，请使用 `upload [filepath]` 或 `download [filepath]`")
-        await message.delay_delete(3)
+
+    await message.delay_delete(3)
