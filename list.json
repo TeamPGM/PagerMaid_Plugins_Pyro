@@ -979,6 +979,16 @@
             "supported": true,
             "des-short": "jupai 举牌小人",
             "des": "# 举牌小人\n\n```\n,jupai 123\n```"
+        },
+        {
+            "name": "xjj",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "omg-xtao",
+            "size": "1.135 kb",
+            "supported": true,
+            "des-short": "xjj 生成小姐姐视频",
+            "des": "# 生成小姐姐视频\n\n```\n,xjj\n```"
         }
     ]
 }
