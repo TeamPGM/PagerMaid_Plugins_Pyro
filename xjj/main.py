@@ -7,7 +7,7 @@ from pagermaid.enums import Message, AsyncClient
     description="小姐姐视频"
 )
 async def xjj(message: Message, client: AsyncClient):
-    if message.chat.id == -1001441461877:
+    if message.chat and message.chat.id == -1001441461877:
         # 用户群禁止使用此功能
         await message.edit("本群禁止使用此功能。")
         return
