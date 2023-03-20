@@ -969,6 +969,16 @@
             "supported": true,
             "des-short": "transfer 上传 / 下载文件 (#126)",
             "des": "# 上传 vps 文件到 tg\n\n`,transfer upload /root/1.mp4`\n\n# 下载 tg 文件到 vps\n\n回复文件\n\n`,transfer download /root/1.mp4`"
+        },
+        {
+            "name": "jupai",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "omg-xtao",
+            "size": "0.818 kb",
+            "supported": true,
+            "des-short": "jupai 举牌小人",
+            "des": "# 举牌小人\n\n```\n,jupai 123\n```"
         }
     ]
 }
