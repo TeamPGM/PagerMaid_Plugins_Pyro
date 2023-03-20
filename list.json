@@ -989,6 +989,16 @@
             "supported": true,
             "des-short": "xjj 生成小姐姐视频",
             "des": "# 生成小姐姐视频\n\n```\n,xjj\n```"
+        },
+        {
+            "name": "qqmusic",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "omg-xtao",
+            "size": "1.722 kb",
+            "supported": true,
+            "des-short": "qqmusic qq 音乐歌曲搜索",
+            "des": "# QQ 音乐歌曲搜索\n\n```\n,qqmusic 稻香\n```"
         }
     ]
 }
