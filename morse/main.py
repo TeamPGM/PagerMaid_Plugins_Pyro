@@ -3,6 +3,7 @@
 # Solution is adapted from https://github.com/hustcc/xmorse.
 
 
+from typing import Any
 from pagermaid.enums import Message
 from pagermaid.listener import listener
 
@@ -70,7 +71,7 @@ MORSE_LONGS = ["-", "_"]
 MORSE_SPLITTERS = [" ", "/"]
 
 
-def encode(text: str):
+def encode(text: str) -> str:
     return MORSE_SPLITTERS[0].join(
         (MORSE_DICT.get(char.strip().upper()) or bin((ord(char)))[2:])
         .replace("0", MORSE_SHORTS[0])
@@ -79,7 +80,7 @@ def encode(text: str):
     )
 
 
-def decode(morse: str):
+def decode(morse: str) -> str:
     assert set(morse) <= frozenset(MORSE_SHORTS + MORSE_LONGS + MORSE_SPLITTERS)
     return "".join(
         REVERSED_MORSE_DICT.get(word) or chr(int(word, 2))
@@ -93,13 +94,13 @@ def decode(morse: str):
 
 
 @listener(command="enmorse", description="转换指定文本到摩斯密码", parameters="<待转换文本>")
-async def enmorse(message: Message):
+async def enmorse(message: Message) -> Any:
     encoded = encode(message.arguments)
     await message.edit(f"`{encoded}`")
 
 
 @listener(command="demorse", description="转换摩斯密码到明文", parameters="<摩斯密码>")
-async def demorse(message: Message):
+async def demorse(message: Message) -> Any:
     try:
         decoded = decode(message.arguments)
     except:
