@@ -134,3 +134,6 @@ dmypy.json
 
 # vscode
 .vscode/
+
+# Pyright config
+pyrightconfig.json
