@@ -999,6 +999,16 @@
             "supported": true,
             "des-short": "qqmusic qq 音乐歌曲搜索",
             "des": "# QQ 音乐歌曲搜索\n\n```\n,qqmusic 稻香\n```"
+        },
+        {
+            "name": "morse",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "Ricky8955555",
+            "size": "2.73 kb",
+            "supported": true,
+            "des-short": "morse 摩斯密码转换\n\nCo-authored-by: xtaodada <xtao@xtaolink.cn>",
+            "des": "摩斯密码转换 (支持非英文)\n\n指令:\n- `,enmorse <待转换文本>` (转换指定文本到摩斯密码)\n- `,demorse <摩斯密码>` (转换摩斯密码到明文)"
         }
     ]
 }
