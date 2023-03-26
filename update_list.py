@@ -30,6 +30,7 @@ for plugin in plugins:
                 list_json["list"].remove(plug_dict)
             break
     if not exist:
+        short_des = main['commit']['message'].split("\nCo-authored-by")[0].strip()
         list_json["list"].append(
             {
                 "name": plugin,
@@ -38,7 +39,7 @@ for plugin in plugins:
                  "maintainer": main['commit']['author']['name'],
                  "size": f"{os.path.getsize(f'{plugin}{os.sep}main.py') / 1000} kb",
                  "supported": True,
-                 "des-short": main['commit']['message'],
+                 "des-short": short_des,
                  "des": "",
             }
         )
