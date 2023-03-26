@@ -94,7 +94,8 @@ def decode(morse: str):
 
 @listener(command="enmorse", description="转换指定文本到摩斯密码", parameters="<待转换文本>")
 async def enmorse(message: Message):
-    await message.edit(encode(message.arguments))
+    encoded = encode(message.arguments)
+    await message.edit(f"`{encoded}`")
 
 
 @listener(command="demorse", description="转换摩斯密码到明文", parameters="<摩斯密码>")
@@ -103,4 +104,4 @@ async def demorse(message: Message):
         decoded = decode(message.arguments)
     except:
         return await message.edit("呜呜呜 ~ 转换失败了，可能含有非法字符。")
-    await message.edit(decoded)
+    await message.edit(f"`{decoded}`")
