@@ -1008,7 +1008,7 @@
             "size": "1 kb",
             "supported": true,
             "des-short": "国际化域名 (IDNA) 编码转换工具",
-            "des": "国际化域名 (IDNA) 编码转换工具"
+            "des": "国际化域名 (IDNA) 编码转换工具\n\n指令:\n,punyencode <待编码内容> (编码至 Punycode)\n,punydecode <待解码内容> (从 Punycode 解码)"
         }
     ]
 }
