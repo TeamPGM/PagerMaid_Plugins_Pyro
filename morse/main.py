@@ -2,8 +2,6 @@
 
 # Solution is adapted from https://github.com/hustcc/xmorse.
 
-
-from typing import Any
 from pagermaid.enums import Message
 from pagermaid.listener import listener
 
@@ -93,16 +91,25 @@ def decode(morse: str) -> str:
     )
 
 
-@listener(command="enmorse", description="转换指定文本到摩斯密码", parameters="<待转换文本>")
-async def enmorse(message: Message) -> Any:
-    encoded = encode(message.arguments)
+@listener(command="enmorse", description="转换指定文本到摩斯密码", parameters="[待转换文本]")
+async def enmorse(message: Message):
+    if message.arguments:
+        try:
+            encoded = encode(message.arguments)
+        except Exception:
+            encoded = "呜呜呜 ~ 转换失败了，可能含有非法字符。"
+    else:
+        encoded = "请输入参数"
     await message.edit(f"`{encoded}`")
 
 
-@listener(command="demorse", description="转换摩斯密码到明文", parameters="<摩斯密码>")
-async def demorse(message: Message) -> Any:
-    try:
-        decoded = decode(message.arguments)
-    except:
-        return await message.edit("呜呜呜 ~ 转换失败了，可能含有非法字符。")
+@listener(command="demorse", description="转换摩斯密码到明文", parameters="[摩斯密码]")
+async def demorse(message: Message):
+    if message.arguments:
+        try:
+            decoded = decode(message.arguments)
+        except Exception:
+            encoded = "呜呜呜 ~ 转换失败了，可能含有非法字符。"
+    else:
+        encoded = "请输入参数"
     await message.edit(f"`{decoded}`")
