@@ -1002,23 +1002,23 @@
         },
         {
             "name": "morse",
-            "version": "1.0",
+            "version": "1.01",
             "section": "chat",
             "maintainer": "Ricky8955555",
             "size": "2.73 kb",
             "supported": true,
             "des-short": "morse 摩斯密码转换",
-            "des": "摩斯密码转换 (支持非英文)\n\n指令:\n- `,enmorse <待转换文本>` (转换指定文本到摩斯密码)\n- `,demorse <摩斯密码>` (转换摩斯密码到明文)"
+            "des": "摩斯密码转换 (支持非英文)\n\n指令:\n- `,enmorse <待转换文本> (支持回复消息)` (转换指定文本到摩斯密码)\n- `,demorse <摩斯密码> (支持回复消息)` (转换摩斯密码到明文)"
         },
         {
             "name": "idna",
-            "version": "1.0",
+            "version": "1.01",
             "section": "chat",
             "maintainer": "Ricky8955555",
             "size": "0.976 kb",
             "supported": true,
             "des-short": "idna 国际化域名 (IDNA) 编码转换工具",
-            "des": "国际化域名 (IDNA) 编码转换工具\n\n指令:\n- `,punyencode <待编码内容>` (编码至 Punycode)\n- `,punydecode <待解码内容>` (从 Punycode 解码)"
+            "des": "国际化域名 (IDNA) 编码转换工具\n\n指令:\n- `,punyencode <待编码内容> (支持回复消息)` (编码至 Punycode)\n- `,punydecode <待解码内容> (支持回复消息)` (从 Punycode 解码)"
         }
     ]
 }
