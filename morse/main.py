@@ -93,8 +93,7 @@ def decode(morse: str) -> str:
 
 @listener(command="enmorse", description="转换指定文本到摩斯密码", parameters="[待转换文本] (支持回复消息)")
 async def enmorse(message: Message):
-    text = (message.reply_to_message or message).text
-    if text:
+    if text := (message.reply_to_message or message).text:
         try:
             result = encode(text)
         except Exception:
@@ -106,8 +105,7 @@ async def enmorse(message: Message):
 
 @listener(command="demorse", description="转换摩斯密码到明文", parameters="[摩斯密码] (支持回复消息)")
 async def demorse(message: Message):
-    text = (message.reply_to_message or message).text
-    if text:
+    if text := (message.reply_to_message or message).text:
         try:
             result = decode(text)
         except Exception:

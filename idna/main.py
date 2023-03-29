@@ -7,8 +7,7 @@ from pagermaid.listener import listener
 
 @listener(command="punyencode", description="编码至 Punycode", parameters="[待编码内容] (支持回复消息)")
 async def punyencode(message: Message) -> None:
-    text = (message.reply_to_message or message).text
-    if text:
+    if text := (message.reply_to_message or message).text:
         try:
             result = text.encode("idna").decode()
         except Exception:
@@ -20,8 +19,7 @@ async def punyencode(message: Message) -> None:
 
 @listener(command="punydecode", description="从 Punycode 解码", parameters="[待解码内容] (支持回复消息)")
 async def punydecode(message: Message) -> None:
-    text = (message.reply_to_message or message).text
-    if text:
+    if text := (message.reply_to_message or message).text:
         try:
             result = text.encode().decode("idna")
         except Exception:
