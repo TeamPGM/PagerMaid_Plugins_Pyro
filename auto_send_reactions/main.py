@@ -29,7 +29,7 @@ def get_emoji(text):
           "\n**设置插件状态**:"
           "\n启用：`,auto_send_reactions enable`"
           "\n停用：`,auto_send_reactions disable`"
-          "\n\n**设置目标生效用户（支持回复，可以省略用户标识参数）**:"
+          "\n\n**设置目标生效用户**:"
           "\n添加：`,auto_send_reactions set <用户id/用户名> <表情内容>`"
           "\n移除：`,auto_send_reactions unset <用户id/用户名>`"
           "\n支持直接回复消息以进行快速设置，可以省略用户标识参数"
@@ -114,7 +114,7 @@ async def AutoSendReactions(client: Client, message: Message):
                     await log(e)  # 打印错误日志
             else:
                 return await message.edit(
-                    f"1{lang('error_prefix')}{lang('arg_error')}")
+                    f"{lang('error_prefix')}{lang('arg_error')}")
 
         ## 取消设置插件
         elif (message.parameter[0] == "unset"):
@@ -161,11 +161,11 @@ async def AutoSendReactions(client: Client, message: Message):
                     await log(e)  # 打印错误日志
             else:
                 return await message.edit(
-                    f"1{lang('error_prefix')}{lang('arg_error')}")
+                    f"{lang('error_prefix')}{lang('arg_error')}")
 
         else:
             return await message.edit(
-                f"2{lang('error_prefix')}{lang('arg_error')}")
+                f"{lang('error_prefix')}{lang('arg_error')}")
 
     ## 设置/取消设置黑名单
     elif (message.parameter[0]
@@ -198,7 +198,7 @@ async def AutoSendReactions(client: Client, message: Message):
                     message, f"❌ 还没有将 __{group_name}__ 加入进自动回复Emoji群组黑名单哦~")
 
     else:
-        return await message.edit(f"3{lang('error_prefix')}{lang('arg_error')}"
+        return await message.edit(f"{lang('error_prefix')}{lang('arg_error')}"
                                   )
 
 
