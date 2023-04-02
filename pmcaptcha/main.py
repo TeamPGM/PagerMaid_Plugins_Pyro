@@ -9,6 +9,7 @@ from io import BytesIO
 from dataclasses import dataclass, field
 from random import randint
 from typing import Optional, Callable, Union, List, Any, Dict, Coroutine
+from base64 import b64decode,b64encode
 
 from pyrogram.errors import (FloodWait, AutoarchiveNotAvailable, ChannelsAdminPublicTooMuch,
                              BotResponseTimeout, PeerIdInvalid)
@@ -28,6 +29,8 @@ from pagermaid.listener import listener
 from pagermaid.single_utils import sqlite
 
 cmd_name = "pmcaptcha"
+
+lang_version="2.25"
 
 log_collect_bot = img_captcha_bot = "PagerMaid_Sam_Bot"
 
@@ -87,7 +90,7 @@ def str_timestamp(unix_ts: int) -> str:
 
 def get_lang_list():  # Yes, blocking
     from httpx import Client
-    endpoint = f"https://raw.githubusercontent.com/TeamPGM/PMCaptcha-i18n/main/v{get_version()}.py"
+    endpoint = f"https://raw.githubusercontent.com/TeamPGM/PMCaptcha-i18n/main/v{lang_version}.py"
     for _ in range(3):
         try:
             with Client() as client:
@@ -1116,6 +1119,33 @@ class Command:
             return await self._edit(lang('invalid_param'))
         setting.set("img_max_retry", number)
         await self._edit(lang('img_captcha_retry_set') % number)
+
+    async def web_configure(self, config: Optional[str]):
+        """PMCaptcha 网页可视化配置
+
+        :alias: web
+        """
+        if not config:
+            config = sqlite[setting.key_name]
+            config['version'] = get_version()
+            config['cmd'] = user_cmd_name
+            for key in ("pass", "banned", "flooded"):
+                if config.get(key):
+                    del config[key]
+            config = b64encode(json.dumps(config).encode())
+            await self._edit("https://pmcaptcha-web-configure.pages.dev/"+bytes.decode(config))
+            return
+        try:
+            nc=json.loads(b64decode(config))
+        except:
+            await self._edit(lang("import_failed"))
+            return
+        for i in nc:
+            if nc[i]==-1:
+                setting.delete(i)
+            else:
+                setting.set(i,nc[i])
+        await self._edit(lang("import_success"))
 
 
 # region Captcha
