@@ -441,7 +441,7 @@ class Command:
         """显示指令帮助信息，使用 <code>,{cmd_name} search [搜索内容]</code> 进行文档、指令(和别名)搜索
 
         :param opt command: 命令名称
-        :param opt search_str: 搜索的文字，只有 <code>command</code< 为 <code>search</code> 时有效
+        :param opt search_str: 搜索的文字，只有 <code>command</code> 为 <code>search</code> 时有效
         :alias: h
         """
         help_msg = [f"{code('PMCaptcha')} {lang('cmd_list')}:", ""]
