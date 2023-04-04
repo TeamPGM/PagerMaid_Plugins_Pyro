@@ -6,8 +6,11 @@ Author: SuperManito
 from pagermaid import bot, log
 from pagermaid.single_utils import sqlite
 from pagermaid.enums import Client, Message
-from pagermaid.utils import lang, edit_delete
+from pagermaid.utils import lang, edit_delete, pip_install
 from pagermaid.listener import listener
+
+pip_install("emoji")
+
 import emoji
 
 
