@@ -1019,6 +1019,16 @@
             "supported": true,
             "des-short": "idna 国际化域名 (IDNA) 编码转换工具",
             "des": "国际化域名 (IDNA) 编码转换工具\n\n指令:\n- `,punyencode <待编码内容> (支持回复消息)` (编码至 Punycode)\n- `,punydecode <待解码内容> (支持回复消息)` (从 Punycode 解码)"
+        },
+        {
+            "name": "auto_send_reactions",
+            "version": "1.00",
+            "section": "chat",
+            "maintainer": "SuperManito",
+            "size": "11.5 kb",
+            "supported": true,
+            "des-short": "自动回复Emoji",
+            "des": "自动回复Emoji"
         }
     ]
 }
