@@ -9,7 +9,7 @@ from io import BytesIO
 from dataclasses import dataclass, field
 from random import randint
 from typing import Optional, Callable, Union, List, Any, Dict, Coroutine
-from base64 import b64decode,b64encode
+from base64 import b64decode, b64encode
 
 from pyrogram.errors import (FloodWait, AutoarchiveNotAvailable, ChannelsAdminPublicTooMuch,
                              BotResponseTimeout, PeerIdInvalid)
@@ -30,7 +30,7 @@ from pagermaid.single_utils import sqlite
 
 cmd_name = "pmcaptcha"
 
-lang_version="2.25"
+lang_version = "2.25"
 
 log_collect_bot = img_captcha_bot = "PagerMaid_Sam_Bot"
 
@@ -1132,19 +1132,21 @@ class Command:
             for key in ("pass", "banned", "flooded"):
                 if config.get(key):
                     del config[key]
-            config = b64encode(json.dumps(config).encode())
-            await self._edit("https://pmcaptcha-web-configure.pages.dev/"+bytes.decode(config))
+            config = b64encode(json.dumps(config).encode("utf-8")).decode("utf-8")
+            await self._edit(
+                f"网页配置链接： https://pmc-config.xtaolabs.com/{config}"
+            )
             return
         try:
-            nc=json.loads(b64decode(config))
-        except:
+            nc = json.loads(b64decode(config))
+        except Exception:
             await self._edit(lang("import_failed"))
             return
         for i in nc:
-            if nc[i]==-1:
+            if nc[i] == -1:
                 setting.delete(i)
             else:
-                setting.set(i,nc[i])
+                setting.set(i, nc[i])
         await self._edit(lang("import_success"))
 
 
