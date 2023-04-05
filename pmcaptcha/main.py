@@ -359,7 +359,7 @@ class Command:
 
     async def _display_value(self, *, key: Optional[str] = None, display_text: str, sub_cmd: str, value_type: str):
         text = [display_text, "", lang('tip_edit') % html.escape(f",{user_cmd_name} {sub_cmd} <{lang(value_type)}>")]
-        key and text.insert(0, lang(f"{key}_curr_rule") + ":")
+        key and text.insert(0, f'{lang(f"{key}_curr_rule")}:')
         return await self._edit("\n".join(text))
 
     # Set On / Off Boolean
@@ -460,8 +460,8 @@ class Command:
                 return await self.help("h")
             search_str = search_str.lower()
             search_results = [lang('cmd_search_result') % search_str]
-            have_doc = False
             have_cmd = False
+            have_doc = False
             for name, func in inspect.getmembers(self, inspect.iscoroutinefunction):
                 if name.startswith("_"):
                     continue
@@ -476,17 +476,16 @@ class Command:
                     not have_cmd and search_results.append(f"{lang('cmd_search_cmds')}:")
                     have_cmd = True
                     search_results.append(
-                        (code(f"- {code(self._get_cmd_with_param(name))}".strip())
-                         + f"\n· {re.search(r'(.+)', docs)[1].strip()}\n"))
-                # Search for aliases
+                        f"""{code(f"- {code(self._get_cmd_with_param(name))}".strip())}\n· {re.search('(.+)', docs)[1].strip()}\n"""
+                    )
                 elif result := re.search(self.alias_rgx, docs):
                     if search_str not in result[1].replace(" ", "").split(","):
                         continue
                     not have_cmd and search_results.append(f"{lang('cmd_search_cmds')}:")
                     have_cmd = True
                     search_results.append(
-                        (f"* {code(search_str)} -> {code(self._get_cmd_with_param(func.__name__))}".strip()
-                         + f"\n· {re.search(r'(.+)', docs)[1].strip()}\n"))
+                        f"""{f"* {code(search_str)} -> {code(self._get_cmd_with_param(func.__name__))}".strip()}\n· {re.search('(.+)', docs)[1].strip()}\n"""
+                    )
             len(search_results) == 1 and search_results.append(italic(lang('cmd_search_none')))
             return await self._edit("\n\n".join(search_results))
         elif command:  # Single command help
