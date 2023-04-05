@@ -10,7 +10,7 @@ from pagermaid.utils import pip_install, lang
 from pagermaid.enums import Message
 from pagermaid.services import bot
 
-pip_install("yt-dlp", version="==2022.11.11", alias="yt_dlp")
+pip_install("yt-dlp", version="==2023.3.4", alias="yt_dlp")
 
 import yt_dlp
 
@@ -103,7 +103,7 @@ async def start_download(message: Message, url: str):
 
 
 @listener(command="ytdl",
-          description="Upload Youtube、Bilibili video to telegram",
+          description="Upload Youtube video to telegram",
           parameters="[url]")
 async def ytdl(message: Message):
     global ytdl_is_downloading
