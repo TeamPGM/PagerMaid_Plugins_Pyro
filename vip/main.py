@@ -124,3 +124,22 @@ async def az_tts_ne(client: Client, message: Message):
           parameters="[字符串]")
 async def az_tts_en(client: Client, message: Message):
     await az_tts(client, message, "en")
+
+
+@listener(
+    command="draw",
+    description="使用 AI 进行绘图。",
+    parameters="prompt"
+)
+async def draw_photo(client: Client, message: Message):
+    text = message.obtain_message()
+    if not text:
+        return await message.edit("请输入 prompt")
+    async with client.conversation("PagerMaid_Modify_bot") as conv:
+        answer: Message = await conv.ask(f"/draw {text}")
+        await conv.mark_as_read()
+    await answer.copy(
+        message.chat.id,
+        reply_to_message_id=message.reply_to_message_id or message.reply_to_top_message_id
+    )
+    await message.safe_delete()
