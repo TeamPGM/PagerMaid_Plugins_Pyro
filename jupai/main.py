@@ -4,7 +4,7 @@ from pagermaid.listener import listener
 from pagermaid.enums import Message
 from pagermaid.utils import lang
 
-ju_pai_api = "https://juapi.org/api/zt.php"
+ju_pai_api = "https://api.txqq.pro/api/zt.php"
 
 
 @listener(
