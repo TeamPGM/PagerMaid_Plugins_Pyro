@@ -162,13 +162,13 @@
         },
         {
             "name": "vip",
-            "version": "0.751",
+            "version": "0.761",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "14.4 kb",
             "supported": true,
             "des-short": "vip 捐赠用户功能",
-            "des": "命令：天气：weather weather_pic weather_he\nDuckduckgo：duckduckgo\n彩云翻译：caiyun\n文本转语音：tts_nan tts_nv tts_tw tts_ne tts_en。与 weather 插件冲突"
+            "des": "VIP 相关命令：\n\n# 天气\n\n与 weather 插件冲突\n\n## 彩云天气\n\n`,weather 北京` \n\n`,weather_pic 北京` \n\n## 和风天气\n\n`,weather_he 北京`\n\n# 搜索\n\n## Duckduckgo\n\n`,duckduckgo pagermaid`\n\n# 翻译\n\n## 彩云翻译\n\n`,caiyun hello`\n\n# 文本转语音\n\n`,tts_nan 简体男声`\n\n`,tts_nv 简体女声`\n\n`,tts_tw 繁体男声`\n\n`,tts_ne 简体新闻男声`\n\n`,tts_en 英文男声`\n\n# AI\n\n## 画图\n\n`,draw two boy`"
         },
         {
             "name": "shift",
