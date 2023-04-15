@@ -324,7 +324,6 @@ async def alias_cmd(_: Client, message: Message) -> None:
             InteractiveConfig.apply()
             await message.edit(f"已删除 {com} 重定向。正在重新加载 PagerMaid-Pyro。")
             await reload_all()
-
     elif operation == "list":
         await message.edit(str(InteractiveConfig.aliases))
     elif operation == "set":
