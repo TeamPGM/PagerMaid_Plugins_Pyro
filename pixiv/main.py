@@ -158,7 +158,7 @@ class CommandManager:
         aliases = {
             alias: self._commands[command] for command, alias in self._aliases.items()
         }
-        available = (
+        return (
             {
                 command: handler
                 for command, handler in self._commands.items()
@@ -166,9 +166,7 @@ class CommandManager:
             }
             if alias_only
             else dict(self._commands)
-        )
-        available.update(aliases)
-        return available
+        ) | aliases
 
     def alias_of(self, command: str) -> str:
         alias = self._aliases.get(command) or (
