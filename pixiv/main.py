@@ -333,7 +333,7 @@ async def alias_cmd(_: Client, message: Message) -> None:
         com, alias = message.parameter[1:]
         if com not in subcommands:
             await message.edit("未知子指令。")
-        if alias in InteractiveConfig.reversed_aliases:
+        if alias in InteractiveConfig.reversed_aliases or alias in subcommands:
             await message.edit("重定向冲突。")
         else:
             InteractiveConfig.aliases[com] = alias
