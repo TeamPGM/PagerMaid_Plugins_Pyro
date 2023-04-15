@@ -310,11 +310,11 @@ async def report_error(message: Message, ex: Exception) -> None:
     "search", "通过关键词（可传入多个）搜索 Pixiv 相关插图，并随机选取一张图发送", "<关键词> ... [R-18 / R-18G]"
 )
 async def search(_: Client, message: Message) -> None:
-    await message.edit("正在发送中，请耐心等待www")
     keywords = message.arguments
     if not keywords:
         await message.edit("没有关键词我怎么搜索？")
         return
+    await message.edit("正在发送中，请耐心等待www")
     api = await get_api()
     response = await api.search_illust(
         keywords, search_target="partial_match_for_tags"
