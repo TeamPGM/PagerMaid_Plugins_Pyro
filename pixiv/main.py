@@ -26,7 +26,6 @@ install_dependencies()
 from pixivpy_async import AppPixivAPI
 from pixivpy_async.error import NoTokenError
 
-VERSION = "1.00"
 PREFIX = ","
 CONFIG_PATH = r"data/pixiv.yml"
 PLUGIN_NAME = "pixiv"
