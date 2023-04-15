@@ -140,7 +140,9 @@ class CommandManager:
 
     def set_alias(self, command: str, alias: str) -> None:
         assert command in self._commands, f"无法找到 {command} 指令。"
-        assert alias not in self._commands and alias not in self._aliases.values(), "重定向指令冲突。"
+        assert (
+            alias not in self._commands and alias not in self._aliases.values()
+        ), "重定向指令冲突。"
         self._aliases[command] = alias
         self.update_config()
 
