@@ -316,9 +316,9 @@ async def alias_cmd(_: Client, message: Message) -> None:
             return
         com = message.parameter[1]
         if com not in subcommands:
-            await message.edit(f"未知子指令。")
+            await message.edit("未知子指令。")
         elif com not in InteractiveConfig.aliases:
-            await message.edit(f"该子指令未重定向。")
+            await message.edit("该子指令未重定向。")
         else:
             del InteractiveConfig.aliases[com]
             InteractiveConfig.apply()
@@ -333,9 +333,9 @@ async def alias_cmd(_: Client, message: Message) -> None:
             return
         com, alias = message.parameter[1:]
         if com not in subcommands:
-            await message.edit(f"未知子指令。")
+            await message.edit("未知子指令。")
         if alias in InteractiveConfig.reversed_aliases:
-            await message.edit(f"重定向冲突。")
+            await message.edit("重定向冲突。")
         else:
             InteractiveConfig.aliases[com] = alias
             InteractiveConfig.apply()
