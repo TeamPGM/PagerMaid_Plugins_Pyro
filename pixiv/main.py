@@ -6,7 +6,7 @@ import os
 import random
 from dataclasses import dataclass
 from typing import (Any, Awaitable, Callable, Dict, List, NamedTuple, Optional,
-                    Tuple)
+                    Tuple, Union)
 
 import yaml
 from pagermaid import logs
@@ -14,6 +14,7 @@ from pagermaid.enums import Client, Message
 from pagermaid.listener import listener
 from pagermaid.services import scheduler
 from pagermaid.utils import pip_install
+from pyrogram.types import Message as PyrogramMessage
 
 
 def install_dependencies() -> None:
@@ -96,7 +97,6 @@ class Illust:
             res.user.name,
         )
 
-
 class HandlerInfo(NamedTuple):
     func: Handler
     usage: str
@@ -170,7 +170,7 @@ async def fetch_token() -> None:
         await api.login(refresh_token=PluginConfig.refresh_token)
 
 
-async def send_illust(client: Client, message: Message, illust: Illust) -> None:
+async def send_illust(message: Union[Message, PyrogramMessage], illust: Illust) -> None:
     elements = PluginConfig.message_elements
 
     caption = (
@@ -222,13 +222,12 @@ async def report_error(message: Message, ex: Exception) -> None:
 
 
 @command("search", "通过关键词（可传入多个）搜索 Pixiv 相关插图，并随机选取一张图发送", "<关键词> ... [R-18 / R-18G]")
-async def search(client: Client, message: Message) -> None:
+async def search(_: Client, message: Message) -> None:
+    edited_message = await message.edit("正在发送中，请耐心等待www")
     keywords = message.arguments
-
     if not keywords:
         await message.edit("没有关键词我怎么搜索？")
         return
-
     api = await get_api()
     response = await api.search_illust(
         keywords, search_target="partial_match_for_tags"
@@ -239,8 +238,7 @@ async def search(client: Client, message: Message) -> None:
         await message.edit("呜呜呜 ~ 没有找到相应结果。")
         return
     illust = random.choice(filtered_illusts)
-    await send_illust(client, message, illust)
-    await message.safe_delete()
+    await send_illust(edited_message, illust)
 
 
 @command(
@@ -248,7 +246,8 @@ async def search(client: Client, message: Message) -> None:
     "获取 Pixiv 每日推荐，可传入多个 Tag 参数筛选目标结果，并随机选取一张图发送",
     "[Tag] ... [R-18 / R-18G]",
 )
-async def recommend(client: Client, message: Message) -> None:
+async def recommend(_: Client, message: Message) -> None:
+    edited_message = await message.edit("正在发送中，请耐心等待www")
     keywords = message.arguments
     api = await get_api()
     response: Any = await api.illust_recommended()
@@ -260,8 +259,7 @@ async def recommend(client: Client, message: Message) -> None:
         await message.edit("呜呜呜 ~ 没有找到相应结果。")
         return
     illust = random.choice(filtered_illusts)
-    await send_illust(client, message, illust)
-    await message.safe_delete()
+    await send_illust(edited_message, illust)
 
 
 @command("help", "获取插件帮助")
