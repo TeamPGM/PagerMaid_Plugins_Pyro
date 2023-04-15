@@ -340,6 +340,8 @@ async def alias_cmd(_: Client, message: Message) -> None:
             InteractiveConfig.apply()
             await message.edit(f"已将 {com} 重定向至 {alias}。正在重新加载 PagerMaid-Pyro。")
             await reload_all()
+    else:
+        await message.edit(f"未知参数，要不发送 `{PREFIX}help {root_command()}` 看看帮助？")
 
 
 @listener(
