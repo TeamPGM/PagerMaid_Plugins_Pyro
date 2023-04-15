@@ -6,10 +6,11 @@ import os
 import random
 from dataclasses import dataclass
 from typing import (Any, Awaitable, Callable, Dict, List, NamedTuple, Optional,
-                    Tuple, Union)
+                    Tuple)
 
 import yaml
 from pagermaid import logs
+from pagermaid.common.reload import reload_all
 from pagermaid.enums import Client, Message
 from pagermaid.listener import listener
 from pagermaid.services import scheduler
@@ -28,18 +29,26 @@ from pixivpy_async.error import NoTokenError
 
 PREFIX = ","
 CONFIG_PATH = r"data/pixiv.yml"
+INTERACTIVE_CONFIG_PATH = r"data/pixiv_interactive.yml"
 PLUGIN_NAME = "pixiv"
 HELP_URL = r"https://www.huajitech.net/pagermaid-pixiv-plugin-help/"
 _config: Dict[str, Any] = {}
+_interactive_config: Dict[str, Any] = {}
 pixiv_api: Optional[AppPixivAPI] = None
 
 with contextlib.suppress(Exception):
     with open(CONFIG_PATH, mode="r") as config_file:
-        _config: Dict[str, Any] = yaml.safe_load(config_file)
+        _config = yaml.safe_load(config_file)
+    with open(INTERACTIVE_CONFIG_PATH, mode="r") as interactive_config_file:
+        _interactive_config = yaml.safe_load(interactive_config_file)
 
 
 def str_to_list(value: Optional[str]) -> List[str]:
     return value.split(",") if value else []
+
+
+def reversed_dict(d: Dict[Any, Any]) -> Dict[Any, Any]:
+    return {v: k for k, v in d.items()}
 
 
 root_command = lambda: alias_command(PLUGIN_NAME)
@@ -69,6 +78,17 @@ class PluginConfig:
             "author",
         ]
     )
+
+
+class InteractiveConfig:
+    aliases: Dict[str, str] = _interactive_config.get("aliases") or {}
+    reversed_aliases: Dict[str, str] = reversed_dict(aliases)
+
+    @staticmethod
+    def apply() -> None:
+        _interactive_config["aliases"] = InteractiveConfig.aliases
+        with open(INTERACTIVE_CONFIG_PATH, mode="w") as interactive_config_file:
+            yaml.safe_dump(_interactive_config, interactive_config_file)
 
 
 @dataclass
@@ -106,23 +126,31 @@ class HandlerInfo(NamedTuple):
     description: str
 
 
-command_map: Dict[str, HandlerInfo] = {}
+subcommands: Dict[str, HandlerInfo] = {}
 
 
-def command(
+def subcommand(
     com: str, description: str, usage: str = ""
 ) -> Callable[[Handler], Handler]:
     def decorator(func: Handler):
-        command_map[com] = HandlerInfo(func, usage, description)
+        subcommands[com] = HandlerInfo(func, usage, description)
         return func
 
     return decorator
 
 
+def subcommand_alias(com: str) -> str:
+    return InteractiveConfig.aliases.get(com) or com
+
+
+def subcommand_from_alias(com: str) -> str:
+    return InteractiveConfig.reversed_aliases.get(com) or com
+
+
 def generate_usage() -> str:
     return "\n".join(
-        f"`{PREFIX}{root_command()} {com} {info.usage}`\n{info.description}"
-        for com, info in command_map.items()
+        f"`{PREFIX}{root_command()} {subcommand_alias(com)} {info.usage}`\n{info.description}"
+        for com, info in subcommands.items()
     )
 
 
@@ -224,7 +252,9 @@ async def report_error(message: Message, ex: Exception) -> None:
         logs.error(message)
 
 
-@command("search", "通过关键词（可传入多个）搜索 Pixiv 相关插图，并随机选取一张图发送", "<关键词> ... [R-18 / R-18G]")
+@subcommand(
+    "search", "通过关键词（可传入多个）搜索 Pixiv 相关插图，并随机选取一张图发送", "<关键词> ... [R-18 / R-18G]"
+)
 async def search(_: Client, message: Message) -> None:
     await message.edit("正在发送中，请耐心等待www")
     keywords = message.arguments
@@ -245,7 +275,7 @@ async def search(_: Client, message: Message) -> None:
     await message.safe_delete()
 
 
-@command(
+@subcommand(
     "recommend",
     "获取 Pixiv 每日推荐，可传入多个 Tag 参数筛选目标结果，并随机选取一张图发送",
     "[Tag] ... [R-18 / R-18G]",
@@ -267,24 +297,63 @@ async def recommend(_: Client, message: Message) -> None:
     await message.safe_delete()
 
 
-@command("help", "获取插件帮助")
+@subcommand("help", "获取插件帮助")
 async def help_cmd(_: Client, message: Message) -> None:
     await message.edit(
         f"{PLUGIN_NAME} 插件使用帮助: {HELP_URL}", disable_web_page_preview=True
     )
 
 
+@subcommand("alias", "重定向子命令", "{del <子指令>|list|set <子指令> <重定向子指令>}")
+async def alias_cmd(_: Client, message: Message) -> None:
+    if not message.arguments:
+        await message.edit(f"缺少参数了，要不发送 `{PREFIX}help {root_command()}` 看看帮助？")
+        return
+    operation = message.parameter[0]
+    if operation == "del":
+        if len(message.parameter) != 2:
+            await message.edit(f"参数错误。要不发送 `{PREFIX}help {root_command()}` 看看帮助？")
+            return
+        com = message.parameter[1]
+        if com not in subcommands:
+            await message.edit(f"未知子指令。")
+        elif com not in InteractiveConfig.aliases:
+            await message.edit(f"该子指令未重定向。")
+        else:
+            del InteractiveConfig.aliases[com]
+            InteractiveConfig.apply()
+            await message.edit(f"已删除 {com} 重定向。正在重新加载 PagerMaid-Pyro。")
+            await reload_all()
+
+    elif operation == "list":
+        await message.edit(str(InteractiveConfig.aliases))
+    elif operation == "set":
+        if len(message.parameter) != 3:
+            await message.edit(f"参数错误。要不发送 `{PREFIX}help {root_command()}` 看看帮助？")
+            return
+        com, alias = message.parameter[1:]
+        if com not in subcommands:
+            await message.edit(f"未知子指令。")
+        if alias in InteractiveConfig.reversed_aliases:
+            await message.edit(f"重定向冲突。")
+        else:
+            InteractiveConfig.aliases[com] = alias
+            InteractiveConfig.apply()
+            await message.edit(f"已将 {com} 重定向至 {alias}。正在重新加载 PagerMaid-Pyro。")
+            await reload_all()
+
+
 @listener(
     command=PLUGIN_NAME,
     description=generate_usage(),
-    parameters=f"{{{'|'.join(command_map.keys())}}}",
+    parameters=f"{{{'|'.join(subcommands.keys())}}}",
 )
 async def message_handler(client: Client, message: Message) -> None:
     try:
         com: str = message.parameter[0]
     except IndexError:
         com = ""
-    info = command_map.get(com)
+    info = subcommands.get(subcommand_from_alias(com))
     if not info:
         await message.edit(f"我看不懂你发了什么诶。要不发送 `{PREFIX}help {root_command()}` 看看？")
         return
