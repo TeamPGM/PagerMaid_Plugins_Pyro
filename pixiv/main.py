@@ -96,6 +96,7 @@ class Illust:
             res.user.name,
         )
 
+
 class HandlerInfo(NamedTuple):
     func: Handler
     usage: str
