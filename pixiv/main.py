@@ -9,7 +9,6 @@ from typing import (Any, Awaitable, Callable, Dict, List, NamedTuple, Optional,
                     Tuple)
 
 import yaml
-
 from pagermaid import logs
 from pagermaid.enums import Client, Message
 from pagermaid.listener import listener
@@ -54,18 +53,18 @@ class PluginConfig:
     ) or _config.get("refresh_token")
 
     message_elements: List[str] = (
-            str_to_list(os.environ.get("PLUGIN_PIXIV_MESSAGE_ELEMENTS"))
-            or _config.get("message_elements")
-            or [
-                "image",
-                "id",
-                "title",
-                "caption",
-                "tags",
-                "resolution",
-                "upload_time",
-                "author",
-            ]
+        str_to_list(os.environ.get("PLUGIN_PIXIV_MESSAGE_ELEMENTS"))
+        or _config.get("message_elements")
+        or [
+            "image",
+            "id",
+            "title",
+            "caption",
+            "tags",
+            "resolution",
+            "upload_time",
+            "author",
+        ]
     )
 
 
@@ -108,7 +107,7 @@ command_map: Dict[str, HandlerInfo] = {}
 
 
 def command(
-        com: str, description: str, usage: str = ""
+    com: str, description: str, usage: str = ""
 ) -> Callable[[Handler], Handler]:
     def decorator(func: Handler):
         command_map[com] = HandlerInfo(func, usage, description)
@@ -125,7 +124,7 @@ def generate_usage() -> str:
 
 
 def illust_sensitive_content_filter(
-        illusts: List[Illust], keywords: str
+    illusts: List[Illust], keywords: str
 ) -> List[Illust]:
     excluded = ["R-18", "R-18G"]
     needed = set(keywords.split()).intersection(excluded)
@@ -141,7 +140,11 @@ def illust_sensitive_content_filter(
 
 def illust_filter_by_tags(illusts: List[Illust], keywords: str) -> List[Illust]:
     needed = set(keywords.split())
-    return [illust for illust in illusts if (needed.intersection(illust.tags) if needed else True)]
+    return [
+        illust
+        for illust in illusts
+        if (needed.intersection(illust.tags) if needed else True)
+    ]
 
 
 async def get_api() -> AppPixivAPI:
@@ -167,36 +170,46 @@ async def fetch_token() -> None:
         await api.login(refresh_token=PluginConfig.refresh_token)
 
 
-async def send_illust(client: Client, chat_id: int, illust: Illust) -> None:
+async def send_illust(client: Client, message: Message, illust: Illust) -> None:
     elements = PluginConfig.message_elements
 
     caption = (
-            (f"**{illust.title}**\n" if "title" in elements else "")
-            + (f"__{illust.caption}__\n\n" if "caption" in elements else "")
-            + (
-                f'ID: <a href="https://www.pixiv.net/artworks/{illust.id}">{illust.id}</a>\n'
-                if "id" in elements
-                else ""
-            )
-            + (
-                f'作者: <a href="https://www.pixiv.net/users/{illust.author_id}">{illust.author_name}</a> '
-                f'({illust.author_account})\n'
-                if "author" in elements
-                else ""
-            )
-            + (f'标签: {", ".join(illust.tags)}\n' if "tags" in elements else "")
-            + (
-                f"分辨率: {illust.resolution[0]}x{illust.resolution[1]}\n"
-                if "resolution" in elements
-                else ""
-            )
-            + (f"上传时间: {illust.upload_time}" if "upload_time" in elements else "")
+        (f"**{illust.title}**\n" if "title" in elements else "")
+        + (f"__{illust.caption}__\n\n" if "caption" in elements else "")
+        + (
+            f'ID: <a href="https://www.pixiv.net/artworks/{illust.id}">{illust.id}</a>\n'
+            if "id" in elements
+            else ""
+        )
+        + (
+            f'作者: <a href="https://www.pixiv.net/users/{illust.author_id}">{illust.author_name}</a> '
+            f"({illust.author_account})\n"
+            if "author" in elements
+            else ""
+        )
+        + (f'标签: {", ".join(illust.tags)}\n' if "tags" in elements else "")
+        + (
+            f"分辨率: {illust.resolution[0]}x{illust.resolution[1]}\n"
+            if "resolution" in elements
+            else ""
+        )
+        + (f"上传时间: {illust.upload_time}" if "upload_time" in elements else "")
     )
 
     if "image" in elements:
-        await client.send_photo(chat_id, illust.image_urls["large"], caption)
+        await message.reply_photo(
+            illust.image_urls["large"],
+            caption=caption,
+            quote=False,
+            reply_to_message_id=message.reply_to_message_id
+            or message.reply_to_top_message_id,
+        )
     else:
-        await client.send_message(chat_id, caption)
+        await message.reply_text(
+            caption,
+            reply_to_message_id=message.reply_to_message_id
+            or message.reply_to_top_message_id,
+        )
 
 
 async def report_error(origin_message: Message, ex: Exception) -> None:
@@ -223,7 +236,7 @@ async def search(client: Client, message: Message) -> None:
         await message.edit("呜呜呜 ~ 没有找到相应结果。")
         return
     illust = random.choice(filtered_illusts)
-    await send_illust(client, message.chat.id, illust)
+    await send_illust(client, message, illust)
     await message.safe_delete()
 
 
@@ -244,7 +257,7 @@ async def recommend(client: Client, message: Message) -> None:
         await message.edit("呜呜呜 ~ 没有找到相应结果。")
         return
     illust = random.choice(filtered_illusts)
-    await send_illust(client, message.chat.id, illust)
+    await send_illust(client, message, illust)
     await message.safe_delete()
 
 
@@ -270,7 +283,7 @@ async def message_handler(client: Client, message: Message) -> None:
         await message.edit(f"我看不懂你发了什么诶。要不发送 `{PREFIX}help {PLUGIN_NAME}` 看看？")
         return
     new_message = copy.copy(message)
-    new_message.arguments = new_message.arguments[len(com) + 1:]
+    new_message.arguments = new_message.arguments[len(com) + 1 :]
     new_message.parameter = new_message.parameter[1:]
     new_message.bind(client)
     try:
