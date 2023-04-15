@@ -13,7 +13,7 @@ from pagermaid import logs
 from pagermaid.enums import Client, Message
 from pagermaid.listener import listener
 from pagermaid.services import scheduler
-from pagermaid.utils import pip_install
+from pagermaid.utils import alias_command, pip_install
 
 
 def install_dependencies() -> None:
@@ -40,6 +40,9 @@ with contextlib.suppress(Exception):
 
 def str_to_list(value: Optional[str]) -> List[str]:
     return value.split(",") if value else []
+
+
+root_command = lambda: alias_command(PLUGIN_NAME)
 
 
 Handler = Callable[[Client, Message], Awaitable[None]]
@@ -118,7 +121,7 @@ def command(
 
 def generate_usage() -> str:
     return "\n".join(
-        f"`{PREFIX}{PLUGIN_NAME} {com} {info.usage}`\n{info.description}"
+        f"`{PREFIX}{root_command()} {com} {info.usage}`\n{info.description}"
         for com, info in command_map.items()
     )
 
@@ -214,7 +217,7 @@ async def send_illust(message: Message, illust: Illust) -> None:
 
 async def report_error(message: Message, ex: Exception) -> None:
     if isinstance(ex, NoTokenError):
-        await message.edit(f"没有配置 Token 诶，要不发送 `{PREFIX}{PLUGIN_NAME} help` 看看帮助？")
+        await message.edit(f"没有配置 Token 诶，要不发送 `{PREFIX}{root_command()} help` 看看帮助？")
     else:
         error = f"{type(ex).__name__}: {ex}"
         await message.edit("呜呜呜 ~ 出错了:\n" + error)
@@ -283,7 +286,7 @@ async def message_handler(client: Client, message: Message) -> None:
         com = ""
     info = command_map.get(com)
     if not info:
-        await message.edit(f"我看不懂你发了什么诶。要不发送 `{PREFIX}help {PLUGIN_NAME}` 看看？")
+        await message.edit(f"我看不懂你发了什么诶。要不发送 `{PREFIX}help {root_command()}` 看看？")
         return
     new_message = copy.copy(message)
     new_message.arguments = new_message.arguments[len(com) + 1 :]
