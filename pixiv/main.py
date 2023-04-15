@@ -24,6 +24,7 @@ def install_dependencies() -> None:
 install_dependencies()
 
 from pixivpy_async import AppPixivAPI
+from pixivpy_async.error import NoTokenError
 
 VERSION = "1.00"
 PREFIX = ","
@@ -212,10 +213,13 @@ async def send_illust(client: Client, message: Message, illust: Illust) -> None:
         )
 
 
-async def report_error(origin_message: Message, ex: Exception) -> None:
-    message = f"{type(ex).__name__}: {ex}"
-    await origin_message.edit("呜呜呜 ~ 出错了:\n" + message)
-    logs.error(message)
+async def report_error(message: Message, ex: Exception) -> None:
+    if isinstance(ex, NoTokenError):
+        await message.edit(f"没有配置 Token 诶，要不发送 `{PREFIX}{PLUGIN_NAME} help` 看看帮助？")
+    else:
+        error = f"{type(ex).__name__}: {ex}"
+        await message.edit("呜呜呜 ~ 出错了:\n" + error)
+        logs.error(message)
 
 
 @command("search", "通过关键词（可传入多个）搜索 Pixiv 相关插图，并随机选取一张图发送", "<关键词> ... [R-18 / R-18G]")
