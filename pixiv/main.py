@@ -219,7 +219,7 @@ def illust_sensitive_content_filter(
         illust
         for illust in illusts
         if not excluded.intersection(illust.tags)
-        and (needed.intersection(illust.tags) if needed else True)
+        and (not needed or len(needed.intersection(illust.tags)) == len(needed))
     ]
 
 
@@ -228,7 +228,7 @@ def illust_filter_by_tags(illusts: List[Illust], keywords: str) -> List[Illust]:
     return [
         illust
         for illust in illusts
-        if (needed.intersection(illust.tags) if needed else True)
+        if not needed or len(needed.intersection(illust.tags)) == len(needed)
     ]
 
 
