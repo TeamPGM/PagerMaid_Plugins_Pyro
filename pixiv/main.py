@@ -358,6 +358,26 @@ async def help_cmd(_: Client, message: Message) -> None:
     )
 
 
+@cmdman.subcommand(
+    "id", "根据 ID 获取 Pixiv 相关插图", "<ID>"
+)
+async def id_cmd(_: Client, message: Message) -> None:
+    try:
+        id_ = int(message.arguments)
+    except ValueError:
+        await message.edit("你输入的不是正确的 ID 诶www")
+        return
+    await message.edit("正在发送中，请耐心等待www")
+    api = await get_api()
+    response = await api.illust_detail(id_)
+    if not (response := response.get("illust")):
+        await message.edit("呜呜呜 ~ 没有找到相应结果。")
+        return
+    illust = Illust.from_response(response)
+    await send_illust(message, illust)
+    await message.safe_delete()
+
+
 @cmdman.subcommand("alias", "重定向子命令", "{del <子指令>|list|set <子指令> <重定向子指令>}")
 async def alias_cmd(_: Client, message: Message) -> None:
     if not message.arguments:
