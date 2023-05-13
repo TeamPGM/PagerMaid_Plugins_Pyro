@@ -219,7 +219,7 @@ def illust_sensitive_content_filter(
         illust
         for illust in illusts
         if not excluded.intersection(illust.tags)
-        and (needed.intersection(illust.tags) if needed else True)
+        and (not needed or len(needed.intersection(illust.tags)) == len(needed))
     ]
 
 
@@ -228,7 +228,7 @@ def illust_filter_by_tags(illusts: List[Illust], keywords: str) -> List[Illust]:
     return [
         illust
         for illust in illusts
-        if (needed.intersection(illust.tags) if needed else True)
+        if not needed or len(needed.intersection(illust.tags)) == len(needed)
     ]
 
 
@@ -356,6 +356,26 @@ async def help_cmd(_: Client, message: Message) -> None:
     await message.edit(
         f"{PLUGIN_NAME} 插件使用帮助: {HELP_URL}", disable_web_page_preview=True
     )
+
+
+@cmdman.subcommand(
+    "id", "根据 ID 获取 Pixiv 相关插图", "<ID>"
+)
+async def id_cmd(_: Client, message: Message) -> None:
+    try:
+        id_ = int(message.arguments)
+    except ValueError:
+        await message.edit("你输入的不是正确的 ID 诶www")
+        return
+    await message.edit("正在发送中，请耐心等待www")
+    api = await get_api()
+    response = await api.illust_detail(id_)
+    if not (response := response.get("illust")):
+        await message.edit("呜呜呜 ~ 没有找到相应结果。")
+        return
+    illust = Illust.from_response(response)
+    await send_illust(message, illust)
+    await message.safe_delete()
 
 
 @cmdman.subcommand("alias", "重定向子命令", "{del <子指令>|list|set <子指令> <重定向子指令>}")
