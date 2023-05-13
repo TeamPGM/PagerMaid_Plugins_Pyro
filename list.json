@@ -1019,6 +1019,16 @@
             "supported": true,
             "des-short": "idna 国际化域名 (IDNA) 编码转换工具",
             "des": "国际化域名 (IDNA) 编码转换工具\n\n指令:\n- `,punyencode <待编码内容> (支持回复消息)` (编码至 Punycode)\n- `,punydecode <待解码内容> (支持回复消息)` (从 Punycode 解码)"
+        },
+        {
+            "name": "clear_sticker",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "1.494 kb",
+            "supported": true,
+            "des-short": "clear_sticker 清理群组中的贴纸消息",
+            "des": "clear_sticker\n\n# 清理群组中的贴纸消息\n\n`,clear_sticker 99999999`\n\n清理所有贴纸"
         }
     ]
 }
