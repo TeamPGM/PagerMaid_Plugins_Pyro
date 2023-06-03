@@ -22,7 +22,7 @@ async def get_news60s() -> None:
     global news60s_cache_time
     if news60s_cache_time == date.today() and isfile(f"data{sep}news60s.png"):
         return
-    resp = await client.get("https://api.emoao.com/api/60s")
+    resp = await client.get("https://api.emoao.com/api/60s", follow_redirects=True)
     if resp.is_error:
         raise ValueError(f"获取失败，错误码：{resp.status_code}")
     news60s_cache_time = date.today()
