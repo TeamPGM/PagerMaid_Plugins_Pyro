@@ -3,7 +3,7 @@
 from os import sep
 from os.path import isfile
 from datetime import date
-from typing import Optional, Dict
+from typing import Optional
 
 from pyrogram.enums.parse_mode import ParseMode
 from pagermaid import scheduler
@@ -20,22 +20,22 @@ news60s_cache_time: Optional[date] = None
 
 async def get_news60s() -> None:
     global news60s_cache_time
-    if news60s_cache_time == date.today() and isfile(f"data{sep}news60s.jpg"):
+    if news60s_cache_time == date.today() and isfile(f"data{sep}news60s.png"):
         return
-    resp = await client.get("https://api.03c3.cn/zb/")
+    resp = await client.get("https://api.emoao.com/api/60s")
     if resp.is_error:
         raise ValueError(f"获取失败，错误码：{resp.status_code}")
     news60s_cache_time = date.today()
-    safe_remove(f"data{sep}news60s.jpg")
-    with open(f"data{sep}news60s.jpg", "wb") as f:
+    safe_remove(f"data{sep}news60s.png")
+    with open(f"data{sep}news60s.png", "wb") as f:
         f.write(resp.content)
 
 
 async def push_news60s(gid: int) -> None:
-    if isfile(f"data{sep}news60s.jpg"):
+    if isfile(f"data{sep}news60s.png"):
         await bot.send_photo(
             gid,
-            f"data{sep}news60s.jpg"
+            f"data{sep}news60s.png"
         )
 
 
@@ -49,9 +49,11 @@ async def news60s_subscribe() -> None:
             news60s_sub.del_id(gid)
 
 
-@listener(command="news60s",
-          parameters="订阅/退订",
-          description="查看 60s 看世界新闻，支持订阅/退订每天上午八点定时发送")
+@listener(
+    command="news60s",
+    parameters="订阅/退订",
+    description="查看 60s 看世界新闻，支持订阅/退订每天上午八点定时发送"
+)
 async def news60s(message: Message):
     if not message.arguments:
         try:
