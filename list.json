@@ -1039,6 +1039,16 @@
             "supported": true,
             "des-short": "send_cron 使用 crontab 表达式定时发送消息\n\nfix #146",
             "des": "使用 crontab 表达式定时发送消息。\n\n指令：`,send_cron`\n\n`,send_cron 59 59 23 * * * | 又是无所事事的一天呢。`\n\n`,send_cron 0 * * * * * | 又过去了一分钟。`\n\n[学习 crontab 表达式](https://www.runoob.com/linux/linux-comm-crontab.html)\n\n# 特别注意\n\n此插件的参数为 秒、分、时、日、月、周，与标准 crontab 表达式不同。"
+        },
+        {
+            "name": "keep_online",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "0.427 kb",
+            "supported": true,
+            "des-short": "keep_online 保持 Telegram 账号一直在线",
+            "des": "保持 Telegram 账号一直在线\n\n安装即可，无需配置"
         }
     ]
 }
