@@ -105,19 +105,16 @@ class XjbClient:
         sqlite["xjb_token"] = token
 
     def _make_header(self) -> Dict[str, str]:
-        headers = {"Authentication": self._token}
-        return headers
+        return {"Authentication": self._token}
 
     def _make_url(self, path: str) -> str:
-        url = parse.urljoin(self._ipc, path)
-        return url
+        return parse.urljoin(self._ipc, path)
 
     async def test_ipc(self):
         try:
             url = self._make_url("/Api/Post/TestToken")
             headers = self._make_header()
-            resp = await client.post(url=url, headers=headers)
-            return resp
+            return await client.post(url=url, headers=headers)
         except Exception as ex:
             return None
 
@@ -137,8 +134,7 @@ class XjbClient:
                 'ChannelMsgID': post.channel_msg_id,
             }
             files = [("media", open(x, "rb")) for x in file_paths]
-            resp = await client.post(url=url, data=data, files=files, headers=headers)
-            return resp
+            return await client.post(url=url, data=data, files=files, headers=headers)
         except Exception:
             err = format_exc()
             await xjb_core.send_log(err)
@@ -175,15 +171,14 @@ class XjbCore:
 
     async def cmd_test(self) -> str:
         resp = await xjb_client.test_ipc()
-        if resp:
-            if resp.status_code == 200:
-                return f"连接到 Xinjingdaily Bot 成功\n当前用户信息:\n{resp.text}\n监听频道的消息将会以此用户的身份投稿"
-            elif resp.status_code == 401:
-                return "连接到 Xinjingdaily Bot 失败\nToken 无效 请检查 Token 设置"
-
-            return f"连接到 Xinjingdaily Bot 失败\n代码 {resp.status_code} 请检查 IPC 和 Token 设置"
-        else:
+        if not resp:
             return "连接到 Xinjingdaily Bot 失败\n请检查 IPC 设置"
+        if resp.status_code == 200:
+            return f"连接到 Xinjingdaily Bot 成功\n当前用户信息:\n{resp.text}\n监听频道的消息将会以此用户的身份投稿"
+        elif resp.status_code == 401:
+            return "连接到 Xinjingdaily Bot 失败\nToken 无效 请检查 Token 设置"
+
+        return f"连接到 Xinjingdaily Bot 失败\n代码 {resp.status_code} 请检查 IPC 和 Token 设置"
 
     def cmd_status(self) -> str:
         return f"IPC: `{xjb_client.ipc}`\nToken: `{xjb_client.token}`"
@@ -231,7 +226,7 @@ class XjbCore:
         if type & WatchType.Animation:
             str_list.append("GIF")
 
-        if len(str_list) == 0:
+        if not str_list:
             str_list.append("无")
 
         result = ' '.join(str_list)
@@ -256,13 +251,12 @@ class XjbCore:
         try:
             chat_id = int(channel_id)
 
-            if chat_id in self._channels:
-                self._channels.pop(chat_id)
-                self.save_config()
-                return f"监听频道 {chat_id} 删除成功"
-            else:
+            if chat_id not in self._channels:
                 return f"监听频道 {chat_id} 不存在, 无法删除"
 
+            self._channels.pop(chat_id)
+            self.save_config()
+            return f"监听频道 {chat_id} 删除成功"
         except ValueError:
             return f"监听频道 {chat_id} 无效, 只能为整数"
 
@@ -305,12 +299,10 @@ class XjbCache:
             self._message_groups[group_id][1].append(file_path)
 
     async def check_ttl(self):
-        group_ids = []
         now = int(time())
-        for (group_id, ttl) in self._message_ttl.items():
-            if now > ttl:
-                group_ids.append(group_id)
-
+        group_ids = [
+            group_id for group_id, ttl in self._message_ttl.items() if now > ttl
+        ]
         for group_id in group_ids:
             (post, file_paths) = self._message_groups.pop(group_id, (None, None))
             if post and file_paths:
