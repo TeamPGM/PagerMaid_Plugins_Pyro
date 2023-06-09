@@ -6,11 +6,13 @@ by chr233
 from dataclasses import dataclass
 from enum import IntFlag, auto, unique
 from os import path
+from time import time
 from traceback import format_exc
 from typing import Dict, List, Optional, Tuple
 from urllib import parse
 
-from time import time
+from pyrogram.enums import ChatType
+
 from pagermaid import bot, scheduler
 from pagermaid.enums import Message
 from pagermaid.listener import listener
@@ -30,6 +32,8 @@ help_msg = "\n".join([
     "测试 XinjingdailyBot WebAPI 配置是否有有效\n",
     f"`,{alias_cmd_name} status`",
     "查看 XinjingdailyBot WebAPI 连接配置\n",
+    f"`,{alias_cmd_name} log`",
+    "在当前会话启用插件日志, 再次在相同会话使用该命令禁用日志\n",
     f"`,{alias_cmd_name} channel`",
     "获取正在监听的频道列表, 列表中的频道有更新时会自动推送至投稿机器人\n",
     f"`,{alias_cmd_name} add channelId [watch_type]`",
@@ -121,16 +125,18 @@ class XjbClient:
         try:
             url = self._make_url("/Api/Post/CreatePost")
             headers = self._make_header()
+            media_names = [path.basename(x) for x in file_paths]
             data = {
-                'HasSpoiler': post.has_spoiler,
                 'Text': post.text,
+                'PostType': post.post_type,
+                'HasSpoiler': post.has_spoiler,
+                'MediaNames': media_names,
+                'ChannelID': post.channel_id,
                 'ChannelName': post.channel_name,
                 'ChannelTitle': post.channel_title,
                 'ChannelMsgID': post.channel_msg_id,
-                'PostType': post.post_type,
-                'ChannelID': post.channel_id,
             }
-            files = [(path.basename(x), open(x, "rb")) for x in file_paths]
+            files = [("media", open(x, "rb")) for x in file_paths]
             resp = await client.post(url=url, data=data, files=files, headers=headers)
             return resp
         except Exception:
@@ -163,7 +169,7 @@ class XjbCore:
     async def send_log(self, text: str) -> None:
         if self._log_chat != 0:
             try:
-                await bot.send_message(self._log_chat, text)
+                await bot.send_message(self._log_chat, text, disable_notification=True, disable_web_page_preview=True)
             except:
                 ...
 
@@ -171,23 +177,7 @@ class XjbCore:
         resp = await xjb_client.test_ipc()
         if resp:
             if resp.status_code == 200:
-                json = resp.json()
-                result = json.get("result", {})
-                user_name = result.get("userName", None)
-                user_id = result.get("userID", None)
-                uid = result.get("uid", None)
-                nick_name = result.get("nickName", None)
-
-                msg = '\n'.join([
-                    "连接到 Xinjingdaily Bot 成功",
-                    "当前用户信息:",
-                    f"UID: {uid}",
-                    f"User Id: {user_id}",
-                    f"User Name: {user_name}",
-                    f"Nick Name: {nick_name}",
-                    "监听频道的消息将会以此用户的身份投稿"
-                ])
-                return msg
+                return f"连接到 Xinjingdaily Bot 成功\n当前用户信息:\n{resp.text}\n监听频道的消息将会以此用户的身份投稿"
             elif resp.status_code == 401:
                 return "连接到 Xinjingdaily Bot 失败\nToken 无效 请检查 Token 设置"
 
@@ -349,35 +339,50 @@ async def process_message(msg: Message):
         file_path = None
         post = None
 
+        # 抹掉非公开频道的来源信息
+        if not chat.username or chat.type != ChatType.CHANNEL:
+            chat_title = None
+            chat_username = None
+            chat_id = 0
+            msg_id = 0
+        else:
+            chat_title = chat.title
+            chat_username = chat.username
+            chat_id = chat.id
+            msg_id = msg.id
+
         if type & WatchType.Text and msg.text:
-            post = CreatePost(msg.text, 1, msg.has_media_spoiler,
-                              chat.id, chat.username, chat.title, msg.id)
+            post = CreatePost(msg.text, 1, False,
+                              chat_id, chat_username, chat_title, msg_id)
         elif type & WatchType.Photo and msg.photo:
             post = CreatePost(msg.caption, 2, msg.has_media_spoiler,
-                              chat.id, chat.username, chat.title, msg.id)
+                              chat_id, chat_username, chat_title, msg_id)
             file_path = await msg.download()
         elif type & WatchType.Audio and msg.audio:
-            post = CreatePost(msg.caption, 3, msg.has_media_spoiler,
-                              chat.id, chat.username, chat.title, msg.id)
+            post = CreatePost(msg.caption, 3, False,
+                              chat_id, chat_username, chat_title, msg_id)
             file_path = await msg.download()
         elif type & WatchType.Video and msg.video:
             post = CreatePost(msg.caption, 4, msg.has_media_spoiler,
-                              chat.id, chat.username, chat.title, msg.id)
+                              chat_id, chat_username, chat_title, msg_id)
             file_path = await msg.download()
         elif type & WatchType.Voice and msg.voice:
-            post = CreatePost(msg.caption, 5, msg.has_media_spoiler,
-                              chat.id, chat.username, chat.title, msg.id)
+            post = CreatePost(msg.caption, 5, False,
+                              chat_id, chat_username, chat_title, msg_id)
             file_path = await msg.download()
         elif type & WatchType.Document and msg.document:
-            post = CreatePost(msg.caption, 6, msg.has_media_spoiler,
-                              chat.id, chat.username, chat.title, msg.id)
+            post = CreatePost(msg.caption, 6, False,
+                              chat_id, chat_username, chat_title, msg_id)
             file_path = await msg.download()
         elif type & WatchType.Animation and msg.animation:
-            post = CreatePost(msg.caption, 36, msg.has_media_spoiler,
-                              chat.id, chat.username, chat.title, msg.id)
+            post = CreatePost(msg.caption, 36, False,
+                              chat_id, chat_username, chat_title, msg_id)
             file_path = await msg.download()
 
         if post:
+            await xjb_core.send_log(str(post))
+            await xjb_core.send_log(str(file_path))
+
             if msg.media_group_id:
                 # 媒体组消息先进行缓存, 然后由定时任务触发投稿
                 xjb_cache.add_message(msg.media_group_id, post, file_path)
@@ -387,6 +392,8 @@ async def process_message(msg: Message):
                 resp = await xjb_client.create_post(post, [file_path])
                 if resp:
                     await xjb_core.send_log(resp.text)
+                else:
+                    await xjb_core.send_log("投稿失败")
 
     except Exception:
         err = format_exc()
