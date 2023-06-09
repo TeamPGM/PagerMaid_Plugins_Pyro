@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from enum import IntFlag, auto, unique
 from os import path
 from traceback import format_exc
-from typing import  Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 from urllib import parse
 
 from time import time
@@ -357,23 +357,23 @@ async def process_message(msg: Message):
                               chat.id, chat.username, chat.title, msg.id)
             file_path = await msg.download()
         elif type & WatchType.Audio and msg.audio:
-            post = CreatePost(msg.caption, 4, msg.has_media_spoiler,
+            post = CreatePost(msg.caption, 3, msg.has_media_spoiler,
                               chat.id, chat.username, chat.title, msg.id)
             file_path = await msg.download()
         elif type & WatchType.Video and msg.video:
-            post = CreatePost(msg.caption, 8, msg.has_media_spoiler,
+            post = CreatePost(msg.caption, 4, msg.has_media_spoiler,
                               chat.id, chat.username, chat.title, msg.id)
             file_path = await msg.download()
         elif type & WatchType.Voice and msg.voice:
-            post = CreatePost(msg.caption, 16, msg.has_media_spoiler,
+            post = CreatePost(msg.caption, 5, msg.has_media_spoiler,
                               chat.id, chat.username, chat.title, msg.id)
             file_path = await msg.download()
         elif type & WatchType.Document and msg.document:
-            post = CreatePost(msg.caption, 32, msg.has_media_spoiler,
+            post = CreatePost(msg.caption, 6, msg.has_media_spoiler,
                               chat.id, chat.username, chat.title, msg.id)
             file_path = await msg.download()
         elif type & WatchType.Animation and msg.animation:
-            post = CreatePost(msg.caption, 64, msg.has_media_spoiler,
+            post = CreatePost(msg.caption, 36, msg.has_media_spoiler,
                               chat.id, chat.username, chat.title, msg.id)
             file_path = await msg.download()
 
