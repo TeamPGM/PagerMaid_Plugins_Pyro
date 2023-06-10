@@ -1049,6 +1049,16 @@
             "supported": true,
             "des-short": "keep_online 保持 Telegram 账号一直在线",
             "des": "保持 Telegram 账号一直在线\n\n安装即可，无需配置"
+        },
+        {
+            "name": "xinjingdailybot_ipc",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "sourcery-ai[bot]",
+            "size": "15.027 kb",
+            "supported": true,
+            "des-short": "xinjingdailybot 自动转载稿件",
+            "des": "XinjingdailyBot IPC投稿插件, 用于自动从别的频道转载内容到投稿机器人\n\n需要配合 [XinjingdailyBot](https://github.com/chr233/XinjingdailyBot/) 使用\n\n使用命令 `,xinjingdailybot` 查看帮助"
         }
     ]
 }
