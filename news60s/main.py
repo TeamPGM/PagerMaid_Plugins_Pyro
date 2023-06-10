@@ -34,7 +34,7 @@ async def get_news60s() -> None:
     image = await client.get(res["data"]["image"])
     with open(CACHE_PATH, "wb") as fp:
         fp.write(image.content)
-    news60s_cache_time = today
+    news60s_cache_time = news_date
 
 
 async def push_news60s(gid: int) -> None:
