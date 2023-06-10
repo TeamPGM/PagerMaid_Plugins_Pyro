@@ -1,18 +1,19 @@
 """ PagerMaid module that 60s 看世界新闻 """
 
+from datetime import date, datetime, timedelta, timezone
 from os import sep
 from os.path import isfile
-from datetime import date
 from typing import Optional
 
-from pyrogram.enums.parse_mode import ParseMode
 from pagermaid import scheduler
-from pagermaid.listener import listener
 from pagermaid.enums import Message
+from pagermaid.listener import listener
 from pagermaid.services import bot, client
-from pagermaid.utils import edit_delete, check_manage_subs
-from pagermaid.single_utils import safe_remove
 from pagermaid.sub_utils import Sub
+from pagermaid.utils import check_manage_subs, edit_delete
+from pyrogram.enums.parse_mode import ParseMode
+
+CACHE_PATH = f"data{sep}news60s.png"
 
 news60s_sub = Sub("news60s")
 news60s_cache_time: Optional[date] = None
@@ -20,23 +21,25 @@ news60s_cache_time: Optional[date] = None
 
 async def get_news60s() -> None:
     global news60s_cache_time
-    if news60s_cache_time == date.today() and isfile(f"data{sep}news60s.png"):
+    today = datetime.now(timezone(timedelta(hours=8))).date()
+    force_update = not isfile(CACHE_PATH)
+    if news60s_cache_time == today and not force_update:
         return
-    resp = await client.get("https://api.emoao.com/api/60s", follow_redirects=True)
-    if resp.is_error:
-        raise ValueError(f"获取失败，错误码：{resp.status_code}")
-    news60s_cache_time = date.today()
-    safe_remove(f"data{sep}news60s.png")
-    with open(f"data{sep}news60s.png", "wb") as f:
-        f.write(resp.content)
+    resp = await client.get("https://api.emoao.com/api/60s?type=json")
+    res = resp.json()
+    assert res["msg"] == "success", f"API 返回错误: {res['code']} ({res['msg']})"
+    news_date = datetime.strptime(res["data"]["date"], "%Y-%m-%d").date()
+    if news_date == news60s_cache_time and not force_update:
+        return
+    image = await client.get(res["data"]["image"])
+    with open(CACHE_PATH, "wb") as fp:
+        fp.write(image.content)
+    news60s_cache_time = today
 
 
 async def push_news60s(gid: int) -> None:
-    if isfile(f"data{sep}news60s.png"):
-        await bot.send_photo(
-            gid,
-            f"data{sep}news60s.png"
-        )
+    if isfile(CACHE_PATH):
+        await bot.send_photo(gid, CACHE_PATH)
 
 
 @scheduler.scheduled_job("cron", hour="8", id="news60s.push")
@@ -52,7 +55,7 @@ async def news60s_subscribe() -> None:
 @listener(
     command="news60s",
     parameters="订阅/退订",
-    description="查看 60s 看世界新闻，支持订阅/退订每天上午八点定时发送"
+    description="查看 60s 看世界新闻，支持订阅/退订每天上午八点定时发送",
 )
 async def news60s(message: Message):
     if not message.arguments:
