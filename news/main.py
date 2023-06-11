@@ -13,8 +13,8 @@ async def news(_: Client, context: Message):
         data = await client.get("https://news.topurl.cn/api")
         data = data.json()["data"]
         text = "📮 每日新闻 📮\n"
-        for i in range(12):
-            text += f"{i + 1}. [{data['newsList'][i]['title']}]({data['newsList'][i]['url']})\n"
+        for idx, i in enumerate(data['newsList']):
+            text += f"{idx + 1}. [{i['title']}]({i['url']})\n"
 
         text += "\n🎬 历史上的今天 🎬\n"
         for i in data["historyList"]:
