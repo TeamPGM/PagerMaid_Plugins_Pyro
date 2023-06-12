@@ -1,8 +1,10 @@
 """ PagerMaid module for channel help. """
 from asyncio import sleep
+from functools import partial
 from random import uniform
 from typing import Any
 from pyrogram.types import Chat
+from pyrogram.enums.parse_mode import ParseMode
 from pyrogram.enums.chat_type import ChatType
 from pyrogram.errors.exceptions.flood_420 import FloodWait
 
@@ -28,7 +30,7 @@ def check_chat_available(chat: Chat):
 
 @listener(command="shift",
           description='开启转发频道新消息功能',
-          parameters="set [from channel] [to channel] (nosender|nocaption) 自动转发频道新消息（可以使用频道用户名或者 id）\n"
+          parameters="set [from channel] [to channel] (nosender|nocaption|silent) 自动转发频道新消息（可以使用频道用户名或者 id，注意 nocaption 需要与 nosender 一起使用）\n"
                      "del [from channel] 删除转发\n"
                      "backup [from channel] [to channel] 备份频道（可以使用频道用户名或者 id）")
 async def shift_set(client: Client, message: Message):
@@ -40,97 +42,206 @@ async def shift_set(client: Client, message: Message):
             return await message.edit(f"{lang('error_prefix')}{lang('arg_error')}")
         # 检查来源频道
         try:
-            channel = await client.get_chat(try_cast_or_fallback(message.parameter[1], int))
-            assert isinstance(channel, Chat)
-            check_chat_available(channel)
+            source = await client.get_chat(try_cast_or_fallback(message.parameter[1], int))
+            assert isinstance(source, Chat)
+            check_chat_available(source)
         except Exception:
-                return await message.edit("呜呜呜 ~ 出错了无法识别的来源对话。")
-        if channel.id in [-1001441461877]:
+            return await message.edit("呜呜呜 ~ 出错了无法识别的来源对话。")
+        if source.id in [-1001441461877]:
             return await message.edit('呜呜呜 ~ 出错了此对话位于白名单中。')
         # 检查目标频道
         try:
-            to = await client.get_chat(try_cast_or_fallback(message.parameter[1], int))
-            assert isinstance(to, Chat)
+            target = await client.get_chat(try_cast_or_fallback(message.parameter[2], int))
+            assert isinstance(target, Chat)
         except Exception:
             return await message.edit("出错了呜呜呜 ~ 无法识别的目标对话。")
-        if to.id in [-1001441461877]:
+        if target.id in [-1001441461877]:
             await message.edit('出错了呜呜呜 ~ 此对话位于白名单中。')
             return
-        sqlite[f"shift.{channel.id}"] = to.id
-        await message.edit(f"已成功配置将对话 {channel.id} 的新消息转发到 {to.id} 。")
-        await log(f"已成功配置将对话 {channel.id} 的新消息转发到 {to.id} 。")
+        sqlite[f"shift.{source.id}"] = target.id
+        sqlite[f"shift.{source.id}.options"] = message.parameter[3:] if len(message.parameter) > 3 else []
+        await message.edit(f"已成功配置将对话 {source.id} 的新消息转发到 {target.id} 。")
+        await log(f"已成功配置将对话 {source.id} 的新消息转发到 {target.id} 。")
     elif message.parameter[0] == "del":
         if len(message.parameter) != 2:
             return await message.edit(f"{lang('error_prefix')}{lang('arg_error')}")
         # 检查来源频道
         try:
-            channel = await client.get_chat(try_cast_or_fallback(message.parameter[1], int))
-            assert isinstance(channel, Chat)
+            source = await client.get_chat(try_cast_or_fallback(message.parameter[1], int))
+            assert isinstance(source, Chat)
         except Exception:
             return await message.edit("出错了呜呜呜 ~ 无法识别的来源对话。")
         try:
-            del sqlite[f"shift.{channel.id}"]
+            del sqlite[f"shift.{source.id}"]
+            with contextlib.suppress(Exception):
+                del sqlite[f"shift.{source.id}.options"]
         except Exception:
             return await message.edit('emm...当前对话不存在于自动转发列表中。')
-        await message.edit(f"已成功关闭对话 {str(channel.id)} 的自动转发功能。")
-        await log(f"已成功关闭对话 {str(channel.id)} 的自动转发功能。")
+        await message.edit(f"已成功关闭对话 {str(source.id)} 的自动转发功能。")
+        await log(f"已成功关闭对话 {str(source.id)} 的自动转发功能。")
     elif message.parameter[0] == "backup":
         if len(message.parameter) != 3:
             return await message.edit(f"{lang('error_prefix')}{lang('arg_error')}")
         # 检查来源频道
         try:
-            channel = await client.get_chat(try_cast_or_fallback(message.parameter[1], int))
-            assert isinstance(channel, Chat)
-            check_chat_available(channel)
+            source = await client.get_chat(try_cast_or_fallback(message.parameter[1], int))
+            assert isinstance(source, Chat)
+            check_chat_available(source)
         except Exception:
             return await message.edit("出错了呜呜呜 ~ 无法识别的来源对话。")
-        if channel.id in [-1001441461877]:
+        if source.id in [-1001441461877]:
             return await message.edit('出错了呜呜呜 ~ 此对话位于白名单中。')
         # 检查目标频道
         try:
-            to = await client.get_chat(try_cast_or_fallback(message.parameter[1], int))
-            assert isinstance(to, Chat)
+            target = await client.get_chat(try_cast_or_fallback(message.parameter[2], int))
+            assert isinstance(target, Chat)
         except Exception:
             return await message.edit("出错了呜呜呜 ~ 无法识别的目标对话。")
-        if to.id in [-1001441461877]:
+        if target.id in [-1001441461877]:
             return await message.edit('出错了呜呜呜 ~ 此对话位于白名单中。')
         # 开始遍历消息
-        await message.edit(f'开始备份频道 {channel.id} 到 {to.id} 。')
-        msgs = await client.search_messages(channel.id)
-        if not msgs:
-            return await message.edit('出错了呜呜呜 ~ 无法获取目标对话的消息。')
-        async for msg in msgs:
+        await message.edit(f'开始备份频道 {source.id} 到 {target.id} 。')
+        async for msg in client.search_messages(source.id):  # type: ignore
             await sleep(uniform(0.5, 1.0))
-            await forward_msg(message, msg, to.id)
-        await message.edit(f'备份频道 {channel.id} 到 {to.id} 已完成。')
+            await loosely_forward(message, msg, target.id)
+        await message.edit(f'备份频道 {source.id} 到 {target.id} 已完成。')
     else:
         await message.edit(f"{lang('error_prefix')}{lang('arg_error')}")
         return
 
 
 @listener(is_plugin=True, incoming=True, ignore_edited=True)
-async def shift_channel_message(message):
+async def shift_channel_message(message: Message):
     """ Event handler to auto forward channel messages. """
-    cid = sqlite.get(f"shift.{message.chat.id}", None)
-    if not cid:
-        return
-    if message.chat.id in [-1001441461877]:
+    d = dict(sqlite)
+    source = message.chat.id
+    target = d.get(f"shift.{source}")
+    if not target:
         return
     if message.chat.has_protected_content:
-        del sqlite[f"shift.{message.chat.id}"]
+        del sqlite[f"shift.{source}"]
         return
-    with contextlib.suppress(Exception):
-        await message.forward(cid)
+    options = d.get(f"shift.{source}.options") or []
+    
+    sent = await forward(
+        message,
+        target,
+        as_copy="nosender" in options,
+        disable_notification="silent" in options,
+        remove_caption="nocaption" in options,
+    )
 
 
-async def forward_msg(message, msg, cid):
+async def loosely_forward(notifier: Message, message: Message, channel: int):
     try:
-        await msg.forward(msg, cid)
-    except FloodWait as e:
-        await message.edit(f'触发 Flood ，暂停 {e.value + uniform(0.5, 1.0)} 秒。')
-        try:
-            await sleep(e.value + uniform(0.5, 1.0))
-        except Exception as e:
-            print(f"Wait flood error: {e}")
-            return
-        await forward_msg(message, msg, cid)
+        await message.forward(channel)
+    except FloodWait as ex:
+        min: int = ex.value  # type: ignore
+        delay = min + uniform(0.5, 1.0)
+        await notifier.edit(f'触发 Flood ，暂停 {delay} 秒。')
+        await sleep(delay)
+        await loosely_forward(notifier, message, channel)
+
+
+# no_copy solution is adapted from https://github.com/pyrogram/pyrogram/pull/227
+def forward(
+        message: Message,
+        chat_id: int,
+        as_copy: bool = False,
+        disable_notification: bool = False,
+        remove_caption: bool = False
+    ):
+    if as_copy:
+        if message.service:
+            raise ValueError("Unable to copy service messages")
+
+        if message.game:
+            raise ValueError("Users cannot send messages with Game media type")
+
+        # TODO: Improve markdown parser. Currently html appears to be more stable, thus we use it here because users
+        #       can"t choose.
+
+        if message.text:
+            return message._client.send_message(
+                chat_id,
+                text=message.text.html,
+                parse_mode=ParseMode.HTML,
+                disable_web_page_preview=not message.web_page,
+                disable_notification=disable_notification
+            )
+        elif message.media:
+            caption = message.caption.html if message.caption and not remove_caption else None
+
+            send_media = partial(
+                message._client.send_cached_media,
+                chat_id=chat_id,
+                disable_notification=disable_notification
+            )
+
+            if message.photo:
+                file_id = message.photo.file_id
+            elif message.audio:
+                file_id = message.audio.file_id
+            elif message.document:
+                file_id = message.document.file_id
+            elif message.video:
+                file_id = message.video.file_id
+            elif message.animation:
+                file_id = message.animation.file_id
+            elif message.voice:
+                file_id = message.voice.file_id
+            elif message.sticker:
+                file_id = message.sticker.file_id
+            elif message.video_note:
+                file_id = message.video_note.file_id
+            elif message.contact:
+                return message._client.send_contact(
+                    chat_id,
+                    phone_number=message.contact.phone_number,
+                    first_name=message.contact.first_name,
+                    last_name=message.contact.last_name,
+                    vcard=message.contact.vcard,
+                    disable_notification=disable_notification
+                )
+            elif message.location:
+                return message._client.send_location(
+                    chat_id,
+                    latitude=message.location.latitude,
+                    longitude=message.location.longitude,
+                    disable_notification=disable_notification
+                )
+            elif message.venue:
+                return message._client.send_venue(
+                    chat_id,
+                    latitude=message.venue.location.latitude,
+                    longitude=message.venue.location.longitude,
+                    title=message.venue.title,
+                    address=message.venue.address,
+                    foursquare_id=message.venue.foursquare_id,
+                    foursquare_type=message.venue.foursquare_type,
+                    disable_notification=disable_notification
+                )
+            elif message.poll:
+                return message._client.send_poll(
+                    chat_id,
+                    question=message.poll.question,
+                    options=[opt.text for opt in message.poll.options],
+                    disable_notification=disable_notification
+                )
+            elif message.game:
+                return message._client.send_game(
+                    chat_id,
+                    game_short_name=message.game.short_name,
+                    disable_notification=disable_notification
+                )
+            else:
+                raise ValueError("Unknown media type")
+
+            if message.sticker or message.video_note:  # Sticker and VideoNote should have no caption
+                return send_media(file_id)
+            else:
+                return send_media(file_id=file_id, caption=caption, parse_mode=ParseMode.HTML)  # type: ignore
+        else:
+            raise ValueError("Can't copy this message")
+    else:
+        return message.forward(chat_id, disable_notification)
