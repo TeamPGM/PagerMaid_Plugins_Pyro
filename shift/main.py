@@ -40,6 +40,9 @@ async def shift_set(client: Client, message: Message):
     if message.parameter[0] == "set":
         if len(message.parameter) < 3:
             return await message.edit(f"{lang('error_prefix')}{lang('arg_error')}")
+        options = set(message.parameter[3:] if len(message.parameter) > 3 else ())
+        if len(set(options).intersection(set(("nosender", "nocaption", "silent")))) < len(options):
+            return await message.edit("呜呜呜 ~ 出错了无法识别的选项。")
         # 检查来源频道
         try:
             source = await client.get_chat(try_cast_or_fallback(message.parameter[1], int))
