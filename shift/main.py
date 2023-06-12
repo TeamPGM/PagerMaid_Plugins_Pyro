@@ -38,6 +38,7 @@ def check_chat_available(chat: Chat):
     parameters="set [from channel] [to channel] (nosender|nocaption|silent) 自动转发频道新消息（可以使用频道用户名或者 id）\n"
         "del [from channel] 删除转发\n"
         "backup [from channel] [to channel] (nosender|nocaption|silent) 备份频道（可以使用频道用户名或者 id）\n"
+        "（选项：nocaption: 图像不带说明, nosender: 转发不带发送者信息, silent: 禁用通知）\n"
         "（注意：nocaption 需要与 nosender 一起使用）"
 )
 async def shift_set(client: Client, message: Message):
