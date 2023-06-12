@@ -10,7 +10,7 @@
 
 需要加入 from_channel_id 和 to_channel_id。
 
-`, shift set [from channel_id] [to channel_id] (nosender|nocaption|silent)`
+`, shift set [from channel_id] [to channel_id] (silent)`
 
 ### 取消转发
 
@@ -18,12 +18,8 @@
 
 ### 备份频道
 
-`, shift backup [from channel_id] [to channel_id] (nosender|nocaption|silent)`
+`, shift backup [from channel_id] [to channel_id] (silent)`
 
 ## 选项解释
 
-- `nocaption`: 图像不带说明
-- `nosender`: 转发不带发送者信息
 - `silent`: 禁用通知
-
-（注意：`nocaption` 需要与 `nosender` 一起使用）
