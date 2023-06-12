@@ -2,7 +2,6 @@
 
 import contextlib
 from asyncio import sleep
-from functools import partial
 from random import uniform
 from typing import Any
 
@@ -12,7 +11,6 @@ from pagermaid.listener import listener
 from pagermaid.single_utils import sqlite
 from pagermaid.utils import lang
 from pyrogram.enums.chat_type import ChatType
-from pyrogram.enums.parse_mode import ParseMode
 from pyrogram.errors.exceptions.flood_420 import FloodWait
 from pyrogram.types import Chat
 
