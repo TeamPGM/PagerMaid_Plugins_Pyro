@@ -17,6 +17,10 @@ from pagermaid.listener import listener
 import contextlib
 
 
+WHITELIST = [-1001441461877]
+AVAILABLE_OPTIONS = set(("nosender", "nocaption", "silent"))
+
+
 def try_cast_or_fallback(val: Any, t: type) -> Any:
     try:
         return t(val)
@@ -28,11 +32,14 @@ def check_chat_available(chat: Chat):
     assert chat.type == ChatType.CHANNEL and not chat.has_protected_content
 
 
-@listener(command="shift",
-          description='开启转发频道新消息功能',
-          parameters="set [from channel] [to channel] (nosender|nocaption|silent) 自动转发频道新消息（可以使用频道用户名或者 id，注意 nocaption 需要与 nosender 一起使用）\n"
-                     "del [from channel] 删除转发\n"
-                     "backup [from channel] [to channel] 备份频道（可以使用频道用户名或者 id）")
+@listener(
+    command="shift",
+    description='开启转发频道新消息功能',
+    parameters="set [from channel] [to channel] (nosender|nocaption|silent) 自动转发频道新消息（可以使用频道用户名或者 id）\n"
+        "del [from channel] 删除转发\n"
+        "backup [from channel] [to channel] (nosender|nocaption|silent) 备份频道（可以使用频道用户名或者 id）\n"
+        "（注意：nocaption 需要与 nosender 一起使用）"
+)
 async def shift_set(client: Client, message: Message):
     if not message.parameter:
         await message.edit(f"{lang('error_prefix')}{lang('arg_error')}")
@@ -41,24 +48,24 @@ async def shift_set(client: Client, message: Message):
         if len(message.parameter) < 3:
             return await message.edit(f"{lang('error_prefix')}{lang('arg_error')}")
         options = set(message.parameter[3:] if len(message.parameter) > 3 else ())
-        if len(set(options).intersection(set(("nosender", "nocaption", "silent")))) < len(options):
-            return await message.edit("呜呜呜 ~ 出错了无法识别的选项。")
+        if set(options).difference(AVAILABLE_OPTIONS):
+            return await message.edit("出错了呜呜呜 ~ 无法识别的选项。")
         # 检查来源频道
         try:
             source = await client.get_chat(try_cast_or_fallback(message.parameter[1], int))
             assert isinstance(source, Chat)
             check_chat_available(source)
         except Exception:
-            return await message.edit("呜呜呜 ~ 出错了无法识别的来源对话。")
-        if source.id in [-1001441461877]:
-            return await message.edit('呜呜呜 ~ 出错了此对话位于白名单中。')
+            return await message.edit("出错了呜呜呜 ~ 无法识别的来源对话。")
+        if source.id in WHITELIST:
+            return await message.edit('出错了呜呜呜 ~ 此对话位于白名单中。')
         # 检查目标频道
         try:
             target = await client.get_chat(try_cast_or_fallback(message.parameter[2], int))
             assert isinstance(target, Chat)
         except Exception:
             return await message.edit("出错了呜呜呜 ~ 无法识别的目标对话。")
-        if target.id in [-1001441461877]:
+        if target.id in WHITELIST:
             await message.edit('出错了呜呜呜 ~ 此对话位于白名单中。')
             return
         sqlite[f"shift.{source.id}"] = target.id
@@ -83,8 +90,11 @@ async def shift_set(client: Client, message: Message):
         await message.edit(f"已成功关闭对话 {str(source.id)} 的自动转发功能。")
         await log(f"已成功关闭对话 {str(source.id)} 的自动转发功能。")
     elif message.parameter[0] == "backup":
-        if len(message.parameter) != 3:
+        if len(message.parameter) < 3:
             return await message.edit(f"{lang('error_prefix')}{lang('arg_error')}")
+        options = set(message.parameter[3:] if len(message.parameter) > 3 else ())
+        if set(options).difference(AVAILABLE_OPTIONS):
+            return await message.edit("出错了呜呜呜 ~ 无法识别的选项。")
         # 检查来源频道
         try:
             source = await client.get_chat(try_cast_or_fallback(message.parameter[1], int))
@@ -92,7 +102,7 @@ async def shift_set(client: Client, message: Message):
             check_chat_available(source)
         except Exception:
             return await message.edit("出错了呜呜呜 ~ 无法识别的来源对话。")
-        if source.id in [-1001441461877]:
+        if source.id in WHITELIST:
             return await message.edit('出错了呜呜呜 ~ 此对话位于白名单中。')
         # 检查目标频道
         try:
@@ -100,13 +110,20 @@ async def shift_set(client: Client, message: Message):
             assert isinstance(target, Chat)
         except Exception:
             return await message.edit("出错了呜呜呜 ~ 无法识别的目标对话。")
-        if target.id in [-1001441461877]:
+        if target.id in WHITELIST:
             return await message.edit('出错了呜呜呜 ~ 此对话位于白名单中。')
         # 开始遍历消息
         await message.edit(f'开始备份频道 {source.id} 到 {target.id} 。')
         async for msg in client.search_messages(source.id):  # type: ignore
             await sleep(uniform(0.5, 1.0))
-            await loosely_forward(message, msg, target.id)
+            await loosely_forward(
+                message,
+                msg,
+                target.id,
+                as_copy="nosender" in options,
+                disable_notification="silent" in options,
+                remove_caption="nocaption" in options,
+            )
         await message.edit(f'备份频道 {source.id} 到 {target.id} 已完成。')
     else:
         await message.edit(f"{lang('error_prefix')}{lang('arg_error')}")
@@ -126,24 +143,34 @@ async def shift_channel_message(message: Message):
         return
     options = d.get(f"shift.{source}.options") or []
     
-    sent = await forward(
-        message,
-        target,
-        as_copy="nosender" in options,
-        disable_notification="silent" in options,
-        remove_caption="nocaption" in options,
-    )
+    with contextlib.suppress(Exception):
+        await forward(
+            message,
+            target,
+            as_copy="nosender" in options,
+            disable_notification="silent" in options,
+            remove_caption="nocaption" in options,
+        )
 
 
-async def loosely_forward(notifier: Message, message: Message, channel: int):
+async def loosely_forward(
+    notifier: Message,
+    message: Message,
+    chat_id: int,
+    as_copy: bool = False,
+    disable_notification: bool = False,
+    remove_caption: bool = False
+):
     try:
-        await message.forward(channel)
+        await forward(message, chat_id, as_copy, disable_notification, remove_caption)
     except FloodWait as ex:
         min: int = ex.value  # type: ignore
         delay = min + uniform(0.5, 1.0)
         await notifier.edit(f'触发 Flood ，暂停 {delay} 秒。')
         await sleep(delay)
-        await loosely_forward(notifier, message, channel)
+        await loosely_forward(notifier, message, chat_id, as_copy, disable_notification, remove_caption)
+    except Exception:
+        pass  # drop other errors
 
 
 # no_copy solution is adapted from https://github.com/pyrogram/pyrogram/pull/227
