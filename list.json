@@ -172,13 +172,13 @@
         },
         {
             "name": "shift",
-            "version": "1.042",
+            "version": "1.052",
             "section": "daily",
             "maintainer": "xtaodada",
             "size": "5.3 kb",
             "supported": true,
             "des-short": "自动转发/备份频道消息",
-            "des": "自动转发频道新消息或者从零开始备份频道。\n\n指令：,shift\n\n# 设置转发\n\n当收到 from_channel_id 的新消息时，自动转发到 to_channel_id。\n\n需要加入 from_channel_id 和 to_channel_id。\n\n`, shift set [from channel_id] [to channel_id]`\n\n# 取消转发\n\n`, shift del [from channel_id]`\n\n# 备份频道\n\n`, shift backup [from channel_id] [to channel_id]`"
+            "des": "自动转发频道新消息或者从零开始备份频道。\n\n指令：,shift\n\n## 使用方法\n\n### 设置转发\n\n当收到 from_channel_id 的新消息时，自动转发到 to_channel_id。\n\n需要加入 from_channel_id 和 to_channel_id。\n\n`, shift set [from channel_id] [to channel_id] (silent)`\n\n### 取消转发\n\n`, shift del [from channel_id]`\n\n### 备份频道\n\n`, shift backup [from channel_id] [to channel_id] (silent)`\n\n## 选项解释\n\n- `silent`: 禁用通知"
         },
         {
             "name": "dme",
