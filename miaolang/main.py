@@ -71,8 +71,7 @@ def add_punctuations(s: str, options: Optional[Options] = None) -> str:
 
 
 def add_calls(s: str, options: Optional[Options] = None) -> str:
-    result = add_punctuations(s, options)
-    return result
+    return add_punctuations(s, options)
 
 
 def to_miao(s: str, options: Optional[Options] = None) -> str:
