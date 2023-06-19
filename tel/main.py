@@ -6,10 +6,13 @@ from pagermaid.utils import Message
 @listener(command="tel", description="手机号码归属地等信息查询。")
 async def tel(message: Message, request: AsyncClient):
     await message.edit("获取中 . . .")
-    if not (phone := message.arguments.strip()).isnumeric() and not len(phone) == 11:
+    if (
+        not (phone := message.arguments.strip()).isnumeric()
+        and len(phone) != 11
+    ):
         await message.edit("出错了呜呜呜 ~ 无效的参数。")
         return
-    res = await request.post(f"https://tenapi.cn/v2/phone", params={"tel": phone})
+    res = await request.post("https://tenapi.cn/v2/phone", params={"tel": phone})
     data = None
     if res.is_success and (data := res.json())["code"] == 200:
         data = data["data"]
