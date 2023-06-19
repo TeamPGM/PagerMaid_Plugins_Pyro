@@ -1,42 +1,27 @@
-import json
-import sys, codecs
-
-sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
-from requests import get
-from pyrogram import Client
+from httpx import AsyncClient
 from pagermaid.listener import listener
 from pagermaid.utils import Message
 
 
-@listener(command="tel",
-          description="手机号码归属地等信息查询。")
-async def tel(_: Client, context: Message):
-    await context.edit("获取中 . . .")
-    try:
-        message = context.arguments
-    except ValueError:
-        await context.edit("出错了呜呜呜 ~ 无效的参数。")
+@listener(command="tel", description="手机号码归属地等信息查询。")
+async def tel(message: Message, request: AsyncClient):
+    await message.edit("获取中 . . .")
+    if not (phone := message.arguments.strip()).isnumeric() and not len(phone) == 11:
+        await message.edit("出错了呜呜呜 ~ 无效的参数。")
         return
-    req = get(f"https://tenapi.cn/tel?tel={message}")
-    if req.status_code == 200:
-        data = json.loads(req.text)
-        res = (
-            data['msg']
-            if 'msg' in data
-            else '电话号码：'
-            + str(data['tel'])
-            + '\n'
-            + str(data['local'])
-            + '\n'
-            + str(data['duan'])
-            + '\n'
-            + str(data['type'])
-            + '\n'
-            + str(data['yys'])
-            + '\n'
-            + str(data['bz'])
+    res = await request.post(f"https://tenapi.cn/v2/phone", params={"tel": phone})
+    data = None
+    if res.is_success and (data := res.json())["code"] == 200:
+        data = data["data"]
+        await message.edit(
+            f"查询目标: {phone}\n"
+            f"地区: {data['local']}\n"
+            f"号段: {data['num']}\n"
+            f"卡类型: {data['type']}\n"
+            f"运营商: {data['isp']}\n"
+            f"通信标准: {data['std']}"
         )
-
-        await context.edit(res)
     else:
-        await context.edit("出错了呜呜呜 ~ 无法访问到 API 服务器 。")
+        await message.edit(
+            "出错了呜呜呜 ~ API 服务器返回了错误。" + ("\n" + data.get("msg") if data else "")
+        )
