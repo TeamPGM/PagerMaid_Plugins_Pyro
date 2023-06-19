@@ -1059,6 +1059,16 @@
             "supported": true,
             "des-short": "xinjingdailybot 自动转载稿件",
             "des": "XinjingdailyBot IPC投稿插件, 用于自动从别的频道转载内容到投稿机器人\n\n需要配合 [XinjingdailyBot](https://github.com/chr233/XinjingdailyBot/) 使用\n\n使用命令 `,xinjingdailybot` 查看帮助"
+        },
+        {
+            "name": "miaolang",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "Ricky8955555",
+            "size": "3.344 kb",
+            "supported": true,
+            "des-short": "miaolang 喵语翻译机",
+            "des": "喵语翻译机\n\n指令:\n- `,enmiao <待转换文本> (支持回复消息)` (转换指定文本到喵语)\n- `,demiao <喵语> (支持回复消息)` (转换喵语到明文)"
         }
     ]
 }
