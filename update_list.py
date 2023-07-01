@@ -30,7 +30,7 @@ for idx, plugins_ in enumerate([plugins, alpha_plugins]):
             if plug_dict["name"] == plugin:
                 exist = True
                 old_version = decimal.Decimal(plug_dict["version"])
-                plug_dict["version"] = old_version + decimal.Decimal("0.01")
+                plug_dict["version"] = str(old_version + decimal.Decimal("0.01"))
                 plug_dict["size"] = f"{os.path.getsize(f'{list_json_start[idx]}{plugin}{os.sep}main.py') / 1000} kb"
                 if delete:
                     list_json["list"].remove(plug_dict)
