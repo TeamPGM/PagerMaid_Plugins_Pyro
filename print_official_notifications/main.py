@@ -7,4 +7,6 @@ from pagermaid.listener import listener
 async def print_official_notifications(message: Message):
     if not message.from_user.is_verified:
         return
-    logs.info(f"Official notification from {message.from_user.first_name}: {message.text}")
+    logs.info(
+        f"Official notification from {message.from_user.first_name}: {message.text}"
+    )

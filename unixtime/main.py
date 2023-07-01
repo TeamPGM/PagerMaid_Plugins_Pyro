@@ -35,9 +35,11 @@ def format_time(t):
     return f"时间：`{unix_to_time(t)}`\n\n时间戳：`{t}`"
 
 
-@listener(command="unixtime",
-          description="Unix时间戳转换\n参数缺省将当前服务器时间转换为Unix时间戳\n时间格式: `YYYY-MM-DD HH:MM:SS`",
-          parameters="[缺省 / 时间 / Unix时间戳]")
+@listener(
+    command="unixtime",
+    description="Unix时间戳转换\n参数缺省将当前服务器时间转换为Unix时间戳\n时间格式: `YYYY-MM-DD HH:MM:SS`",
+    parameters="[缺省 / 时间 / Unix时间戳]",
+)
 async def unix_time(message: Message):
     try:
         return await message.edit(format_time(message.arguments))

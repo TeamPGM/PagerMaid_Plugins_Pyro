@@ -26,17 +26,16 @@ async def today_in_history_subscribe() -> None:
     text = await get_history()
     for gid in today_in_history_sub.get_subs():
         try:
-            await bot.send_message(
-                gid,
-                text
-            )
+            await bot.send_message(gid, text)
         except Exception as e:  # noqa
             today_in_history_sub.del_id(gid)
 
 
-@listener(command="today_in_history",
-          parameters="订阅/退订",
-          description="查看历史上的今天，支持订阅/退订每天上午八点定时发送")
+@listener(
+    command="today_in_history",
+    parameters="订阅/退订",
+    description="查看历史上的今天，支持订阅/退订每天上午八点定时发送",
+)
 async def today_in_history(message: Message):
     if not message.arguments:
         try:
@@ -47,7 +46,9 @@ async def today_in_history(message: Message):
     elif message.arguments == "订阅":
         if check_manage_subs(message):
             if today_in_history_sub.check_id(message.chat.id):
-                return await edit_delete(message, "❌ 你已经订阅了历史上的今天", parse_mode=ParseMode.HTML)
+                return await edit_delete(
+                    message, "❌ 你已经订阅了历史上的今天", parse_mode=ParseMode.HTML
+                )
             today_in_history_sub.add_id(message.chat.id)
             await message.edit("你已经成功订阅了历史上的今天")
         else:
@@ -55,7 +56,9 @@ async def today_in_history(message: Message):
     elif message.arguments == "退订":
         if check_manage_subs(message):
             if not today_in_history_sub.check_id(message.chat.id):
-                return await edit_delete(message, "❌ 你还没有订阅摸历史上的今天", parse_mode=ParseMode.HTML)
+                return await edit_delete(
+                    message, "❌ 你还没有订阅摸历史上的今天", parse_mode=ParseMode.HTML
+                )
             today_in_history_sub.del_id(message.chat.id)
             await message.edit("你已经成功退订了历史上的今天")
         else:

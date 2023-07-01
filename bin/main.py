@@ -9,11 +9,9 @@ pip_install("requests")
 import requests
 
 
-@listener(command="bin", 
-          description="查询信用卡信息", 
-          parameters="[bin（4到8位数字）]")
+@listener(command="bin", description="查询信用卡信息", parameters="[bin（4到8位数字）]")
 async def card(_: Client, message: Message):
-    await message.edit('正在查询中...')
+    await message.edit("正在查询中...")
     try:
         card_bin = message.arguments
     except ValueError:
@@ -39,30 +37,30 @@ async def card(_: Client, message: Message):
 
     msg_out = [f"BIN：{card_bin}"]
     try:
-        msg_out.extend(["卡品牌：" + bin_json['scheme']])
+        msg_out.extend(["卡品牌：" + bin_json["scheme"]])
     except (KeyError, TypeError):
         pass
     try:
-        msg_out.extend(["卡类型：" + bin_json['type']])
+        msg_out.extend(["卡类型：" + bin_json["type"]])
     except (KeyError, TypeError):
         pass
     try:
-        msg_out.extend(["卡种类：" + bin_json['brand']])
+        msg_out.extend(["卡种类：" + bin_json["brand"]])
     except (KeyError, TypeError):
         pass
     try:
-        msg_out.extend(["发卡行：" + bin_json['bank']["name"]])
+        msg_out.extend(["发卡行：" + bin_json["bank"]["name"]])
     except (KeyError, TypeError):
         pass
     try:
-        if bin_json['prepaid']:
+        if bin_json["prepaid"]:
             msg_out.extend(["是否预付：是"])
         else:
             msg_out.extend(["是否预付：否"])
     except (KeyError, TypeError):
         pass
     try:
-        msg_out.extend(["发卡国家：" + bin_json['country']['name']])
+        msg_out.extend(["发卡国家：" + bin_json["country"]["name"]])
     except (KeyError, TypeError):
         pass
     await message.edit("\n".join(msg_out))

@@ -33,7 +33,12 @@ class DelTask:
                 hour = DelTask.check_time(data[i - 1], 0, 24)
             elif data[i] == "days":
                 day = DelTask.check_time(data[i - 1], 0, 31)
-        if second := int(second) + int(minute) * 60 + int(hour) * 3600 + int(day) * 86400:
+        if (
+            second := int(second)
+            + int(minute) * 60
+            + int(hour) * 3600
+            + int(day) * 86400
+        ):
             return second
         else:
             raise ValueError("Invalid task format")
@@ -59,7 +64,9 @@ class DelTask:
 
     @staticmethod
     def add_task(message: Message):
-        if seconds := DelTask.get_del_seconds(0) or DelTask.get_del_seconds(message.chat.id):
+        if seconds := DelTask.get_del_seconds(0) or DelTask.get_del_seconds(
+            message.chat.id
+        ):
             add_delete_message_job(message, seconds)
 
     @staticmethod
@@ -87,9 +94,11 @@ auto_del_help_msg = f"""
 """
 
 
-@listener(command="autodel",
-          need_admin=True,
-          description=f"定时删除消息\n请使用 ,{alias_command('autodel')} h 查看可用命令")
+@listener(
+    command="autodel",
+    need_admin=True,
+    description=f"定时删除消息\n请使用 ,{alias_command('autodel')} h 查看可用命令",
+)
 async def auto_del(message: Message):
     if message.arguments == "h" or len(message.parameter) == 0:
         return await message.edit(auto_del_help_msg)
@@ -97,7 +106,9 @@ async def auto_del(message: Message):
         return await message.edit(DelTask.get_list(message.chat.id))
     try:
         await DelTask.parse_task(message)
-        await message.edit("设置自动删除任务成功。" if message.arguments != "cancel" else "取消自动删除任务成功。")
+        await message.edit(
+            "设置自动删除任务成功。" if message.arguments != "cancel" else "取消自动删除任务成功。"
+        )
     except ValueError as e:
         await message.edit(f"开启失败：{str(e)}")
     except KeyError:

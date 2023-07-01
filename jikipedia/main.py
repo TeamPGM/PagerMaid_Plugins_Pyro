@@ -12,7 +12,14 @@ class JIKIPediaDefinition:
     item_id: int
     image: Optional[str]
 
-    def __init__(self, plaintext: str, tags: List[Dict], title: str, item_id: int, image: Optional[str]):
+    def __init__(
+        self,
+        plaintext: str,
+        tags: List[Dict],
+        title: str,
+        item_id: int,
+        image: Optional[str],
+    ):
         self.plaintext = plaintext
         self.tags = []
         for i in tags:
@@ -24,7 +31,9 @@ class JIKIPediaDefinition:
 
     def format(self):
         plaintext = self.plaintext.replace("\u200b", "").replace("\u200c", "")
-        tags = " ".join([f"#{x}" for x in list(self.tags)]) if self.tags else "该词条还没有Tag哦～"
+        tags = (
+            " ".join([f"#{x}" for x in list(self.tags)]) if self.tags else "该词条还没有Tag哦～"
+        )
 
         text = f"词条：【{self.title}】\n\n"
         text += f"{plaintext}\n\n"
@@ -63,7 +72,11 @@ class JIKIPedia:
         self.key = key
 
     async def search(self):
-        req = await httpx.post(url=self.url, headers=self.headers, json={"phrase": self.key, "page": 1, "size": 60})
+        req = await httpx.post(
+            url=self.url,
+            headers=self.headers,
+            json={"phrase": self.key, "page": 1, "size": 60},
+        )
         return self.parse(**req.json())
 
     def parse(self, **kwargs):
@@ -83,15 +96,15 @@ class JIKIPedia:
                         image = ""
                         if len(images) > 0:
                             image = images[0].get("full", {}).get("path", "")
-                        self.definitions.append(JIKIPediaDefinition(plaintext, tags, title, item_id, image))
+                        self.definitions.append(
+                            JIKIPediaDefinition(plaintext, tags, title, item_id, image)
+                        )
         self.message = kwargs.get("message")
         if issubclass(type(self.message), dict):
             self.message = self.message.get("title", None)
 
 
-@listener(command="jikipedia",
-          parameters="[关键词]",
-          description="梗查询")
+@listener(command="jikipedia", parameters="[关键词]", description="梗查询")
 async def jikipedia(message: Message):
     if not message.arguments:
         return await message.edit("请输入关键词")

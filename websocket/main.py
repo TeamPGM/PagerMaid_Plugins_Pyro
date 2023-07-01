@@ -44,7 +44,9 @@ class WebSocket:
         if self.is_connected():
             await self.disconnect()
         if self.uri:
-            self.ws = self.client.ws_connect(self.uri, autoclose=False, autoping=False, timeout=5)
+            self.ws = self.client.ws_connect(
+                self.uri, autoclose=False, autoping=False, timeout=5
+            )
             self.connection = await self.ws._coro
 
     async def disconnect(self):
@@ -105,8 +107,8 @@ class WebSocket:
             data = json.loads(text)
         except Exception:
             return
-        action = data.get('action', None)
-        action_data = data.get('data', None)
+        action = data.get("action", None)
+        action_data = data.get("data", None)
 
         bot_action = getattr(bot, action)
         if bot_action and action_data:
@@ -136,8 +138,10 @@ async def websocket_to_connect(message: Message):
     if message.arguments:
         uri = message.arguments
         if not uri.startswith("ws://"):
-            return await message.edit("[ws] 请输入正确的 uri ，例如：ws://127.0.0.1:1080/ws\n\n"
-                                      "**请一定使用强路径并且连接到可信 ws ，ws 发送方能够对您的账户执行任意操作！！！**")
+            return await message.edit(
+                "[ws] 请输入正确的 uri ，例如：ws://127.0.0.1:1080/ws\n\n"
+                "**请一定使用强路径并且连接到可信 ws ，ws 发送方能够对您的账户执行任意操作！！！**"
+            )
         msg: Message = await message.edit("[ws] Websocket 尝试连接中...")
         try:
             if ws.is_connected():
@@ -151,8 +155,10 @@ async def websocket_to_connect(message: Message):
         bot.loop.create_task(ws.keep_alive())
     elif not ws.is_connected():
         if not ws.database_have_uri():
-            return await message.edit("[ws] ws 未链接，请输入正确的 uri ，例如：ws://127.0.0.1:1080/ws\n\n"
-                                      "**请一定使用强路径并且连接到可信 ws ，ws 发送方能够对您的账户执行任意操作！！！**")
+            return await message.edit(
+                "[ws] ws 未链接，请输入正确的 uri ，例如：ws://127.0.0.1:1080/ws\n\n"
+                "**请一定使用强路径并且连接到可信 ws ，ws 发送方能够对您的账户执行任意操作！！！**"
+            )
         ws.restore_uri()
         msg: Message = await message.edit("[ws] Websocket 尝试连接中...")
         try:

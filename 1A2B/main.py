@@ -49,10 +49,12 @@ class Game:
         return a, b
 
 
-@listener(command="1A2B",
-          groups_only=True,
-          description="Play a game of 1A2B",
-          parameters="[start/stop/answer]")
+@listener(
+    command="1A2B",
+    groups_only=True,
+    description="Play a game of 1A2B",
+    parameters="[start/stop/answer]",
+)
 async def play_game_1a2b(message: Message):
     if not message.arguments:
         return await message.edit("Please specify a command.")
@@ -76,7 +78,9 @@ async def play_game_1a2b(message: Message):
         try:
             a, b = game.check_answer(message.arguments)
         except ValueError:
-            return await message.edit("You need to guess 4 numbers between 0 ~ 9.\nFor example: 1234")
+            return await message.edit(
+                "You need to guess 4 numbers between 0 ~ 9.\nFor example: 1234"
+            )
         if a == 4:
             return await message.edit("You Win!\n\nGame over.")
         return await message.edit("%d:  %dA%dB" % (game.times, a, b))

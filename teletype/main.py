@@ -6,9 +6,12 @@ from pagermaid.listener import listener
 from pagermaid.utils import lang, Message
 
 
-@listener(is_plugin=False, command="teletype",
-          description=lang('teletype_des'),
-          parameters="[message]")
+@listener(
+    is_plugin=False,
+    command="teletype",
+    description=lang("teletype_des"),
+    parameters="[message]",
+)
 async def teletype(message: Message):
     if not message.arguments:
         return await message.edit("出错了呜呜呜 ~ 空白的参数。")
@@ -19,7 +22,7 @@ async def teletype(message: Message):
         return
     interval = 0.05
     cursor = "█"
-    buffer = ''
+    buffer = ""
     msg = await message.edit(cursor)
     await sleep(interval)
     for character in text:

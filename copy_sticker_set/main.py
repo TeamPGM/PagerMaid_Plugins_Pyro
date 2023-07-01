@@ -1,6 +1,10 @@
 from pyrogram.raw.functions.messages import GetStickerSet
 from pyrogram.raw.functions.stickers import CreateStickerSet
-from pyrogram.raw.types import InputStickerSetShortName, InputStickerSetItem, InputDocument
+from pyrogram.raw.types import (
+    InputStickerSetShortName,
+    InputStickerSetItem,
+    InputDocument,
+)
 from pyrogram.raw.types.messages import StickerSet
 
 from pagermaid.listener import listener
@@ -10,26 +14,25 @@ from pagermaid.enums import Message
 
 class NoStickerSetNameError(Exception):
     """
-        Occurs when no username is provided
+    Occurs when no username is provided
     """
 
     def __init__(self, string: str = "贴纸包不存在"):
-        super().__init__(
-            string
-        )
+        super().__init__(string)
 
 
 async def get_pack(name: str):
     try:
-        return await bot.invoke(GetStickerSet(
-            stickerset=InputStickerSetShortName(short_name=name),
-            hash=0
-        ))
+        return await bot.invoke(
+            GetStickerSet(stickerset=InputStickerSetShortName(short_name=name), hash=0)
+        )
     except Exception as e:  # noqa
         raise NoStickerSetNameError() from e
 
 
-async def create_sticker_set(sticker_set: str, title: str, is_animated: bool, is_video: bool, stickers):
+async def create_sticker_set(
+    sticker_set: str, title: str, is_animated: bool, is_video: bool, stickers
+):
     try:
         await bot.invoke(
             CreateStickerSet(
@@ -61,8 +64,9 @@ async def process_old_sticker_set(sticker_set: str):
                 access_hash=i.access_hash,
                 file_reference=i.file_reference,
             ),
-            emoji=hash_map.get(i.id, "👀")
-        ) for i in pack.documents
+            emoji=hash_map.get(i.id, "👀"),
+        )
+        for i in pack.documents
     ]
     return stickers, is_animated, is_video
 
@@ -73,12 +77,17 @@ async def process_old_sticker_set(sticker_set: str):
     description="复制某个贴纸包",
 )
 async def copy_sticker_set(message: Message):
-    if (not message.reply_to_message) or (not message.reply_to_message.sticker) or (
-            not message.reply_to_message.sticker.set_name):
+    if (
+        (not message.reply_to_message)
+        or (not message.reply_to_message.sticker)
+        or (not message.reply_to_message.sticker.set_name)
+    ):
         return await message.edit("请先回复一张需要复制的贴纸包的贴纸")
     sticker_set = message.reply_to_message.sticker.set_name
     if len(message.parameter) < 2:
-        return await message.edit("请指定贴纸包链接和贴纸包名称，例如 <code>xxxx_sticker xxxx 的贴纸包</code>")
+        return await message.edit(
+            "请指定贴纸包链接和贴纸包名称，例如 <code>xxxx_sticker xxxx 的贴纸包</code>"
+        )
     set_name = message.parameter[0]
     name = " ".join(message.parameter[1:])
     try:
@@ -86,4 +95,6 @@ async def copy_sticker_set(message: Message):
         await create_sticker_set(set_name, name, is_animated, is_video, stickers)
     except Exception as e:
         return await message.edit(f"复制贴纸包失败：{e}")
-    await message.edit(f"复制贴纸包成功 <a href=\"https://t.me/addstickers/{set_name}\">{name}</a>")
+    await message.edit(
+        f'复制贴纸包成功 <a href="https://t.me/addstickers/{set_name}">{name}</a>'
+    )

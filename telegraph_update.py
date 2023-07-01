@@ -11,11 +11,12 @@ url = "https://t.me/PagerMaid_Modify"
 temp = """<h3 id="{0}">{0}</h3><p>{1}</p><blockquote>,apt install {0}</blockquote>"""
 telegraph = Telegraph(token)
 
+
 def gen():
     with open("list.json", "r", encoding="utf-8") as f:
         data = json.load(f)
     k = []
-    data["list"].sort(key=lambda i:i["name"])
+    data["list"].sort(key=lambda i: i["name"])
     for i in data["list"]:
         des = i["des_short"]
         if i["des"].startswith("这个人很懒") or i["des"] == i["des_short"]:
@@ -25,4 +26,7 @@ def gen():
         k.append(temp.format(i["name"], des))
     return "<hr>".join(k)
 
-telegraph.edit_page(path=path, title=title, html_content=gen(), author_name=name, author_url=url)
+
+telegraph.edit_page(
+    path=path, title=title, html_content=gen(), author_name=name, author_url=url
+)

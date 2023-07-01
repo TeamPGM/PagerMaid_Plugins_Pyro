@@ -21,17 +21,15 @@ ytdl_is_downloading = False
 def ytdl_download(url) -> dict:
     response = {"status": True, "error": "", "filepath": []}
     output = pathlib.Path("data/ytdl", "%(title).70s.%(ext)s").as_posix()
-    ydl_opts = {
-        'outtmpl': output,
-        'restrictfilenames': False,
-        'quiet': True
-    }
+    ydl_opts = {"outtmpl": output, "restrictfilenames": False, "quiet": True}
     formats = [
         "bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio",
         "bestvideo[vcodec^=avc]+bestaudio[acodec^=mp4a]/best[vcodec^=avc]/best",
-        None
+        None,
     ]
-    if url.startswith("https://www.youtube.com/") or url.startswith("https://youtu.be/"):
+    if url.startswith("https://www.youtube.com/") or url.startswith(
+        "https://youtu.be/"
+    ):
         formats.insert(0, "bestvideo[ext=mp4]+bestaudio[ext=m4a]")
 
     for format_ in formats:
@@ -72,7 +70,7 @@ async def start_download(message: Message, url: str):
             st_size = os.stat(file).st_size
             if st_size > 2 * 1024 * 1024 * 1024 * 0.99:
                 result["status"] = False
-                result['error'] = "文件太大，无法发送"
+                result["error"] = "文件太大，无法发送"
                 continue
             try:
                 await bot.send_video(
@@ -102,9 +100,9 @@ async def start_download(message: Message, url: str):
         await message.safe_delete()
 
 
-@listener(command="ytdl",
-          description="Upload Youtube video to telegram",
-          parameters="[url]")
+@listener(
+    command="ytdl", description="Upload Youtube video to telegram", parameters="[url]"
+)
 async def ytdl(message: Message):
     global ytdl_is_downloading
     if not message.arguments:
@@ -115,5 +113,7 @@ async def ytdl(message: Message):
     with contextlib.suppress(Exception):
         shutil.rmtree("data/ytdl")
     url = message.arguments
-    message: Message = await message.edit("文件开始后台下载，下载速度取决于你的服务器。\n请<b>不要删除此消息</b>并且耐心等待！！！")
+    message: Message = await message.edit(
+        "文件开始后台下载，下载速度取决于你的服务器。\n请<b>不要删除此消息</b>并且耐心等待！！！"
+    )
     bot.loop.create_task(start_download(message, url))

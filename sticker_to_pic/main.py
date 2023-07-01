@@ -5,9 +5,9 @@ from pagermaid.enums import Message, Client
 from pagermaid.single_utils import safe_remove
 
 
-@listener(command="sticker_to_pic",
-          description="将你回复的静态贴纸转换为图片",
-          parameters="（是否发送原图，默认为否）")
+@listener(
+    command="sticker_to_pic", description="将你回复的静态贴纸转换为图片", parameters="（是否发送原图，默认为否）"
+)
 async def sticker_to_pic(bot: Client, message: Message):
     origin = bool(message.arguments)
     reply = message.reply_to_message

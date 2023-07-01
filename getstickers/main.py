@@ -19,11 +19,14 @@ from pagermaid.single_utils import safe_remove
 async def download_stickers(bot: Client, message: Message, sticker: Sticker):
     try:
         sticker_set: StickerSet = await bot.invoke(
-            GetStickerSet(stickerset=InputStickerSetShortName(short_name=sticker.set_name), hash=0))
+            GetStickerSet(
+                stickerset=InputStickerSetShortName(short_name=sticker.set_name), hash=0
+            )
+        )
     except Exception:  # noqa
-        return await message.edit('回复的贴纸不存在于任何贴纸包中。')
+        return await message.edit("回复的贴纸不存在于任何贴纸包中。")
 
-    pack_file = os.path.join('data/sticker/', sticker_set.set.short_name, "pack.txt")
+    pack_file = os.path.join("data/sticker/", sticker_set.set.short_name, "pack.txt")
 
     if os.path.isfile(pack_file):
         os.remove(pack_file)
@@ -39,20 +42,33 @@ async def download_stickers(bot: Client, message: Message, sticker: Sticker):
 
     async def download(sticker_, emojis_, path, file):
         sticker_file = Document._parse(bot, sticker_, "sticker.webp")  # noqa
-        await bot.download_media(sticker_file.file_id, file_name=os.path.join(path, file))
+        await bot.download_media(
+            sticker_file.file_id, file_name=os.path.join(path, file)
+        )
 
         with open(pack_file, "a") as f:
             f.write(f"{{'image_file': '{file}','emojis':{emojis_[sticker_.id]}}},")
 
-    pending_tasks = [asyncio.ensure_future(
-        download(document, emojis, f"data/sticker/{sticker_set.set.short_name}", f"{i:03d}.{file_ext_ns_ion}")
-    ) for i, document in enumerate(sticker_set.documents)]
+    pending_tasks = [
+        asyncio.ensure_future(
+            download(
+                document,
+                emojis,
+                f"data/sticker/{sticker_set.set.short_name}",
+                f"{i:03d}.{file_ext_ns_ion}",
+            )
+        )
+        for i, document in enumerate(sticker_set.documents)
+    ]
 
     message: Message = await message.edit(
-        f"正在下载 {sticker_set.set.short_name} 中的 {sticker_set.set.count} 张贴纸。。。")
+        f"正在下载 {sticker_set.set.short_name} 中的 {sticker_set.set.count} 张贴纸。。。"
+    )
 
     while 1:
-        done, pending_tasks = await asyncio.wait(pending_tasks, timeout=2.5, return_when=asyncio.FIRST_COMPLETED)
+        done, pending_tasks = await asyncio.wait(
+            pending_tasks, timeout=2.5, return_when=asyncio.FIRST_COMPLETED
+        )
         if not pending_tasks:
             break
     await upload_sticker(bot, message, sticker_set)
@@ -69,7 +85,8 @@ async def upload_sticker(bot: Client, message: Message, sticker_set: StickerSet)
         message.chat.id,
         f"{directory_name}.zip",
         caption=sticker_set.set.short_name,
-        reply_to_message_id=message.reply_to_message_id or message.reply_to_top_message_id,
+        reply_to_message_id=message.reply_to_message_id
+        or message.reply_to_top_message_id,
     )
     safe_remove(f"{directory_name}.zip")
     shutil.rmtree(directory_name)
@@ -82,19 +99,22 @@ async def get_custom_emojis(bot: Client, message: Message):
         for entity in message.entities:
             if entity.type == MessageEntityType.CUSTOM_EMOJI:
                 try:
-                    sticker = await bot.get_custom_emoji_stickers([entity.custom_emoji_id])
+                    sticker = await bot.get_custom_emoji_stickers(
+                        [entity.custom_emoji_id]
+                    )
                 except Exception:
                     return None
                 return sticker[0] if sticker else None
 
 
-@listener(command="getstickers",
-          description="获取整个贴纸包的贴纸")
+@listener(command="getstickers", description="获取整个贴纸包的贴纸")
 async def get_stickers(bot: Client, message: Message):
-    if not os.path.isdir('data/sticker/'):
-        os.makedirs('data/sticker/')
+    if not os.path.isdir("data/sticker/"):
+        os.makedirs("data/sticker/")
     if message.reply_to_message:
-        sticker = message.reply_to_message.sticker or await get_custom_emojis(bot, message.reply_to_message)
+        sticker = message.reply_to_message.sticker or await get_custom_emojis(
+            bot, message.reply_to_message
+        )
     else:
         sticker = message.sticker or await get_custom_emojis(bot, message)
     if not sticker:

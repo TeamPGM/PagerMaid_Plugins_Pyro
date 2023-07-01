@@ -17,12 +17,12 @@ async def qq_music(message: Message, client: AsyncClient):
     msg: Message = await message.edit("正在查询，请稍候...")
     try:
         res = await client.get(
-            f'https://zj.v.api.aa1.cn/api/qqmusic/?songName={key}&pageNum=1&pageSize=1&type=qq',
+            f"https://zj.v.api.aa1.cn/api/qqmusic/?songName={key}&pageNum=1&pageSize=1&type=qq",
             timeout=10.0,
         )
         if res.status_code == 200:
             resp = res.json()
-            data = resp['list']
+            data = resp["list"]
             if len(data) == 0:
                 return await msg.edit("没有找到相关音乐")
             uri = data[0].get("url")
@@ -35,7 +35,8 @@ async def qq_music(message: Message, client: AsyncClient):
                     uri,
                     thumb=cover or None,
                     caption=f"{text}",
-                    reply_to_message_id=message.reply_to_message_id or message.reply_to_top_message_id,
+                    reply_to_message_id=message.reply_to_message_id
+                    or message.reply_to_top_message_id,
                 )
                 await msg.safe_delete()
             except Exception as e:

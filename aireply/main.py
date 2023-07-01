@@ -36,10 +36,12 @@ class Setting:
 ai_setting = Setting("aireply")
 
 
-@listener(command="aireply",
-          need_admin=True,
-          parameters="{on|off|add|del|list}",
-          description="通过预设根据语义分析进行应答，支持设置白名单并全局开关")
+@listener(
+    command="aireply",
+    need_admin=True,
+    parameters="{on|off|add|del|list}",
+    description="通过预设根据语义分析进行应答，支持设置白名单并全局开关",
+)
 async def ai_reply(_: Client, message: Message):
     input_str = message.arguments
     chats = ai_setting.chats()
@@ -76,7 +78,7 @@ async def ai_reply(_: Client, message: Message):
                 text += f"• `{chatid}`\n"
         await message.edit(text)
     else:
-        await edit_delete(message, lang('arg_error'))
+        await edit_delete(message, lang("arg_error"))
 
 
 @listener(incoming=True, outgoing=True, privates_only=True)
@@ -100,4 +102,6 @@ async def replay_listener(_, message: Message):
             if reply != 0:
                 await asyncio.sleep(random.uniform(0, 1))
                 await bot.send_message(message.from_user.id, reply)
-                print(f"aireply: AI Reply to '{message.from_user.mention()}' by '{reply}'")
+                print(
+                    f"aireply: AI Reply to '{message.from_user.mention()}' by '{reply}'"
+                )

@@ -3,8 +3,7 @@ from pagermaid.listener import listener
 from pagermaid.utils import Message, client
 
 
-@listener(command="news",
-          description="每日新闻、历史上的今天、天天成语、慧语香风、诗歌天地")
+@listener(command="news", description="每日新闻、历史上的今天、天天成语、慧语香风、诗歌天地")
 async def news(_: Client, context: Message):
     msg = context.arguments
     if not msg:
@@ -13,7 +12,7 @@ async def news(_: Client, context: Message):
         data = await client.get("https://news.topurl.cn/api")
         data = data.json()["data"]
         text = "📮 每日新闻 📮\n"
-        for idx, i in enumerate(data['newsList']):
+        for idx, i in enumerate(data["newsList"]):
             text += f"{idx + 1}. [{i['title']}]({i['url']})\n"
 
         text += "\n🎬 历史上的今天 🎬\n"
@@ -27,8 +26,10 @@ async def news(_: Client, context: Message):
         text += f"{data['sentence']['sentence']}     ----{data['sentence']['author']}\n"
 
         text += "\n🎑 诗歌天地 🎑\n"
-        text += f"{''.join(data['poem']['content'])}     " \
-                f"----《{data['poem']['title']}》{data['poem']['author']}"
+        text += (
+            f"{''.join(data['poem']['content'])}     "
+            f"----《{data['poem']['title']}》{data['poem']['author']}"
+        )
         await context.edit(text)
     except Exception as e:
         await context.edit(f"获取失败\n{e}")

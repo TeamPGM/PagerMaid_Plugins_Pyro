@@ -26,12 +26,14 @@ async def set_custom_emoji(bot: Client, custom_emoji_id: int):
         raise FileNotFoundError from e
 
 
-@listener(command="set_status",
-          parameters="[大会员自定义 emoji]",
-          need_admin=True,
-          description="快速设置大会员自定义 emoji 状态")
+@listener(
+    command="set_status",
+    parameters="[大会员自定义 emoji]",
+    need_admin=True,
+    description="快速设置大会员自定义 emoji 状态",
+)
 async def set_emoji_status(bot: Client, message: Message):
-    """ 快速设置大会员自定义 emoji 状态 """
+    """快速设置大会员自定义 emoji 状态"""
     me = bot.me or await bot.get_me()
     if not me.is_premium:
         return await message.edit("你好像不是大会员。。。")

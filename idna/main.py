@@ -5,7 +5,9 @@ from pagermaid.enums import Message
 from pagermaid.listener import listener
 
 
-@listener(command="punyencode", description="编码至 Punycode", parameters="[待编码内容] (支持回复消息)")
+@listener(
+    command="punyencode", description="编码至 Punycode", parameters="[待编码内容] (支持回复消息)"
+)
 async def punyencode(message: Message):
     if not (text := message.obtain_message()):
         return await message.edit("请输入参数")
@@ -16,7 +18,9 @@ async def punyencode(message: Message):
     await message.edit(f"`{encoded}`")
 
 
-@listener(command="punydecode", description="从 Punycode 解码", parameters="[待解码内容] (支持回复消息)")
+@listener(
+    command="punydecode", description="从 Punycode 解码", parameters="[待解码内容] (支持回复消息)"
+)
 async def punydecode(message: Message):
     if not (text := message.obtain_message()):
         return await message.edit("请输入参数")

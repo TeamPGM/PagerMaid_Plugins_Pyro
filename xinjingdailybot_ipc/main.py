@@ -1,7 +1,7 @@
-'''
+"""
 XingjingdailyBot 自动转载插件
 by chr233
-'''
+"""
 
 from dataclasses import dataclass
 from enum import IntFlag, auto, unique
@@ -22,36 +22,38 @@ from pagermaid.utils import alias_command, client
 cmd_name = "xinjingdailybot"
 alias_cmd_name = alias_command(cmd_name)
 
-help_msg = "\n".join([
-    "参数无效, 可用指令:\n",
-    f"`,{alias_cmd_name} ipc http://example.com:8123`",
-    "设置 XinjingdailyBot WebAPI 地址\n",
-    f"`,{alias_cmd_name} token xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`",
-    "设置 IPC 用户 Token, 对投稿机器人使用命令 /token 获取\n",
-    f"`,{alias_cmd_name} test`",
-    "测试 XinjingdailyBot WebAPI 配置是否有有效\n",
-    f"`,{alias_cmd_name} status`",
-    "查看 XinjingdailyBot WebAPI 连接配置\n",
-    f"`,{alias_cmd_name} log`",
-    "在当前会话启用插件日志, 再次在相同会话使用该命令禁用日志\n",
-    f"`,{alias_cmd_name} channel`",
-    "获取正在监听的频道列表, 列表中的频道有更新时会自动推送至投稿机器人\n",
-    f"`,{alias_cmd_name} add channelId [watch_type]`",
-    "添加对指定频道的监听, 默认只监听多媒体消息\n",
-    f"`,{alias_cmd_name} del channelId`",
-    "删除对指定频道的监听\n",
-    f"`,{alias_cmd_name} set channelId [watch_type]`",
-    "修改对指定频道的监听类型\n",
-    "WatchType类型 (Flag类型)",
-    "Text: 1",
-    "Photo: 2",
-    "Audio: 4",
-    "Video: 8",
-    "Voice: 16",
-    "Document: 32",
-    "Animation: 64",
-    "可以任意组合, 比如监听Photo和Video消息, 值为10"
-])
+help_msg = "\n".join(
+    [
+        "参数无效, 可用指令:\n",
+        f"`,{alias_cmd_name} ipc http://example.com:8123`",
+        "设置 XinjingdailyBot WebAPI 地址\n",
+        f"`,{alias_cmd_name} token xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`",
+        "设置 IPC 用户 Token, 对投稿机器人使用命令 /token 获取\n",
+        f"`,{alias_cmd_name} test`",
+        "测试 XinjingdailyBot WebAPI 配置是否有有效\n",
+        f"`,{alias_cmd_name} status`",
+        "查看 XinjingdailyBot WebAPI 连接配置\n",
+        f"`,{alias_cmd_name} log`",
+        "在当前会话启用插件日志, 再次在相同会话使用该命令禁用日志\n",
+        f"`,{alias_cmd_name} channel`",
+        "获取正在监听的频道列表, 列表中的频道有更新时会自动推送至投稿机器人\n",
+        f"`,{alias_cmd_name} add channelId [watch_type]`",
+        "添加对指定频道的监听, 默认只监听多媒体消息\n",
+        f"`,{alias_cmd_name} del channelId`",
+        "删除对指定频道的监听\n",
+        f"`,{alias_cmd_name} set channelId [watch_type]`",
+        "修改对指定频道的监听类型\n",
+        "WatchType类型 (Flag类型)",
+        "Text: 1",
+        "Photo: 2",
+        "Audio: 4",
+        "Video: 8",
+        "Voice: 16",
+        "Document: 32",
+        "Animation: 64",
+        "可以任意组合, 比如监听Photo和Video消息, 值为10",
+    ]
+)
 
 
 @unique
@@ -124,14 +126,14 @@ class XjbClient:
             headers = self._make_header()
             media_names = [path.basename(x) for x in file_paths]
             data = {
-                'Text': post.text,
-                'PostType': post.post_type,
-                'HasSpoiler': post.has_spoiler,
-                'MediaNames': media_names,
-                'ChannelID': post.channel_id,
-                'ChannelName': post.channel_name,
-                'ChannelTitle': post.channel_title,
-                'ChannelMsgID': post.channel_msg_id,
+                "Text": post.text,
+                "PostType": post.post_type,
+                "HasSpoiler": post.has_spoiler,
+                "MediaNames": media_names,
+                "ChannelID": post.channel_id,
+                "ChannelName": post.channel_name,
+                "ChannelTitle": post.channel_title,
+                "ChannelMsgID": post.channel_msg_id,
             }
             files = [("media", open(x, "rb")) for x in file_paths]
             return await client.post(url=url, data=data, files=files, headers=headers)
@@ -165,7 +167,12 @@ class XjbCore:
     async def send_log(self, text: str) -> None:
         if self._log_chat != 0:
             try:
-                await bot.send_message(self._log_chat, text, disable_notification=True, disable_web_page_preview=True)
+                await bot.send_message(
+                    self._log_chat,
+                    text,
+                    disable_notification=True,
+                    disable_web_page_preview=True,
+                )
             except:
                 ...
 
@@ -185,7 +192,7 @@ class XjbCore:
 
     def cmd_ipc(self, ipc: str) -> str:
         try:
-            url = parse. urlparse(ipc, allow_fragments=False)
+            url = parse.urlparse(ipc, allow_fragments=False)
             xjb_client.ipc = f"{url.scheme}://{url.netloc}"
             return "IPC 路径设置成功"
 
@@ -205,7 +212,7 @@ class XjbCore:
             name, _ = self.watch_type(type)
             msg.append(f"[{i} {channel}](https://t.me/c/{channel}), {name}")
 
-        return '\n'.join(msg)
+        return "\n".join(msg)
 
     @staticmethod
     def watch_type(watch_type: str) -> Tuple[str, WatchType]:
@@ -229,7 +236,7 @@ class XjbCore:
         if not str_list:
             str_list.append("无")
 
-        result = ' '.join(str_list)
+        result = " ".join(str_list)
         return (result, type)
 
     def cmd_add(self, channel_id: str, watch_type: str) -> str:
@@ -314,7 +321,7 @@ xjb_core = XjbCore()
 xjb_cache = XjbCache()
 
 
-@scheduler.scheduled_job(trigger="interval",  seconds=2, id="xinjingdailybot.check_ttl")
+@scheduler.scheduled_job(trigger="interval", seconds=2, id="xinjingdailybot.check_ttl")
 async def check_ttl() -> None:
     await xjb_cache.check_ttl()
 
@@ -344,31 +351,50 @@ async def process_message(msg: Message):
             msg_id = msg.id
 
         if type & WatchType.Text and msg.text:
-            post = CreatePost(msg.text, 1, False,
-                              chat_id, chat_username, chat_title, msg_id)
+            post = CreatePost(
+                msg.text, 1, False, chat_id, chat_username, chat_title, msg_id
+            )
         elif type & WatchType.Photo and msg.photo:
-            post = CreatePost(msg.caption, 2, msg.has_media_spoiler,
-                              chat_id, chat_username, chat_title, msg_id)
+            post = CreatePost(
+                msg.caption,
+                2,
+                msg.has_media_spoiler,
+                chat_id,
+                chat_username,
+                chat_title,
+                msg_id,
+            )
             file_path = await msg.download()
         elif type & WatchType.Audio and msg.audio:
-            post = CreatePost(msg.caption, 3, False,
-                              chat_id, chat_username, chat_title, msg_id)
+            post = CreatePost(
+                msg.caption, 3, False, chat_id, chat_username, chat_title, msg_id
+            )
             file_path = await msg.download()
         elif type & WatchType.Video and msg.video:
-            post = CreatePost(msg.caption, 4, msg.has_media_spoiler,
-                              chat_id, chat_username, chat_title, msg_id)
+            post = CreatePost(
+                msg.caption,
+                4,
+                msg.has_media_spoiler,
+                chat_id,
+                chat_username,
+                chat_title,
+                msg_id,
+            )
             file_path = await msg.download()
         elif type & WatchType.Voice and msg.voice:
-            post = CreatePost(msg.caption, 5, False,
-                              chat_id, chat_username, chat_title, msg_id)
+            post = CreatePost(
+                msg.caption, 5, False, chat_id, chat_username, chat_title, msg_id
+            )
             file_path = await msg.download()
         elif type & WatchType.Document and msg.document:
-            post = CreatePost(msg.caption, 6, False,
-                              chat_id, chat_username, chat_title, msg_id)
+            post = CreatePost(
+                msg.caption, 6, False, chat_id, chat_username, chat_title, msg_id
+            )
             file_path = await msg.download()
         elif type & WatchType.Animation and msg.animation:
-            post = CreatePost(msg.caption, 36, False,
-                              chat_id, chat_username, chat_title, msg_id)
+            post = CreatePost(
+                msg.caption, 36, False, chat_id, chat_username, chat_title, msg_id
+            )
             file_path = await msg.download()
 
         if post:
@@ -392,10 +418,12 @@ async def process_message(msg: Message):
         await xjb_core.send_log(err)
 
 
-@listener(command="xinjingdailybot",
-          description="设置投稿机器人",
-          parameters="test|status|ipc|token|channel|add|del",
-          usage="设置投稿机器人")
+@listener(
+    command="xinjingdailybot",
+    description="设置投稿机器人",
+    parameters="test|status|ipc|token|channel|add|del",
+    usage="设置投稿机器人",
+)
 async def response_cmd(msg: Message):
     try:
         param = msg.parameter

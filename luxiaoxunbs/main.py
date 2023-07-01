@@ -26,10 +26,11 @@ lu_xiao_xun_sticker: Optional[StickerSet] = None
 async def load_bs_sticker():
     global lu_xiao_xun_sticker
     try:
-        lu_xiao_xun_sticker = await bot.invoke(GetStickerSet(
-            stickerset=InputStickerSetShortName(short_name="luxiaoxunbs"),
-            hash=0
-        ))
+        lu_xiao_xun_sticker = await bot.invoke(
+            GetStickerSet(
+                stickerset=InputStickerSetShortName(short_name="luxiaoxunbs"), hash=0
+            )
+        )
     except Exception:
         lu_xiao_xun_sticker = None
 
@@ -46,7 +47,9 @@ async def get_bs_sticker():
     hour %= 12
     if hour == -1:
         hour = 11
-    return Document._parse(bot, lu_xiao_xun_sticker.documents[hour % 12], "sticker.webp")  # noqa
+    return Document._parse(
+        bot, lu_xiao_xun_sticker.documents[hour % 12], "sticker.webp"
+    )  # noqa
 
 
 @scheduler.scheduled_job("cron", minute="0", id="lu_xiao_xun_bs.push")
@@ -62,9 +65,9 @@ async def lu_xiao_xun_bs_subscribe() -> None:
             lu_xiao_xun_bs_sub.del_id(gid)
 
 
-@listener(command="luxiaoxunbs",
-          parameters="订阅/退订",
-          description="整点报时，每小时定时发送，自动删除上一条消息")
+@listener(
+    command="luxiaoxunbs", parameters="订阅/退订", description="整点报时，每小时定时发送，自动删除上一条消息"
+)
 async def lu_xiao_xun_bs(_: Client, message: Message):
     if not message.arguments:
         return await message.edit("请输入订阅/退订")

@@ -15,7 +15,9 @@ from pagermaid.utils import check_manage_subs, edit_delete
 
 class AliCloud:
     def __init__(self):
-        self.url = 'https://api.aliyundrive.com/adrive/v1/timeline/homepage/list_message'
+        self.url = (
+            "https://api.aliyundrive.com/adrive/v1/timeline/homepage/list_message"
+        )
         self.data = {
             "user_id": "ec11691148db442aa7aa374ca707543c",  # 阿里盘盘酱
             "limit": 50,
@@ -27,8 +29,8 @@ class AliCloud:
 
     @staticmethod
     def parse_time(timestamp: int) -> str:
-        """ parse timestamp to date time """
-        return datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
+        """parse timestamp to date time"""
+        return datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d %H:%M:%S")
 
     async def get(self):
         with contextlib.suppress(Exception):
@@ -59,8 +61,14 @@ class AliCloud:
             share_time = self.share_time
         if not share_id:
             share_id = self.share_id
-        return (f"最近一次阿里云盘掉落福利的时间是 {self.parse_time(share_time)}\n\n"
-                f"https://www.aliyundrive.com/s/{share_id}") if share_id else "未获取到阿里云盘掉落福利信息"
+        return (
+            (
+                f"最近一次阿里云盘掉落福利的时间是 {self.parse_time(share_time)}\n\n"
+                f"https://www.aliyundrive.com/s/{share_id}"
+            )
+            if share_id
+            else "未获取到阿里云盘掉落福利信息"
+        )
 
     async def send_to_chat(self, cid: int):
         try:
@@ -94,15 +102,15 @@ async def alicloud_startup() -> None:
     await alicloud.push()
 
 
-@listener(command="alicloud",
-          description="获取阿里云盘掉落福利信息",
-          parameters="[订阅/退订]")
+@listener(command="alicloud", description="获取阿里云盘掉落福利信息", parameters="[订阅/退订]")
 async def set_alicloud_notice(message: Message):
     if not message.arguments:
         try:
             item = await alicloud.get()
-            text = alicloud.get_text(item["created"] / 1000, item["content"]["share_id"])
-        except Exception as e: # noqa
+            text = alicloud.get_text(
+                item["created"] / 1000, item["content"]["share_id"]
+            )
+        except Exception as e:  # noqa
             text = f"获取阿里云盘掉落福利信息失败：{e}"
         return await message.edit(text)
     elif message.arguments == "订阅":

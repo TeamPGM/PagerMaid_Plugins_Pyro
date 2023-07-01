@@ -24,9 +24,19 @@ class SendTask:
     minute: str = "0"
     second: str = "0"
 
-    def __init__(self, task_id: Optional[int] = None, cid: int = 0, msg: str = "", interval: bool = False,
-                 cron: bool = False, pause: bool = False, time_limit: int = -1,
-                 hour: str = "0", minute: str = "0", second: str = "0"):
+    def __init__(
+        self,
+        task_id: Optional[int] = None,
+        cid: int = 0,
+        msg: str = "",
+        interval: bool = False,
+        cron: bool = False,
+        pause: bool = False,
+        time_limit: int = -1,
+        hour: str = "0",
+        minute: str = "0",
+        second: str = "0",
+    ):
         self.task_id = task_id
         self.cid = cid
         self.msg = msg
@@ -44,9 +54,18 @@ class SendTask:
             self.save_to_file()
 
     def export(self):
-        return {"task_id": self.task_id, "cid": self.cid, "msg": self.msg, "interval": self.interval,
-                "cron": self.cron, "pause": self.pause, "time_limit": self.time_limit, "hour": self.hour,
-                "minute": self.minute, "second": self.second}
+        return {
+            "task_id": self.task_id,
+            "cid": self.cid,
+            "msg": self.msg,
+            "interval": self.interval,
+            "cron": self.cron,
+            "pause": self.pause,
+            "time_limit": self.time_limit,
+            "hour": self.hour,
+            "minute": self.minute,
+            "second": self.second,
+        }
 
     def get_job(self):
         return scheduler.get_job(f"sendat|{self.cid}|{self.task_id}")
@@ -56,8 +75,10 @@ class SendTask:
             scheduler.remove_job(f"sendat|{self.cid}|{self.task_id}")
 
     def export_str(self, show_all: bool = False):
-        text = f"<code>{self.task_id}</code> - " \
-               f"<code>{'循环任务' if self.interval else '单次任务'}</code> - "
+        text = (
+            f"<code>{self.task_id}</code> - "
+            f"<code>{'循环任务' if self.interval else '单次任务'}</code> - "
+        )
         if job := self.get_job():
             time: datetime.datetime = job.next_run_time
             text += f"<code>{time.strftime('%Y-%m-%d %H:%M:%S')}</code> - "
@@ -162,7 +183,11 @@ class SendTasks:
         return [task.task_id for task in self.tasks]
 
     def print_all_tasks(self, show_all: bool = False, cid: int = 0) -> str:
-        return "\n".join(task.export_str(show_all) for task in self.tasks if task.cid == cid or show_all)
+        return "\n".join(
+            task.export_str(show_all)
+            for task in self.tasks
+            if task.cid == cid or show_all
+        )
 
     def save_to_file(self):
         data = [task.export() for task in self.tasks]
@@ -193,36 +218,44 @@ class SendTasks:
             task.remove_job()
 
     def register_interval_task(self, task: SendTask):
-        scheduler.add_job(self.send_message,
-                          "interval",
-                          id=f"sendat|{task.cid}|{task.task_id}",
-                          name=f"sendat|{task.cid}|{task.task_id}",
-                          hours=int(task.hour),
-                          minutes=int(task.minute),
-                          seconds=int(task.second),
-                          args=[task, self])
+        scheduler.add_job(
+            self.send_message,
+            "interval",
+            id=f"sendat|{task.cid}|{task.task_id}",
+            name=f"sendat|{task.cid}|{task.task_id}",
+            hours=int(task.hour),
+            minutes=int(task.minute),
+            seconds=int(task.second),
+            args=[task, self],
+        )
 
     def register_cron_task(self, task: SendTask):
-        scheduler.add_job(self.send_message,
-                          "cron",
-                          id=f"sendat|{task.cid}|{task.task_id}",
-                          name=f"sendat|{task.cid}|{task.task_id}",
-                          hour=int(task.hour),
-                          minute=int(task.minute),
-                          second=int(task.second),
-                          args=[task, self])
+        scheduler.add_job(
+            self.send_message,
+            "cron",
+            id=f"sendat|{task.cid}|{task.task_id}",
+            name=f"sendat|{task.cid}|{task.task_id}",
+            hour=int(task.hour),
+            minute=int(task.minute),
+            second=int(task.second),
+            args=[task, self],
+        )
 
     def register_date_task(self, task: SendTask):
         date_now = datetime.datetime.now(pytz.timezone(Config.TIME_ZONE))
-        date_will = date_now.replace(hour=int(task.hour), minute=int(task.minute), second=int(task.second))
+        date_will = date_now.replace(
+            hour=int(task.hour), minute=int(task.minute), second=int(task.second)
+        )
         if date_will < date_now:
             date_will += datetime.timedelta(days=1)
-        scheduler.add_job(self.send_message,
-                          "date",
-                          id=f"sendat|{task.cid}|{task.task_id}",
-                          name=f"sendat|{task.cid}|{task.task_id}",
-                          run_date=date_will,
-                          args=[task, self])
+        scheduler.add_job(
+            self.send_message,
+            "date",
+            id=f"sendat|{task.cid}|{task.task_id}",
+            name=f"sendat|{task.cid}|{task.task_id}",
+            run_date=date_will,
+            args=[task, self],
+        )
 
     def register_single_task(self, task: SendTask):
         if task.pause or task.time_limit == 0:
@@ -286,10 +319,12 @@ async def from_msg_get_task_id(message: Message):
     return uid
 
 
-@listener(command="sendat",
-          parameters="时间 | 消息内容",
-          need_admin=True,
-          description=f"定时发送消息\n请使用 ,{alias_command('sendat')} h 查看可用命令")
+@listener(
+    command="sendat",
+    parameters="时间 | 消息内容",
+    need_admin=True,
+    description=f"定时发送消息\n请使用 ,{alias_command('sendat')} h 查看可用命令",
+)
 async def send_at(message: Message):
     if message.arguments == "h" or len(message.parameter) == 0:
         return await message.edit(send_help_msg)
@@ -298,7 +333,8 @@ async def send_at(message: Message):
             return await message.edit("请输入正确的参数")
         if send_tasks.get_all_ids():
             return await message.edit(
-                f"已注册的任务：\n\n{send_tasks.print_all_tasks(show_all=False, cid=message.chat.id)}")
+                f"已注册的任务：\n\n{send_tasks.print_all_tasks(show_all=False, cid=message.chat.id)}"
+            )
         else:
             return await message.edit("没有已注册的任务。")
     if len(message.parameter) == 2:
@@ -319,7 +355,8 @@ async def send_at(message: Message):
         elif message.parameter[0] == "list":
             if send_tasks.get_all_ids():
                 return await message.edit(
-                    f"已注册的任务：\n\n{send_tasks.print_all_tasks(show_all=True)}")
+                    f"已注册的任务：\n\n{send_tasks.print_all_tasks(show_all=True)}"
+                )
             else:
                 return await message.edit("没有已注册的任务。")
     # add task

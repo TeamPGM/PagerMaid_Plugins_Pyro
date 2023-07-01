@@ -26,26 +26,44 @@ icons = {
 
 
 def timestamp_to_time(timestamp, timeZoneShift):
-    timeArray = datetime.datetime.utcfromtimestamp(timestamp) + datetime.timedelta(seconds=timeZoneShift)
+    timeArray = datetime.datetime.utcfromtimestamp(timestamp) + datetime.timedelta(
+        seconds=timeZoneShift
+    )
     return timeArray.strftime("%H:%M")
 
 
 def calcWindDirection(windDirection):
-    dirs = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']
-    ix = round(windDirection / (360. / len(dirs)))
+    dirs = [
+        "N",
+        "NNE",
+        "NE",
+        "ENE",
+        "E",
+        "ESE",
+        "SE",
+        "SSE",
+        "S",
+        "SSW",
+        "SW",
+        "WSW",
+        "W",
+        "WNW",
+        "NW",
+        "NNW",
+    ]
+    ix = round(windDirection / (360.0 / len(dirs)))
     return dirs[ix % len(dirs)]
 
 
-@listener(command="weather",
-          description="查询天气",
-          parameters="[城市]")
+@listener(command="weather", description="查询天气", parameters="[城市]")
 async def weather(_: Client, message: Message):
     if not message.arguments:
         return await message.edit("出错了呜呜呜 ~ 无效的参数。")
     try:
         req = await client.get(
             "http://api.openweathermap.org/data/2.5/weather?appid=973e8a21e358ee9d30b47528b43a8746&units=metric&lang"
-            "=zh_cn&q=" + message.arguments)
+            "=zh_cn&q=" + message.arguments
+        )
         if req.status_code == 200:
             data = req.json()
             cityName = f'{data["name"]}, {data["sys"]["country"]}'

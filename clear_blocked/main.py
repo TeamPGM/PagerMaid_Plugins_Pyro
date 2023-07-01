@@ -26,7 +26,9 @@ async def clear_blocked_func(client: Client, message: Message):
                 success += 1
             except FloodWait as e:
                 with contextlib.suppress(Exception):
-                    await message.edit(f"🧹 Clearing blocked users...\n\nWill run after {e.value} seconds.")
+                    await message.edit(
+                        f"🧹 Clearing blocked users...\n\nWill run after {e.value} seconds."
+                    )
                 await sleep(e.value + 1)
                 with contextlib.suppress(Exception):
                     await message.edit("🧹 Clearing blocked users...")
@@ -35,19 +37,23 @@ async def clear_blocked_func(client: Client, message: Message):
             except Exception:
                 failed += 1
         offset += 100
-        if (isinstance(blocked, BlockedSlice) and offset > blocked.count) or not isinstance(blocked, BlockedSlice):
+        if (
+            isinstance(blocked, BlockedSlice) and offset > blocked.count
+        ) or not isinstance(blocked, BlockedSlice):
             break
     return success, failed, skipped
 
 
 @listener(command="clear_blocked", description="Clear blocked users.", need_admin=True)
 async def clear_blocked(client: Client, message: Message):
-    """ Clear blocked users. """
+    """Clear blocked users."""
     message: Message = await message.edit("🧹 Clearing blocked users...")
     try:
         success, failed, skipped = await clear_blocked_func(client, message)
     except Exception as e:
         await message.edit(f"❌ Failed to clear blocked users: {e}")
         return
-    await message.edit(f"🧹 Clear blocked users complete. \n"
-                       f"Success: {success}, Failed: {failed}, Skipped: {skipped}")
+    await message.edit(
+        f"🧹 Clear blocked users complete. \n"
+        f"Success: {success}, Failed: {failed}, Skipped: {skipped}"
+    )

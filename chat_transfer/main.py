@@ -25,7 +25,9 @@ async def export_chat_to_csv():
         writer = csv.writer(f)
         writer.writerow(["name", "id", "username", "members"])
         for chat in chats:
-            writer.writerow([chat.title, chat.id, chat.username or "", chat.members_count])
+            writer.writerow(
+                [chat.title, chat.id, chat.username or "", chat.members_count]
+            )
     return len(chats)
 
 
@@ -61,10 +63,12 @@ async def join_chat_from_csv(file_name):
     return success, failed, processed
 
 
-@listener(command="chat_transfer",
-          need_admin=True,
-          parameters="导出/导入",
-          description="导出、导入已加入的群组/频道（仅可导入公开群组/频道）")
+@listener(
+    command="chat_transfer",
+    need_admin=True,
+    parameters="导出/导入",
+    description="导出、导入已加入的群组/频道（仅可导入公开群组/频道）",
+)
 async def chat_transfer(message: Message):
     if message.arguments == "导出":
         message: Message = await message.edit("导出中...")
@@ -93,6 +97,8 @@ async def chat_transfer(message: Message):
         file_name = await reply.download()
         success, failed, processed = await join_chat_from_csv(file_name)
         safe_remove(file_name)
-        await message.edit(f"处理了 {processed} 条记录，导入成功 {success} 个群组/频道，失败 {failed} 个群组/频道")
+        await message.edit(
+            f"处理了 {processed} 条记录，导入成功 {success} 个群组/频道，失败 {failed} 个群组/频道"
+        )
     else:
         await message.edit("❌ 参数错误，请选择 `导出` 或 `导入`")

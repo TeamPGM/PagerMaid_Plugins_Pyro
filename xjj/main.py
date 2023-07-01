@@ -2,10 +2,7 @@ from pagermaid.listener import listener
 from pagermaid.enums import Message, AsyncClient
 
 
-@listener(
-    command="xjj",
-    description="小姐姐视频"
-)
+@listener(command="xjj", description="小姐姐视频")
 async def xjj(message: Message, client: AsyncClient):
     if message.chat and message.chat.id == -1001441461877:
         # 用户群禁止使用此功能
@@ -13,7 +10,7 @@ async def xjj(message: Message, client: AsyncClient):
         return
     await message.edit("小姐姐视频生成中 . . .")
     try:
-        res = await client.get('https://cao3.ml/get/get1.php', timeout=10.0)
+        res = await client.get("https://cao3.ml/get/get1.php", timeout=10.0)
         if res.status_code == 200:
             url = res.text
             url = url.split("?tag=")[0]
@@ -21,7 +18,8 @@ async def xjj(message: Message, client: AsyncClient):
                 await message.reply_video(
                     url,
                     quote=False,
-                    reply_to_message_id=message.reply_to_message_id or message.reply_to_top_message_id
+                    reply_to_message_id=message.reply_to_message_id
+                    or message.reply_to_top_message_id,
                 )
                 await message.safe_delete()
             except Exception as e:

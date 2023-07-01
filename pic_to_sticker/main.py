@@ -31,8 +31,7 @@ async def resize_image(photo):
     return image
 
 
-@listener(command="pic_to_sticker",
-          description="将你回复的图片转换为贴纸")
+@listener(command="pic_to_sticker", description="将你回复的图片转换为贴纸")
 async def pic_to_sticker(bot: Client, message: Message):
     reply = message.reply_to_message
     photo = None

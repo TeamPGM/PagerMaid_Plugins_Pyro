@@ -1,5 +1,11 @@
 from pyrogram.enums import ChatMemberStatus
-from pyrogram.errors import ChatAdminRequired, FloodWait, PeerIdInvalid, UsernameInvalid, UserNotParticipant
+from pyrogram.errors import (
+    ChatAdminRequired,
+    FloodWait,
+    PeerIdInvalid,
+    UsernameInvalid,
+    UserNotParticipant,
+)
 from pyrogram.types import Chat
 
 from pagermaid import bot
@@ -39,11 +45,13 @@ async def get_uid(chat: Chat, message: Message):
     return uid, member
 
 
-@listener(command="unban",
-          description="解除封禁一位用户",
-          need_admin=True,
-          groups_only=True,
-          parameters="[reply|id|username]")
+@listener(
+    command="unban",
+    description="解除封禁一位用户",
+    need_admin=True,
+    groups_only=True,
+    parameters="[reply|id|username]",
+)
 async def unban(client: Client, message: Message):
     chat = message.chat
     try:

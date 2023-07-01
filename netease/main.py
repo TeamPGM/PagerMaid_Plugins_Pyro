@@ -34,14 +34,17 @@ async def netease_search(keyword: str, message: Message):
         if not answer.reply_markup:
             return await message.edit(answer.text.html)
         await bot.request_callback_answer(
-            answer.chat.id, answer.id,
-            callback_data=answer.reply_markup.inline_keyboard[0][0].callback_data)
+            answer.chat.id,
+            answer.id,
+            callback_data=answer.reply_markup.inline_keyboard[0][0].callback_data,
+        )
         await conv.mark_as_read()
         answer: Message = await conv.get_response(filters=filters.audio)
         await conv.mark_as_read()
         await answer.copy(
             message.chat.id,
-            reply_to_message_id=message.reply_to_message_id or message.reply_to_top_message_id
+            reply_to_message_id=message.reply_to_message_id
+            or message.reply_to_top_message_id,
         )
         await message.safe_delete()
 
@@ -54,7 +57,8 @@ async def netease_url(url: str, message: Message):
         await conv.mark_as_read()
         await answer.copy(
             message.chat.id,
-            reply_to_message_id=message.reply_to_message_id or message.reply_to_top_message_id
+            reply_to_message_id=message.reply_to_message_id
+            or message.reply_to_top_message_id,
         )
         await message.safe_delete()
 
@@ -67,14 +71,17 @@ async def netease_id(music_id: str, message: Message):
         await conv.mark_as_read()
         await answer.copy(
             message.chat.id,
-            reply_to_message_id=message.reply_to_message_id or message.reply_to_top_message_id
+            reply_to_message_id=message.reply_to_message_id
+            or message.reply_to_top_message_id,
         )
         await message.safe_delete()
 
 
-@listener(command="netease",
-          description="Netease Music",
-          parameters="[query]",)
+@listener(
+    command="netease",
+    description="Netease Music",
+    parameters="[query]",
+)
 async def netease_music(message: Message):
     if not message.arguments:
         return await message.edit(Netease_Help_Msg)

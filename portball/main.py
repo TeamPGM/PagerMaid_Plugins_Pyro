@@ -8,9 +8,14 @@ from pagermaid.listener import listener
 from pagermaid.enums import Client, Message
 
 
-@listener(command="portball", is_plugin=True, outgoing=True, need_admin=True,
-          description="回复你要临时禁言的人的消息来实现XX秒的禁言",
-          parameters="[理由]|<时间/秒>")
+@listener(
+    command="portball",
+    is_plugin=True,
+    outgoing=True,
+    need_admin=True,
+    description="回复你要临时禁言的人的消息来实现XX秒的禁言",
+    parameters="[理由]|<时间/秒>",
+)
 async def portball(bot: Client, message: Message):
     if message.chat.type in (ChatType.GROUP, ChatType.SUPERGROUP):
         reply_to_message = message.reply_to_message
@@ -20,7 +25,7 @@ async def portball(bot: Client, message: Message):
             if from_user is None:
                 return
             if from_user.is_self:
-                edit_message: Message = await message.edit_text('无法禁言自己。')
+                edit_message: Message = await message.edit_text("无法禁言自己。")
                 await edit_message.delay_delete()
                 return
             seconds: int = -1
@@ -49,8 +54,12 @@ async def portball(bot: Client, message: Message):
                 await edit_message.delay_delete()
                 return
             try:
-                await bot.restrict_chat_member(chat.id, from_user.id, ChatPermissions(),
-                                               datetime.now() + timedelta(seconds=seconds))
+                await bot.restrict_chat_member(
+                    chat.id,
+                    from_user.id,
+                    ChatPermissions(),
+                    datetime.now() + timedelta(seconds=seconds),
+                )
             except (UserAdminInvalid, ChatAdminRequired):
                 await bot.send_message(chat.id, "错误：该操作需要管理员权限")
                 await message.delay_delete()

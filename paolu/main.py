@@ -9,10 +9,9 @@ from pagermaid.enums import Client, Message
 from pagermaid.scheduler import add_delete_message_job
 
 
-@listener(command="paolu",
-          groups_only=True,
-          need_admin=True,
-          description="⚠一键跑路 删除群内消息并禁言⚠")
+@listener(
+    command="paolu", groups_only=True, need_admin=True, description="⚠一键跑路 删除群内消息并禁言⚠"
+)
 async def pao_lu(bot: Client, message: Message):
     """一键跑路 删除群内消息并禁言"""
     with contextlib.suppress(Exception):
@@ -20,7 +19,8 @@ async def pao_lu(bot: Client, message: Message):
             message.chat.id,
             permissions=ChatPermissions(
                 can_send_messages=False,
-            ))
+            ),
+        )
     reply = await message.edit("[paolu] 处理中...")
     with contextlib.suppress(Exception):
         await bot.delete_messages(message.chat.id, list(range(1, message.id)))

@@ -27,25 +27,33 @@ async def export_sticker_to_csv():
         writer = csv.writer(f)
         writer.writerow(["name", "short_name", "is_masks", "is_animated", "is_video"])
         for sticker_set in stickers.sets:
-            writer.writerow([sticker_set.title,
-                             sticker_set.short_name,
-                             sticker_set.archived if hasattr(sticker_set, "archived") else False,
-                             sticker_set.animated if hasattr(sticker_set, "animated") else False,
-                             sticker_set.videos if hasattr(sticker_set, "videos") else False, ])
+            writer.writerow(
+                [
+                    sticker_set.title,
+                    sticker_set.short_name,
+                    sticker_set.archived if hasattr(sticker_set, "archived") else False,
+                    sticker_set.animated if hasattr(sticker_set, "animated") else False,
+                    sticker_set.videos if hasattr(sticker_set, "videos") else False,
+                ]
+            )
     return len(stickers.sets)
 
 
 async def import_sticker(short_name):
-    await bot.invoke(InstallStickerSet(
-        stickerset=InputStickerSetShortName(short_name=short_name),
-        archived=False,
-    ))
+    await bot.invoke(
+        InstallStickerSet(
+            stickerset=InputStickerSetShortName(short_name=short_name),
+            archived=False,
+        )
+    )
 
 
 async def remove_sticker(short_name):
-    await bot.invoke(UninstallStickerSet(
-        stickerset=InputStickerSetShortName(short_name=short_name),
-    ))
+    await bot.invoke(
+        UninstallStickerSet(
+            stickerset=InputStickerSetShortName(short_name=short_name),
+        )
+    )
 
 
 async def import_sticker_from_csv(file_name):
@@ -92,10 +100,12 @@ async def clear_sets():
     return success, failed
 
 
-@listener(command="sticker_transfer",
-          need_admin=True,
-          parameters="导出/导入/清空",
-          description="导出、导入、清空已安装的贴纸包")
+@listener(
+    command="sticker_transfer",
+    need_admin=True,
+    parameters="导出/导入/清空",
+    description="导出、导入、清空已安装的贴纸包",
+)
 async def sticker_transfer(message: Message):
     if message.arguments == "导出":
         try:
@@ -108,7 +118,7 @@ async def sticker_transfer(message: Message):
                 "stickers.csv",
                 caption=f"贴纸包导出文件，成功导出了 {num} 个贴纸包",
                 thumb=f"pagermaid{sep}assets{sep}logo.jpg",
-                reply_to_message_id=message.reply_to_top_message_id
+                reply_to_message_id=message.reply_to_top_message_id,
             )
             safe_remove("stickers.csv")
             await message.safe_delete()

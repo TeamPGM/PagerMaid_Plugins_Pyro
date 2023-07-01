@@ -9,7 +9,14 @@ from pagermaid.sub_utils import Sub
 from pagermaid.scheduler import add_delete_message_job
 
 lottery_bot = Sub("lottery_bot")
-lottery_json = {"start": False, "chat_id": 0, "num": 0, "win": 0, "title": "", "keyword": ""}
+lottery_json = {
+    "start": False,
+    "chat_id": 0,
+    "num": 0,
+    "win": 0,
+    "title": "",
+    "keyword": "",
+}
 create_text = """抽奖活动 <b>{}</b> 已经创建
 奖品数量：<b>{}</b>
 参与人数达到 <b>{}</b> 人，即可开奖
@@ -29,7 +36,7 @@ end_empty_text = """<b>{}</b> 已开奖，没有中奖用户"""
 
 async def lottery_end():
     lottery_json["start"] = False
-    all_user = lottery_bot.get_subs()[:lottery_json["num"]]
+    all_user = lottery_bot.get_subs()[: lottery_json["num"]]
     secret_generator = secrets.SystemRandom()
     win_user = []
     win_user_num = min(lottery_json["win"], len(all_user))
@@ -40,10 +47,14 @@ async def lottery_end():
                 win_user.append(temp)
             if len(win_user) >= win_user_num:
                 break
-    win_text = end_text.format(
-        lottery_json["title"],
-        "\n".join(f"<a href=\"tg://user?id={uid}\">@{uid}</a>" for uid in win_user
-                  )) if win_user else end_empty_text.format(lottery_json["title"])
+    win_text = (
+        end_text.format(
+            lottery_json["title"],
+            "\n".join(f'<a href="tg://user?id={uid}">@{uid}</a>' for uid in win_user),
+        )
+        if win_user
+        else end_empty_text.format(lottery_json["title"])
+    )
     with contextlib.suppress(Exception):
         await bot.send_message(lottery_json["chat_id"], win_text)
     with contextlib.suppress(Exception):
@@ -78,7 +89,9 @@ async def handle_lottery(_, message: Message):
                 lottery_json["title"],
                 lottery_json["win"],
                 lottery_json["num"],
-                all_join))
+                all_join,
+            )
+        )
         add_delete_message_job(reply, 15)
     if all_join >= lottery_json["num"]:
         lottery_json["start"] = False
@@ -99,15 +112,18 @@ async def create_lottery(chat_id: int, num: int, win: int, title: str, keyword: 
         await bot.send_message(chat_id, create_text.format(title, win, num, keyword))
 
 
-@listener(command="lottery",
-          groups_only=True,
-          need_admin=True,
-          parameters="[奖品数/人数] [关键词] [标题] / 强制开奖",
-          description=f"举行抽奖活动\n\n例如：,{alias_command('lottery')} 1/10 测试 测试")
+@listener(
+    command="lottery",
+    groups_only=True,
+    need_admin=True,
+    parameters="[奖品数/人数] [关键词] [标题] / 强制开奖",
+    description=f"举行抽奖活动\n\n例如：,{alias_command('lottery')} 1/10 测试 测试",
+)
 async def lottery(message: Message):
     if not message.arguments:
         return await message.edit(
-            f"请输入 奖品数、人数等参数 或者 强制开奖\n\n例如 `,{alias_command('lottery')} 1/10 测试 测试`")
+            f"请输入 奖品数、人数等参数 或者 强制开奖\n\n例如 `,{alias_command('lottery')} 1/10 测试 测试`"
+        )
     if message.arguments == "强制开奖":
         await message.edit("强制开奖成功。")
         return await lottery_end()

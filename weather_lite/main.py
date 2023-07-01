@@ -3,9 +3,7 @@ from pagermaid.enums import Message, AsyncClient
 from pagermaid.single_utils import safe_remove
 
 
-@listener(command="weather_lite",
-          description="查询天气",
-          parameters="[城市]")
+@listener(command="weather_lite", description="查询天气", parameters="[城市]")
 async def weather_lite(request: AsyncClient, message: Message):
     if not message.arguments:
         return await message.edit("请输入城市名称")
@@ -19,8 +17,9 @@ async def weather_lite(request: AsyncClient, message: Message):
         f.write(data.content)
     await message.reply_photo(
         "weather.png",
-        reply_to_message_id=message.reply_to_message_id or message.reply_to_top_message_id,
-        quote=False
+        reply_to_message_id=message.reply_to_message_id
+        or message.reply_to_top_message_id,
+        quote=False,
     )
     await message.safe_delete()
     safe_remove("weather.png")

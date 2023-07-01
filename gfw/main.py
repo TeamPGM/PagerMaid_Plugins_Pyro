@@ -22,14 +22,12 @@ def get_ip(domain):
 
 
 async def post(host):
-    url = 'https://api.potatonet.idc.wiki/network/simple_health_check/scripts/gfw_check'
-    data = {'host': host}
+    url = "https://api.potatonet.idc.wiki/network/simple_health_check/scripts/gfw_check"
+    data = {"host": host}
     return await requests.post(url, data=data)
 
 
-@listener(command="gfw",
-          parameters="[text]",
-          description="查询是否被墙")
+@listener(command="gfw", parameters="[text]", description="查询是否被墙")
 async def gfw(message: Message):
     text = None
     if message.arguments:
@@ -53,10 +51,15 @@ async def gfw(message: Message):
     except Exception as e:
         return await message.edit(f"出错了呜呜呜 ~ 查询失败。{e}")
 
-    if data['success']:
-        if data['data']['tcp']['cn'] == data['data']['tcp']['!cn'] and data['data']['icmp']['cn'] == \
-                data['data']['icmp']['!cn']:
-            if data['data']['tcp']['cn'] == False and data['data']['icmp']['cn'] == False:
+    if data["success"]:
+        if (
+            data["data"]["tcp"]["cn"] == data["data"]["tcp"]["!cn"]
+            and data["data"]["icmp"]["cn"] == data["data"]["icmp"]["!cn"]
+        ):
+            if (
+                data["data"]["tcp"]["cn"] == False
+                and data["data"]["icmp"]["cn"] == False
+            ):
                 reply = f"IP: {text}\n状态: 全球不通，不能判断是否被墙"
             else:
                 reply = f"IP: {text}\n状态: 未被墙"

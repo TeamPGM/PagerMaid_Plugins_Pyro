@@ -43,7 +43,7 @@ async def get_hitokoto(request: AsyncClient):
         htk = (await request.get("https://v1.hitokoto.cn/?charset=utf-8")).json()
         text = f"\"{htk['hitokoto']}\" —— {htk['from_who']}「{htk['from']}」"
     except Exception:
-        text = "\"用代码表达言语的魅力，用代码书写山河的壮丽。\" —— 一言「一言开发者中心」"
+        text = '"用代码表达言语的魅力，用代码书写山河的壮丽。" —— 一言「一言开发者中心」'
     return text
 
 
@@ -66,7 +66,9 @@ async def annualreport(client: Client, message: Message, request: AsyncClient):
     pmct = ""
     if pmc := sqlite.get("pmcaptcha", {}):
         pmcu = "" if "pmcaptcha" in plg else "不过此插件已经被卸载了,是spam变少了吗?\n"
-        pmct = f'pmcaptcha 已帮助你拦截了 {pmc.get("banned", 0)} 次私聊\n你的清净由 pagermaid 守护\n{pmcu}'
+        pmct = (
+            f'pmcaptcha 已帮助你拦截了 {pmc.get("banned", 0)} 次私聊\n你的清净由 pagermaid 守护\n{pmcu}'
+        )
     htks = await get_hitokoto(request)
     msg = f"""{user} 的年度报告
 2022 一路上,你充实而满足

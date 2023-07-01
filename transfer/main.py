@@ -19,13 +19,17 @@ async def make_zip(source_dir, output_filename):
     zipf.close()
 
 
-@listener(command="transfer",
-          description="上传 / 下载文件",
-          parameters="upload [filepath]` 或 `download [filepath]")
+@listener(
+    command="transfer",
+    description="上传 / 下载文件",
+    parameters="upload [filepath]` 或 `download [filepath]",
+)
 async def transfer(bot: Client, message: Message):
     params = message.parameter
     if len(params) < 2:
-        message: Message = await message.edit("参数缺失，请使用 `upload [filepath (包括扩展名)]` 或 `download [filepath (包括扩展名)]`")
+        message: Message = await message.edit(
+            "参数缺失，请使用 `upload [filepath (包括扩展名)]` 或 `download [filepath (包括扩展名)]`"
+        )
         await message.delay_delete(3)
         return
     params[1] = " ".join(params[1:])
@@ -42,7 +46,9 @@ async def transfer(bot: Client, message: Message):
                     token = file_path.split("/")
                     token = token[len(token) - 1]
                     await make_zip(file_path, f"/tmp/{token}.zip")
-                    await bot.send_document(chat_id, f"/tmp/{token}.zip", force_document=True)
+                    await bot.send_document(
+                        chat_id, f"/tmp/{token}.zip", force_document=True
+                    )
                     os.remove(f"/tmp/{token}.zip")
             index += 1
         message: Message = await message.edit("上传完毕")
@@ -52,15 +58,17 @@ async def transfer(bot: Client, message: Message):
             if exists(file_path):
                 message: Message = await message.edit("路径已存在文件")
             else:
-                message: Message = await message.edit('下载中。。。')
+                message: Message = await message.edit("下载中。。。")
                 try:
                     _file = await reply.download(file_name=file_list[0])
                 except Exception:
-                    await message.edit('无法下载此类型的文件。')
+                    await message.edit("无法下载此类型的文件。")
                     return
                 message: Message = await message.edit(f"保存成功, 保存路径 `{file_list[0]}`")
         else:
             message: Message = await message.edit("未回复消息或回复消息中不包含文件")
     else:
-        message: Message = await message.edit("未知命令，请使用 `upload [filepath]` 或 `download [filepath]`")
+        message: Message = await message.edit(
+            "未知命令，请使用 `upload [filepath]` 或 `download [filepath]`"
+        )
     await message.delay_delete(3)

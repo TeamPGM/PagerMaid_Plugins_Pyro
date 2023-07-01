@@ -17,27 +17,29 @@ import emoji
 # 获取内容中的表情符号，并用|分割
 def get_emoji(text):
     if emojiArr := emoji.distinct_emoji_list(text):
-        delimiter = '|'
+        delimiter = "|"
         return delimiter.join(emojiArr)
     else:
         return False
 
 
-@listener(is_plugin=False,
-          outgoing=True,
-          command="auto_send_reactions",
-          description='\n自动回复Emoji插件',
-          parameters="`\n自动回复Emoji插件，支持同时设置多个目标生效用户，目前仅支持回复用户在群组中发送的消息，默认在所有已加入的群组中生效\n"
-          "\n**设置插件状态**:"
-          "\n启用：`,auto_send_reactions enable`"
-          "\n停用：`,auto_send_reactions disable`"
-          "\n\n**设置目标生效用户**:"
-          "\n添加：`,auto_send_reactions set <用户id/用户名> <表情内容>`"
-          "\n移除：`,auto_send_reactions unset <用户id/用户名>`"
-          "\n支持直接回复消息以进行快速设置，可以省略用户标识参数"
-          "\n\n**设置生效群组黑名单**:"
-          "\n添加：`,auto_send_reactions block <群组id/群组用户名>`"
-          "\n移除：`,auto_send_reactions unblock <群组id/群组用户名>\n")
+@listener(
+    is_plugin=False,
+    outgoing=True,
+    command="auto_send_reactions",
+    description="\n自动回复Emoji插件",
+    parameters="`\n自动回复Emoji插件，支持同时设置多个目标生效用户，目前仅支持回复用户在群组中发送的消息，默认在所有已加入的群组中生效\n"
+    "\n**设置插件状态**:"
+    "\n启用：`,auto_send_reactions enable`"
+    "\n停用：`,auto_send_reactions disable`"
+    "\n\n**设置目标生效用户**:"
+    "\n添加：`,auto_send_reactions set <用户id/用户名> <表情内容>`"
+    "\n移除：`,auto_send_reactions unset <用户id/用户名>`"
+    "\n支持直接回复消息以进行快速设置，可以省略用户标识参数"
+    "\n\n**设置生效群组黑名单**:"
+    "\n添加：`,auto_send_reactions block <群组id/群组用户名>`"
+    "\n移除：`,auto_send_reactions unblock <群组id/群组用户名>\n",
+)
 async def AutoSendReactions(client: Client, message: Message):
     reply = message.reply_to_message
 
@@ -53,13 +55,12 @@ async def AutoSendReactions(client: Client, message: Message):
         #         return
 
         if not sqlite.get("AutoSendReactions.Enable"):
-            sqlite["AutoSendReactions.Enable"] = 'yes'
+            sqlite["AutoSendReactions.Enable"] = "yes"
 
         # 返回消息
         await edit_delete(message, "✅ **已启用自动回复表情插件**")
 
     elif message.parameter[0] == "disable":
-
         if sqlite.get("AutoSendReactions.Enable"):
             del sqlite["AutoSendReactions.Enable"]
 
@@ -67,10 +68,8 @@ async def AutoSendReactions(client: Client, message: Message):
         await edit_delete(message, "❌ **已停用自动回复表情插件**")
 
     elif message.parameter[0] in ["set", "unset"]:
-
         ## 设置插件
-        if (message.parameter[0] == "set"):
-
+        if message.parameter[0] == "set":
             if not reply and (len(message.parameter) == 3):
                 target = message.parameter[1]
                 content = message.parameter[2]
@@ -83,7 +82,7 @@ async def AutoSendReactions(client: Client, message: Message):
                     if not content or not get_emoji(content):
                         return await message.edit("❌ **Emoji参数不能为空或不合法**")
                     user_name = (
-                        f'{user_info.first_name} {user_info.last_name}'
+                        f"{user_info.first_name} {user_info.last_name}"
                         if user_info.last_name
                         else user_info.first_name
                     )
@@ -92,7 +91,7 @@ async def AutoSendReactions(client: Client, message: Message):
                     sqlite[f"AutoSendReactions.{target}"] = content
                     await edit_delete(
                         message,
-                        f"✅ 已{'更新' if hasSetted else '添加'}对 __{user_name}__ 的自动回复Emoji设置**"
+                        f"✅ 已{'更新' if hasSetted else '添加'}对 __{user_name}__ 的自动回复Emoji设置**",
                     )
                 except Exception as e:
                     await message.edit(message, f"❌ **在设置中遇到了一些错误** > {e}")
@@ -107,7 +106,7 @@ async def AutoSendReactions(client: Client, message: Message):
                     if not content or not get_emoji(content):
                         return await message.edit("❌ **Emoji参数不能为空或不合法**")
                     user_name = (
-                        f'{from_user.first_name} {from_user.last_name}'
+                        f"{from_user.first_name} {from_user.last_name}"
                         if from_user.last_name
                         else from_user.first_name
                     )
@@ -116,17 +115,15 @@ async def AutoSendReactions(client: Client, message: Message):
                     sqlite[f"AutoSendReactions.{target}"] = content
                     await edit_delete(
                         message,
-                        f"✅ 已{'更新' if hasSetted else '添加'}对 __{user_name}__ 的自动回复Emoji设置"
+                        f"✅ 已{'更新' if hasSetted else '添加'}对 __{user_name}__ 的自动回复Emoji设置",
                     )
                 except Exception as e:
                     await message.edit(message, f"❌ **在设置中遇到了一些错误** > {e}")
                     await log(e)  # 打印错误日志
             else:
-                return await message.edit(
-                    f"{lang('error_prefix')}{lang('arg_error')}")
+                return await message.edit(f"{lang('error_prefix')}{lang('arg_error')}")
 
-        elif (message.parameter[0] == "unset"):
-
+        elif message.parameter[0] == "unset":
             if not reply and (len(message.parameter) == 2):
                 target = message.parameter[1]
                 try:
@@ -137,17 +134,19 @@ async def AutoSendReactions(client: Client, message: Message):
                         return await message.edit("❌ **目标用户不存在或参数有误**")
                     user_id = user_info.id
                     user_name = (
-                        f'{user_info.first_name} {user_info.last_name}'
+                        f"{user_info.first_name} {user_info.last_name}"
                         if user_info.last_name
                         else user_info.first_name
                     )
                     if hasSetted := sqlite.get(f"AutoSendReactions.{user_id}"):
                         del sqlite[f"AutoSendReactions.{user_id}"]
                         await edit_delete(
-                            message, f"✅ 对 __{user_name}__ 的自动回复Emoji设置已删除")
+                            message, f"✅ 对 __{user_name}__ 的自动回复Emoji设置已删除"
+                        )
                     else:
                         await edit_delete(
-                            message, f"❌ 还没有对 __{user_name}__ 设置自动回复Emoji哦~")
+                            message, f"❌ 还没有对 __{user_name}__ 设置自动回复Emoji哦~"
+                        )
                 except Exception as e:
                     await message.edit(message, f"❌ **在设置中遇到了一些错误** > {e}")
                     await log(e)  # 打印错误日志
@@ -157,31 +156,33 @@ async def AutoSendReactions(client: Client, message: Message):
                 target = from_user.id
                 try:
                     user_name = (
-                        f'{from_user.first_name} {from_user.last_name}'
+                        f"{from_user.first_name} {from_user.last_name}"
                         if from_user.last_name
                         else from_user.first_name
                     )
                     if hasSetted := sqlite.get(f"AutoSendReactions.{target}"):
                         del sqlite[f"AutoSendReactions.{target}"]
                         await edit_delete(
-                            message, f"✅ 已删除对 __{user_name}__ 的自动回复Emoji设置")
+                            message, f"✅ 已删除对 __{user_name}__ 的自动回复Emoji设置"
+                        )
                     else:
                         await edit_delete(
-                            message, f"❌ 还没有对 __{user_name}__ 设置自动回复Emoji哦~")
+                            message, f"❌ 还没有对 __{user_name}__ 设置自动回复Emoji哦~"
+                        )
                 except Exception as e:
                     await message.edit(message, f"❌ **在设置中遇到了一些错误** > {e}")
                     await log(e)  # 打印错误日志
             else:
-                return await message.edit(
-                    f"{lang('error_prefix')}{lang('arg_error')}")
+                return await message.edit(f"{lang('error_prefix')}{lang('arg_error')}")
 
         else:
-            return await message.edit(
-                f"{lang('error_prefix')}{lang('arg_error')}")
+            return await message.edit(f"{lang('error_prefix')}{lang('arg_error')}")
 
-    elif (message.parameter[0]
-          == "block") or (message.parameter[0] == "unblock") and (len(
-              message.parameter) == 2):
+    elif (
+        (message.parameter[0] == "block")
+        or (message.parameter[0] == "unblock")
+        and (len(message.parameter) == 2)
+    ):
         group = message.parameter[1]
         group_info = await bot.get_chat(chat_id=group)
         if not group_info:
@@ -189,36 +190,35 @@ async def AutoSendReactions(client: Client, message: Message):
         group_id = group_info.id
         group_name = group_info.title
 
-        if (message.parameter[0] == "block"):
+        if message.parameter[0] == "block":
             if hasBlocked := sqlite.get(f"AutoSendReactionsBlock.{group_id}"):
                 await edit_delete(
-                    message, f"❌ 已经将 __{group_name}__ 加入自动回复Emoji黑名单群组了哦~")
+                    message, f"❌ 已经将 __{group_name}__ 加入自动回复Emoji黑名单群组了哦~"
+                )
             else:
-                sqlite[f"AutoSendReactionsBlock.{group_id}"] = 'yes'
-                await edit_delete(message,
-                                  f"✅ 已将 __{group_name}__ 加入至自动回复Emoji黑名单群组")
-        elif (message.parameter[0] == "unblock"):
+                sqlite[f"AutoSendReactionsBlock.{group_id}"] = "yes"
+                await edit_delete(message, f"✅ 已将 __{group_name}__ 加入至自动回复Emoji黑名单群组")
+        elif message.parameter[0] == "unblock":
             if hasBlocked := sqlite.get(f"AutoSendReactionsBlock.{group_id}"):
                 del sqlite[f"AutoSendReactionsBlock.{group_id}"]
-                await edit_delete(message,
-                                  f"✅ 已将 __{group_name}__ 从自动回复Emoji黑名单群组中移除")
+                await edit_delete(message, f"✅ 已将 __{group_name}__ 从自动回复Emoji黑名单群组中移除")
             else:
                 await edit_delete(
-                    message, f"❌ 还没有将 __{group_name}__ 加入进自动回复Emoji群组黑名单哦~")
+                    message, f"❌ 还没有将 __{group_name}__ 加入进自动回复Emoji群组黑名单哦~"
+                )
 
     else:
-        return await message.edit(f"{lang('error_prefix')}{lang('arg_error')}"
-                                  )
+        return await message.edit(f"{lang('error_prefix')}{lang('arg_error')}")
 
 
 @listener(is_plugin=False, incoming=True, ignore_edited=True)
 async def AutoSendReactions(message: Message):
-    from_user = ''
+    from_user = ""
     try:
         # 判断是否启用了本插件
         if not sqlite.get("AutoSendReactions.Enable"):
             return
-        if 'GROUP' not in str(message.chat.type):
+        if "GROUP" not in str(message.chat.type):
             return
         # 判断是否在黑名单中
         if sqlite.get(f"AutoSendReactionsBlock.{message.chat.id}"):
@@ -236,9 +236,9 @@ async def AutoSendReactions(message: Message):
             return
 
         # 发送表情
-        emoji = sqlite.get(f"AutoSendReactions.{from_user.id}").split('|')[0]
+        emoji = sqlite.get(f"AutoSendReactions.{from_user.id}").split("|")[0]
         user_name = (
-            f'{from_user.first_name} {from_user.last_name}'
+            f"{from_user.first_name} {from_user.last_name}"
             if from_user.last_name
             else from_user.first_name
         )

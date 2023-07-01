@@ -6,7 +6,11 @@ from typing import Optional
 from pyrogram.errors import PeerIdInvalid
 from pyrogram.raw.functions.messages import GetStickerSet
 from pyrogram.raw.functions.stickers import CreateStickerSet
-from pyrogram.raw.types import InputStickerSetShortName, InputDocument, InputStickerSetItem
+from pyrogram.raw.types import (
+    InputStickerSetShortName,
+    InputDocument,
+    InputStickerSetItem,
+)
 from pyrogram.raw.types.messages import StickerSet
 from pyrogram.file_id import FileId
 
@@ -19,43 +23,36 @@ from pagermaid.utils import alias_command
 
 class CannotToStickerSetError(Exception):
     """
-        Occurs when program cannot change a message to a sticker set
+    Occurs when program cannot change a message to a sticker set
     """
 
     def __init__(self):
-        super().__init__(
-            "无法将此消息转换为贴纸"
-        )
+        super().__init__("无法将此消息转换为贴纸")
 
 
 class NoStickerSetNameError(Exception):
     """
-        Occurs when no username is provided
+    Occurs when no username is provided
     """
 
     def __init__(self, string: str = "请先设置用户名"):
-        super().__init__(
-            string
-        )
+        super().__init__(string)
 
 
 class StickerSetFullError(Exception):
     """
-        Occurs when the sticker set is full
+    Occurs when the sticker set is full
     """
 
     def __init__(self):
-        super().__init__(
-            "贴纸包已满"
-        )
+        super().__init__("贴纸包已满")
 
 
 async def get_pack(name: str):
     try:
-        return await bot.invoke(GetStickerSet(
-            stickerset=InputStickerSetShortName(short_name=name),
-            hash=0
-        ))
+        return await bot.invoke(
+            GetStickerSet(stickerset=InputStickerSetShortName(short_name=name), hash=0)
+        )
     except Exception as e:  # noqa
         raise NoStickerSetNameError("贴纸名名称错误或者不存在") from e
 
@@ -73,8 +70,13 @@ class Sticker:
     document_path: Optional[str]
     software: str = "PagerMaid-Pyro"
 
-    def __init__(self, message: Message, sticker_set: str = "", emoji: str = "😀",
-                 should_forward: Message = None):
+    def __init__(
+        self,
+        message: Message,
+        sticker_set: str = "",
+        emoji: str = "😀",
+        should_forward: Message = None,
+    ):
         self.message = message
         self.sticker_set = sticker_set
         self.custom_sticker_set = False
@@ -151,7 +153,9 @@ class Sticker:
         if not self.document_path:
             return
         with contextlib.suppress(Exception):
-            msg = await bot.send_document(429000, document=self.document_path, force_document=True)
+            msg = await bot.send_document(
+                429000, document=self.document_path, force_document=True
+            )
             file = FileId.decode(msg.document.file_id)
             self.document = InputDocument(
                 id=file.media_id,
@@ -174,10 +178,7 @@ class Sticker:
                     title=title,
                     short_name=self.sticker_set,
                     stickers=[
-                        InputStickerSetItem(
-                            document=self.document,
-                            emoji=self.emoji
-                        )
+                        InputStickerSetItem(document=self.document, emoji=self.emoji)
                     ],
                     animated=self.is_animated,
                     videos=self.is_video,
@@ -189,16 +190,16 @@ class Sticker:
     async def add_to_sticker_set(self):
         async with bot.conversation(429000) as conv:
             await conv.ask("/start")
-            await sleep(.3)
+            await sleep(0.3)
             await conv.mark_as_read()
             await conv.ask("/cancel")
-            await sleep(.3)
+            await sleep(0.3)
             await conv.mark_as_read()
             await conv.ask("/addsticker")
-            await sleep(.3)
+            await sleep(0.3)
             await conv.mark_as_read()
             resp: Message = await conv.ask(self.sticker_set)
-            await sleep(.3)
+            await sleep(0.3)
             if resp.text == "Invalid set selected.":
                 raise NoStickerSetNameError("这个贴纸包好像不属于你~")
             await conv.mark_as_read()
@@ -207,18 +208,18 @@ class Sticker:
             else:
                 await self.should_forward.forward("Stickers")
             resp: Message = await conv.get_response()
-            await sleep(.3)
+            await sleep(0.3)
             if not resp.text.startswith("Thanks!"):
                 raise NoStickerSetNameError("这个贴纸包类型好像不匹配~")
             await conv.mark_as_read()
             await conv.ask(self.emoji)
-            await sleep(.3)
+            await sleep(0.3)
             await conv.mark_as_read()
             await conv.ask("/done")
-            await sleep(.3)
+            await sleep(0.3)
             await conv.mark_as_read()
             await conv.ask("/done")
-            await sleep(.3)
+            await sleep(0.3)
             await conv.mark_as_read()
 
     async def to_sticker_set(self):
@@ -236,10 +237,12 @@ class Sticker:
 
     def get_config(self) -> str:
         pack = self.mention() if self.sticker_set else "无法保存，请设置用户名"
-        return f"欢迎使用 sticker 插件\n\n" \
-               f"将自动保存到贴纸包：{pack}\n\n" \
-               f"使用命令 <code>,{alias_command('s')} 贴纸包名</code> 自定义保存贴纸包\n" \
-               f"使用命令 <code>,{alias_command('s')} cancel</code> 取消自定义保存贴纸包"
+        return (
+            f"欢迎使用 sticker 插件\n\n"
+            f"将自动保存到贴纸包：{pack}\n\n"
+            f"使用命令 <code>,{alias_command('s')} 贴纸包名</code> 自定义保存贴纸包\n"
+            f"使用命令 <code>,{alias_command('s')} cancel</code> 取消自定义保存贴纸包"
+        )
 
 
 @listener(

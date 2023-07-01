@@ -8,8 +8,7 @@ from pagermaid.listener import listener
 from pagermaid.enums import Client, Message
 
 
-@listener(command="tgbg", description="解析 Telegram 聊天窗口背景图",
-          parameters="t.me/bg/xxx")
+@listener(command="tgbg", description="解析 Telegram 聊天窗口背景图", parameters="t.me/bg/xxx")
 async def tg_bg(client: Client, message: Message):
     argument = message.obtain_message()
     if url := urlparse(argument):
@@ -17,11 +16,15 @@ async def tg_bg(client: Client, message: Message):
             if url.hostname == "t.me" and path.startswith("/bg/"):
                 slug = path[4:]
                 try:
-                    bg: WallPaper = await client.invoke(GetWallPaper(wallpaper=InputWallPaperSlug(slug=slug)))
+                    bg: WallPaper = await client.invoke(
+                        GetWallPaper(wallpaper=InputWallPaperSlug(slug=slug))
+                    )
                 except Exception as e:
                     return await message.edit(f"获取失败: {str(e)}")
                 if bg.document:
-                    bg_doc = Document._parse(client, document=bg.document, file_name="bg.jpg")  # noqa
+                    bg_doc = Document._parse(
+                        client, document=bg.document, file_name="bg.jpg"
+                    )  # noqa
                     await client.send_document(
                         message.chat.id,
                         bg_doc.file_id,

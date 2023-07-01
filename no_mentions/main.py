@@ -10,9 +10,11 @@ from pyromod import require_mod_version
 no_mentions_sub = Sub("no_mentions")
 
 
-@listener(command="no_mentions",
-          description="自动消除某个对话的 @ 提醒",
-          parameters="[true|false|status]")
+@listener(
+    command="no_mentions",
+    description="自动消除某个对话的 @ 提醒",
+    parameters="[true|false|status]",
+)
 async def no_mentions(_: Client, message: Message):
     if len(message.parameter) != 1:
         await message.edit(f"[no_mentions] {lang('error_prefix')}{lang('arg_error')}")
@@ -49,6 +51,8 @@ async def set_read_mentions(client: Client, message: Message):
     await client.invoke(
         ReadMentions(
             peer=await client.resolve_peer(message.chat.id),
-            top_msg_id=message.reply_to_top_message_id if message.chat.is_forum else None,
+            top_msg_id=message.reply_to_top_message_id
+            if message.chat.is_forum
+            else None,
         )
     )

@@ -11,14 +11,14 @@ from PyDictionary import PyDictionary
 dictionary_data = PyDictionary()
 
 
-@listener(command="dictionary",
-          parameters="[单词]",
-          description="查询英语单词的意思")
+@listener(command="dictionary", parameters="[单词]", description="查询英语单词的意思")
 async def get_word_mean(message: Message):
-    """ Look up a word in the dictionary. """
+    """Look up a word in the dictionary."""
     word = message.arguments
     if not word:
-        return await message.edit(f"[dictionary] 使用方法：`,{alias_command('dictionary')} <单词>`")
+        return await message.edit(
+            f"[dictionary] 使用方法：`,{alias_command('dictionary')} <单词>`"
+        )
 
     result = dictionary_data.meaning(word)
     output = f"<b>Word :</b> <i>{word}</i>\n\n"

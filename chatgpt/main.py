@@ -24,7 +24,7 @@ class AsyncChatbot:
         self.bot = Chatbot(config=self.config, refresh=False)
 
     def __call__(
-            self, conversation_id: Optional[str] = None, parent_id: Optional[str] = None
+        self, conversation_id: Optional[str] = None, parent_id: Optional[str] = None
     ):
         self.bot.conversation_id = conversation_id
         self.bot.parent_id = parent_id or self.id
@@ -59,11 +59,13 @@ class AsyncChatbot:
 chat_bot = AsyncChatbot()
 chat_bot_session = defaultdict(dict)
 chat_bot_lock = threading.Lock()
-chat_bot_help = "使用 ChatGPT 聊天\n\n" \
-                "参数：\n\n- 无参数：进入聊天模式\n" \
-                "- reset：重置聊天状态\n" \
-                "- set <session_token>：设置 ChatGPT 会话令牌，获取令牌： https://t.me/PagerMaid_Modify/212 \n" \
-                "- del：删除 ChatGPT 会话令牌"
+chat_bot_help = (
+    "使用 ChatGPT 聊天\n\n"
+    "参数：\n\n- 无参数：进入聊天模式\n"
+    "- reset：重置聊天状态\n"
+    "- set <session_token>：设置 ChatGPT 会话令牌，获取令牌： https://t.me/PagerMaid_Modify/212 \n"
+    "- del：删除 ChatGPT 会话令牌"
+)
 
 
 @scheduler.scheduled_job("interval", minutes=30)
@@ -105,7 +107,9 @@ async def chat_bot_func(message: Message):
         return await message.edit("请先通过参数 `set [session_token]` 设置 OpenAI API Token。")
     with chat_bot_lock:
         try:
-            msg = await chat_bot(**chat_bot_session[from_id]).get_chat_response(message.arguments)
+            msg = await chat_bot(**chat_bot_session[from_id]).get_chat_response(
+                message.arguments
+            )
         except Exception as e:
             msg = f"可能是 Session Token 过期了，请重新设置。\n{str(e)}"
         if not msg:

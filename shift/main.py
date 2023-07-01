@@ -171,8 +171,6 @@ async def loosely_forward(
         delay = min + uniform(0.5, 1.0)
         await notifier.edit(f"触发 Flood ，暂停 {delay} 秒。")
         await sleep(delay)
-        await loosely_forward(
-            notifier, message, chat_id, disable_notification
-        )
+        await loosely_forward(notifier, message, chat_id, disable_notification)
     except Exception:
         pass  # drop other errors

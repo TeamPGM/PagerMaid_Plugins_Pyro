@@ -56,9 +56,9 @@ class FaDian:
                 "-我英语不好，一次英语课老师问我wife是什么意思，我向隔壁的{name}求助，她指了指自己，我愣了许久，轻轻的说：主人",
                 "-{name}姐姐的声音就像一瓶汽水。”“你指{name}的声音就是天籁之音？”“不，我的意思是，听了姐姐的声音就像夏天里的饮料机，"
                 "脸贴在玻璃上许久才选到心怡的汽水，想把仔仔细细选中的汽水打开时盖子却不小心松掉了。”“然后汽水喷涌而出？”“"
-                "然后我的心就扑通扑通的涌了出去，我想把我的心送给她。”"
+                "然后我的心就扑通扑通的涌了出去，我想把我的心送给她。”",
             ],
-            "date": 0
+            "date": 0,
         }
         self.api = f"{Config.GIT_SOURCE}fadian/fadian.json"
 
@@ -84,9 +84,7 @@ async def fa_dian_refresher_data():
     await fa_dian.fetch()
 
 
-@listener(command="fadian",
-          description="快速对着指定人物发电",
-          parameters="[query]")
+@listener(command="fadian", description="快速对着指定人物发电", parameters="[query]")
 async def fa_dian_process(message: Message):
     if fa_dian.data.get("date") == 0:
         await fa_dian.fetch()

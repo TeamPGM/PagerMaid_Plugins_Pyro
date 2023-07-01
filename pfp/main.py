@@ -17,11 +17,19 @@ async def get_photo(message: Message) -> Optional[str]:
     if reply := message.reply_to_message:
         if reply.photo:
             return await reply.download()
-        elif reply.document and reply.document.mime_type and reply.document.mime_type.startswith("image"):
+        elif (
+            reply.document
+            and reply.document.mime_type
+            and reply.document.mime_type.startswith("image")
+        ):
             return await reply.download()
     elif message.photo:
         return await message.download()
-    elif message.document and message.document.mime_type and message.document.mime_type.startswith("image"):
+    elif (
+        message.document
+        and message.document.mime_type
+        and message.document.mime_type.startswith("image")
+    ):
         return await message.download()
     return None
 
@@ -44,12 +52,9 @@ async def set_photo(client: Client, user: InputUser, photo: str, me: bool) -> No
     safe_remove(photo)
 
 
-@listener(
-    command="pfp",
-    description=lang("pfp_des")
-)
+@listener(command="pfp", description=lang("pfp_des"))
 async def pfp(client: Client, message: Message):
-    """ Sets your profile picture. """
+    """Sets your profile picture."""
     me = await client.get_me()
     peer = await client.resolve_peer(me.id)
     with contextlib.suppress(Exception):
@@ -59,7 +64,7 @@ async def pfp(client: Client, message: Message):
     if not photo:
         return await message.edit(f"{lang('error_prefix')}{lang('pfp_e_notp')}")
     if not Config.SILENT:
-        message = await message.edit(lang('pfp_process'))
+        message = await message.edit(lang("pfp_process"))
     try:
         await set_photo(client, peer, photo, peer.user_id == me.id)
         await message.edit("头像修改成功啦 ~")

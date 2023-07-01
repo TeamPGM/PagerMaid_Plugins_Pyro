@@ -14,23 +14,28 @@ pip_install("pyzbar")
 from pyqrcode import create
 
 
-@listener(is_plugin=False, outgoing=True, command="genqr",
-          description=lang('genqr_des'),
-          parameters="[string]")
+@listener(
+    is_plugin=False,
+    outgoing=True,
+    command="genqr",
+    description=lang("genqr_des"),
+    parameters="[string]",
+)
 async def gen_qr(client: Client, message: Message):
-    """ Generate QR codes. """
+    """Generate QR codes."""
     text = message.obtain_message()
     if not text:
-        await message.edit(lang('error_prefix'))
+        await message.edit(lang("error_prefix"))
         return
     if not Config.SILENT:
-        await message.edit(lang('genqr_process'))
+        await message.edit(lang("genqr_process"))
     try:
         create(text, error="L", encoding="utf-8", mode="binary").png("qr.webp", scale=6)
         await client.send_document(
             message.chat.id,
             document="qr.webp",
-            reply_to_message_id=message.reply_to_message_id or message.reply_to_top_message_id,
+            reply_to_message_id=message.reply_to_message_id
+            or message.reply_to_top_message_id,
         )
     except UnicodeEncodeError:
         await message.edit(f"{lang('error_prefix')}{lang('genqr_e_encode')}")
@@ -44,10 +49,11 @@ async def gen_qr(client: Client, message: Message):
         await log(f"`{text}` {lang('genqr_ok')}")
 
 
-@listener(is_plugin=False, outgoing=True, command="parseqr",
-          description=lang('parseqr_des'))
+@listener(
+    is_plugin=False, outgoing=True, command="parseqr", description=lang("parseqr_des")
+)
 async def parse_qr(message: Message):
-    """ Parse attachment of replied message as a QR Code and output results. """
+    """Parse attachment of replied message as a QR Code and output results."""
     try:
         from pyzbar.pyzbar import decode as pyzbar_decode
     except ImportError:
@@ -64,8 +70,7 @@ async def parse_qr(message: Message):
     try:
         text = str(pyzbar_decode(Image.open(target_file_path))[0].data)[2:][:-1]
         success = True
-        await message.edit(f"**{lang('parseqr_content')}: **\n"
-                           f"`{text}`")
+        await message.edit(f"**{lang('parseqr_content')}: **\n" f"`{text}`")
     except Exception:
         await message.edit(f"{lang('error_prefix')}{lang('parseqr_e_noqr')}")
         text = None

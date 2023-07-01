@@ -40,9 +40,11 @@ async def eat_it(context, user, base, mask, photo, number, layer=0):
     photo_size = photo.size
     if mask_size[0] < photo_size[0] and mask_size[1] < photo_size[1]:
         scale = photo_size[1] / mask_size[1]
-        photo = photo.resize((int(photo_size[0] / scale), int(photo_size[1] / scale)), Image.LANCZOS)
+        photo = photo.resize(
+            (int(photo_size[0] / scale), int(photo_size[1] / scale)), Image.LANCZOS
+        )
     photo = photo.crop((0, 0, mask_size[0], mask_size[1]))
-    mask1 = Image.new('RGBA', mask_size)
+    mask1 = Image.new("RGBA", mask_size)
     mask1.paste(photo, mask=mask)
     numberPosition = positions[str(number)]
     isSwap = False
@@ -52,7 +54,7 @@ async def eat_it(context, user, base, mask, photo, number, layer=0):
     except:
         pass
     if isSwap:
-        photoBg = Image.new('RGBA', base.size)
+        photoBg = Image.new("RGBA", base.size)
         photoBg.paste(mask1, (numberPosition[0], numberPosition[1]), mask1)
         photoBg.paste(base, (0, 0), base)
         base = photoBg
@@ -68,16 +70,22 @@ async def eat_it(context, user, base, mask, photo, number, layer=0):
 
         try:
             markImg = Image.open(f"plugins{sep}eat{sep}{str(user.id)}.jpg")
-            maskImg = Image.open(f"plugins{sep}eat{sep}mask{str(numberPosition[2])}.png").convert("RGBA")
+            maskImg = Image.open(
+                f"plugins{sep}eat{sep}mask{str(numberPosition[2])}.png"
+            ).convert("RGBA")
         except:
             await context.edit(f"图片模版加载出错，请检查并更新配置：mask{str(numberPosition[2])}.png")
             return base
-        base = await eat_it(context, user, base, maskImg, markImg, numberPosition[2], layer + 1)
+        base = await eat_it(
+            context, user, base, maskImg, markImg, numberPosition[2], layer + 1
+        )
 
     temp = base.size[0] if base.size[0] > base.size[1] else base.size[1]
     if temp != 512:
         scale = 512 / temp
-        base = base.resize((int(base.size[0] * scale), int(base.size[1] * scale)), Image.LANCZOS)
+        base = base.resize(
+            (int(base.size[0] * scale), int(base.size[1] * scale)), Image.LANCZOS
+        )
 
     return base
 
@@ -94,7 +102,7 @@ async def updateConfig(context):
 async def downloadFileFromUrl(url, filepath):
     try:
         re = await client.get(url)
-        with open(filepath, 'wb') as ms:
+        with open(filepath, "wb") as ms:
             ms.write(re.content)
     except:
         return -1
@@ -104,7 +112,7 @@ async def downloadFileFromUrl(url, filepath):
 async def loadConfigFile(context, forceDownload=False):
     global positions, notifyStrArr, extensionConfig
     try:
-        with open(configFilePath, 'r', encoding='utf8') as cf:
+        with open(configFilePath, "r", encoding="utf8") as cf:
             # 读取已下载的配置文件
             remoteConfigJson = json.load(cf)
             # positionsStr = json.dumps(positions)
@@ -160,7 +168,7 @@ def mergeDict(d1, d2):
 async def downloadFileByIds(ids, context):
     idsStr = f',{",".join(ids)},'
     try:
-        with open(configFilePath, 'r', encoding='utf8') as cf:
+        with open(configFilePath, "r", encoding="utf8") as cf:
             # 读取已下载的配置文件
             remoteConfigJson = json.load(cf)
             data = json.loads(json.dumps(remoteConfigJson["needDownloadFileList"]))
@@ -171,8 +179,12 @@ async def downloadFileByIds(ids, context):
                 try:
                     fsplit = file_url.split("/")
                     fileFullName = fsplit[len(fsplit) - 1]
-                    fileName = fileFullName.split(".")[0].replace("eat", "").replace("mask", "")
-                    if f',{fileName},' in idsStr:
+                    fileName = (
+                        fileFullName.split(".")[0]
+                        .replace("eat", "")
+                        .replace("mask", "")
+                    )
+                    if f",{fileName}," in idsStr:
                         filePath = f"plugins{sep}eat{sep}{fileFullName}"
                         if (await downloadFileFromUrl(file_url, filePath)) == 0:
                             sucSet.add(fileName)
@@ -191,14 +203,18 @@ async def downloadFileByIds(ids, context):
         await context.edit("更新下载模版图片失败，请确认配置文件是否正确")
 
 
-@listener(is_plugin=True, outgoing=True, command="eat",
-          description="生成一张 吃头像 图片\n"
-                      "可选：当第二个参数是数字时，读取预存的配置；\n\n"
-                      "当第二个参数是.开头时，头像旋转180°，并且判断r后面是数字则读取对应的配置生成\n\n"
-                      "当第二个参数是/开头时，在/后面加url则从url下载配置文件保存到本地，如果就一个/，则直接更新配置文件，删除则是/delete；或者/后面加模版id可以手动更新指定模版配置\n\n"
-                      "当第二个参数是-开头时，在-后面加上模版id，即可设置默认模版-eat直接使用该模版，删除默认模版是-eat -\n\n"
-                      "当第二个参数是!或者！开头时，列出当前可用模版",
-          parameters="[username/uid] [随意内容]")
+@listener(
+    is_plugin=True,
+    outgoing=True,
+    command="eat",
+    description="生成一张 吃头像 图片\n"
+    "可选：当第二个参数是数字时，读取预存的配置；\n\n"
+    "当第二个参数是.开头时，头像旋转180°，并且判断r后面是数字则读取对应的配置生成\n\n"
+    "当第二个参数是/开头时，在/后面加url则从url下载配置文件保存到本地，如果就一个/，则直接更新配置文件，删除则是/delete；或者/后面加模版id可以手动更新指定模版配置\n\n"
+    "当第二个参数是-开头时，在-后面加上模版id，即可设置默认模版-eat直接使用该模版，删除默认模版是-eat -\n\n"
+    "当第二个参数是!或者！开头时，列出当前可用模版",
+    parameters="[username/uid] [随意内容]",
+)
 async def eat(client_: Client, context: Message):
     if len(context.parameter) > 2:
         await context.edit("出错了呜呜呜 ~ 无效的参数。")
@@ -250,17 +266,24 @@ async def eat(client_: Client, context: Message):
                     except IndexError:
                         user = await client_.get_chat(user)  # noqa
                 except (UsernameNotOccupied, UsernameInvalid):
-                    return await context.edit(f"{lang('error_prefix')}{lang('profile_e_nou')}")
+                    return await context.edit(
+                        f"{lang('error_prefix')}{lang('profile_e_nou')}"
+                    )
                 except OverflowError:
-                    return await context.edit(f"{lang('error_prefix')}{lang('profile_e_long')}")
+                    return await context.edit(
+                        f"{lang('error_prefix')}{lang('profile_e_long')}"
+                    )
                 except Exception as exception:
-                    return await context.edit(f"{lang('error_prefix')}{lang('profile_e_nof')}")
+                    return await context.edit(
+                        f"{lang('error_prefix')}{lang('profile_e_nof')}"
+                    )
     target_user_id = user.id
     if not user.photo:
         return await context.edit("出错了呜呜呜 ~ 此用户无头像。")
     photo = await client_.download_media(
         user.photo.big_file_id,
-        f"plugins{sep}eat{sep}" + str(target_user_id) + ".jpg",)
+        f"plugins{sep}eat{sep}" + str(target_user_id) + ".jpg",
+    )
 
     reply_to = context.reply_to_message.id if context.reply_to_message else None
     if exists(f"plugins{sep}eat{sep}" + str(target_user_id) + ".jpg"):
@@ -333,15 +356,23 @@ async def eat(client_: Client, context: Message):
                             ids = p2.split(splitStr)
                             if len(ids) > 0:
                                 # 下载文件
-                                configFileRemoteUrl = sqlite.get(configFileRemoteUrlKey, "")
+                                configFileRemoteUrl = sqlite.get(
+                                    configFileRemoteUrlKey, ""
+                                )
                                 if configFileRemoteUrl:
-                                    if (await downloadFileFromUrl(configFileRemoteUrl, configFilePath)) != 0:
+                                    if (
+                                        await downloadFileFromUrl(
+                                            configFileRemoteUrl, configFilePath
+                                        )
+                                    ) != 0:
                                         await context.edit(f"下载配置文件异常，请确认url是否正确")
                                         return
                                     else:
                                         # 下载成功，更新对应配置
                                         if await loadConfigFile(context) != 0:
-                                            await context.edit(f"加载配置文件异常，请确认从远程下载的配置文件格式是否正确")
+                                            await context.edit(
+                                                f"加载配置文件异常，请确认从远程下载的配置文件格式是否正确"
+                                            )
                                             return
                                         else:
                                             await downloadFileByIds(ids, context)
@@ -350,7 +381,9 @@ async def eat(client_: Client, context: Message):
                     else:
                         # 没传url直接更新
                         if await updateConfig(context) != 0:
-                            await context.edit(f"更新配置文件异常，请确认是否订阅远程配置文件，或从远程下载的配置文件格式是否正确")
+                            await context.edit(
+                                f"更新配置文件异常，请确认是否订阅远程配置文件，或从远程下载的配置文件格式是否正确"
+                            )
                             return
                         else:
                             await context.edit(f"从远程更新配置文件成功")
@@ -379,7 +412,9 @@ async def eat(client_: Client, context: Message):
                 number = p2
             elif isinstance(p2, int) and p2 > 0:
                 number = int(p2)
-            elif not diu_round and ((isinstance(p1, int) and int(p1) > 0) or isinstance(p1, str)):
+            elif not diu_round and (
+                (isinstance(p1, int) and int(p1) > 0) or isinstance(p1, str)
+            ):
                 try:
                     number = int(p1)
                 except:
@@ -412,7 +447,9 @@ async def eat(client_: Client, context: Message):
         markImg = Image.open(f"plugins{sep}eat{sep}" + str(target_user_id) + ".jpg")
         try:
             eatImg = Image.open(f"plugins{sep}eat{sep}eat" + str(number) + ".png")
-            maskImg = Image.open(f"plugins{sep}eat{sep}mask" + str(number) + ".png").convert("RGBA")
+            maskImg = Image.open(
+                f"plugins{sep}eat{sep}mask" + str(number) + ".png"
+            ).convert("RGBA")
         except:
             await context.edit(f"图片模版加载出错，请检查并更新配置：{str(number)}")
             return
@@ -423,7 +460,9 @@ async def eat(client_: Client, context: Message):
             number = str(number)
         except:
             pass
-        result = await eat_it(context, context.from_user, eatImg, maskImg, markImg, number)
+        result = await eat_it(
+            context, context.from_user, eatImg, maskImg, markImg, number
+        )
         result.save(f"plugins{sep}eat{sep}eat.webp")
         safe_remove(f"plugins{sep}eat{sep}" + str(target_user_id) + ".jpg")
         safe_remove(f"plugins{sep}eat{sep}" + str(target_user_id) + ".png")
@@ -436,7 +475,7 @@ async def eat(client_: Client, context: Message):
             await client_.send_document(
                 context.chat.id,
                 f"plugins{sep}eat{sep}eat.webp",
-                reply_to_message_id=reply_to
+                reply_to_message_id=reply_to,
             )
             await final_msg.safe_delete()
         except TypeError:
@@ -448,7 +487,7 @@ async def eat(client_: Client, context: Message):
             await client_.send_document(
                 context.chat.id,
                 f"plugins{sep}eat{sep}eat.webp",
-                reply_to_message_id=context.reply_to_top_message_id
+                reply_to_message_id=context.reply_to_top_message_id,
             )
             await final_msg.safe_delete()
         except TypeError:

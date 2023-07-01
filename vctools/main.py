@@ -6,11 +6,13 @@ from pagermaid.listener import listener
 from pagermaid.enums import Client, Message
 
 
-@listener(command="vctools",
-          admins_only=True,
-          groups_only=True,
-          parameters="[开启/关闭]",
-          description="开启/关闭群组直播间")
+@listener(
+    command="vctools",
+    admins_only=True,
+    groups_only=True,
+    parameters="[开启/关闭]",
+    description="开启/关闭群组直播间",
+)
 async def vctools(bot: Client, message: Message):
     if not message.arguments:
         return await message.reply("请输入 `开启/关闭`")
@@ -27,7 +29,11 @@ async def vctools(bot: Client, message: Message):
             return await message.reply("需要管理员权限")
     elif message.arguments == "关闭":
         try:
-            full_chat = (await bot.invoke(GetFullChannel(channel=await bot.resolve_peer(message.chat.id)))).full_chat
+            full_chat = (
+                await bot.invoke(
+                    GetFullChannel(channel=await bot.resolve_peer(message.chat.id))
+                )
+            ).full_chat
             if full_chat.call:
                 await bot.invoke(DiscardGroupCall(call=full_chat.call))
             return await message.edit("已关闭群组直播间")

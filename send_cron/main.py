@@ -17,7 +17,14 @@ class SendTask:
     cron: str
     pause: bool
 
-    def __init__(self, task_id: int, cid: int = 0, msg: str = "", cron: str = "", pause: bool = False):
+    def __init__(
+        self,
+        task_id: int,
+        cid: int = 0,
+        msg: str = "",
+        cron: str = "",
+        pause: bool = False,
+    ):
         self.task_id = task_id
         self.cid = cid
         self.msg = msg
@@ -25,7 +32,13 @@ class SendTask:
         self.pause = pause
 
     def export(self):
-        return {"task_id": self.task_id, "cid": self.cid, "msg": self.msg, "cron": self.cron, "pause": self.pause}
+        return {
+            "task_id": self.task_id,
+            "cid": self.cid,
+            "msg": self.msg,
+            "cron": self.cron,
+            "pause": self.pause,
+        }
 
     def get_job(self):
         return scheduler.get_job(f"send_cron|{self.cid}|{self.task_id}")
@@ -35,8 +48,7 @@ class SendTask:
             scheduler.remove_job(f"send_cron|{self.cid}|{self.task_id}")
 
     def export_str(self, show_all: bool = False):
-        text = f"<code>{self.task_id}</code> - " \
-               f"<code>{self.cron}</code> -"
+        text = f"<code>{self.task_id}</code> - " f"<code>{self.cron}</code> -"
         if job := self.get_job():
             time: datetime.datetime = job.next_run_time
             text += f"<code>{time.strftime('%Y-%m-%d %H:%M:%S')}</code> - "
@@ -108,7 +120,11 @@ class SendTasks:
         return [task.task_id for task in self.tasks]
 
     def print_all_tasks(self, show_all: bool = False, cid: int = 0) -> str:
-        return "\n".join(task.export_str(show_all) for task in self.tasks if task.cid == cid or show_all)
+        return "\n".join(
+            task.export_str(show_all)
+            for task in self.tasks
+            if task.cid == cid or show_all
+        )
 
     def save_to_file(self):
         data = [task.export() for task in self.tasks]
@@ -210,7 +226,8 @@ async def send_cron(message: Message):
             return await message.edit("请输入正确的参数")
         if send_cron_tasks.get_all_ids():
             return await message.edit(
-                f"已注册的任务：\n\n{send_cron_tasks.print_all_tasks(show_all=False, cid=message.chat.id)}")
+                f"已注册的任务：\n\n{send_cron_tasks.print_all_tasks(show_all=False, cid=message.chat.id)}"
+            )
         else:
             return await message.edit("没有已注册的任务。")
     if len(message.parameter) == 2:
@@ -231,7 +248,8 @@ async def send_cron(message: Message):
         elif message.parameter[0] == "list":
             if send_cron_tasks.get_all_ids():
                 return await message.edit(
-                    f"已注册的任务：\n\n{send_cron_tasks.print_all_tasks(show_all=True)}")
+                    f"已注册的任务：\n\n{send_cron_tasks.print_all_tasks(show_all=True)}"
+                )
             else:
                 return await message.edit("没有已注册的任务。")
     # add task

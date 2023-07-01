@@ -11,20 +11,21 @@ from pagermaid.utils import lang, pip_install
 
 pip_install("speedtest-cli", alias="speedtest")
 
-from speedtest import Speedtest, ShareResultsConnectFailure, ShareResultsSubmitFailure, NoMatchedServers, \
-    SpeedtestBestServerFailure, SpeedtestHTTPError
+from speedtest import (
+    Speedtest,
+    ShareResultsConnectFailure,
+    ShareResultsSubmitFailure,
+    NoMatchedServers,
+    SpeedtestBestServerFailure,
+    SpeedtestHTTPError,
+)
 
 
 def unit_convert(byte):
-    """ Converts byte into readable formats. """
+    """Converts byte into readable formats."""
     power = 1000
     zero = 0
-    units = {
-        0: '',
-        1: 'Kb/s',
-        2: 'Mb/s',
-        3: 'Gb/s',
-        4: 'Tb/s'}
+    units = {0: "", 1: "Kb/s", 2: "Mb/s", 3: "Gb/s", 4: "Tb/s"}
     while byte > power:
         byte /= power
         zero += 1
@@ -57,7 +58,9 @@ async def run_speedtest(request: AsyncClient, message: Message):
         f"Timestamp: `{result['timestamp']}`"
     )
     if result["share"]:
-        data = await request.get(result["share"].replace("http:", "https:"), follow_redirects=True)
+        data = await request.get(
+            result["share"].replace("http:", "https:"), follow_redirects=True
+        )
         with open("speedtest.png", mode="wb") as f:
             f.write(data.content)
         with contextlib.suppress(Exception):
@@ -84,28 +87,30 @@ async def get_all_ids():
     )
 
 
-@listener(command="speedtest",
-          description=lang('speedtest_des'),
-          parameters="(Server ID/测速点列表)")
+@listener(
+    command="speedtest",
+    description=lang("speedtest_des"),
+    parameters="(Server ID/测速点列表)",
+)
 async def speedtest(client: Client, message: Message, request: AsyncClient):
-    """ Tests internet speed using speedtest. """
+    """Tests internet speed using speedtest."""
     if message.arguments == "测速点列表":
         msg = message
     else:
-        msg: Message = await message.edit(lang('speedtest_processing'))
+        msg: Message = await message.edit(lang("speedtest_processing"))
     try:
         if message.arguments == "测速点列表":
             des, photo = await get_all_ids()
         else:
             des, photo = await run_speedtest(request, message)
     except SpeedtestHTTPError:
-        return await msg.edit(lang('speedtest_ConnectFailure'))
+        return await msg.edit(lang("speedtest_ConnectFailure"))
     except (ValueError, TypeError):
-        return await msg.edit(lang('arg_error'))
+        return await msg.edit(lang("arg_error"))
     except (SpeedtestBestServerFailure, NoMatchedServers):
-        return await msg.edit(lang('speedtest_ServerFailure'))
+        return await msg.edit(lang("speedtest_ServerFailure"))
     except (ShareResultsSubmitFailure, RuntimeError, ReadTimeout):
-        return await msg.edit(lang('speedtest_ConnectFailure'))
+        return await msg.edit(lang("speedtest_ConnectFailure"))
     if not photo:
         return await msg.edit(des)
     try:
@@ -113,7 +118,8 @@ async def speedtest(client: Client, message: Message, request: AsyncClient):
             message.chat.id,
             photo,
             caption=des,
-            reply_to_message_id=message.reply_to_top_message_id or message.reply_to_message_id,
+            reply_to_message_id=message.reply_to_top_message_id
+            or message.reply_to_message_id,
         )
     except Exception:
         return await msg.edit(des)

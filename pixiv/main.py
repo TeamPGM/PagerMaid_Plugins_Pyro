@@ -5,8 +5,7 @@ import copy
 import os
 import random
 from dataclasses import dataclass
-from typing import (Any, Awaitable, Callable, Dict, List, NamedTuple, Optional,
-                    Tuple)
+from typing import Any, Awaitable, Callable, Dict, List, NamedTuple, Optional, Tuple
 
 import yaml
 from pagermaid import logs
@@ -358,9 +357,7 @@ async def help_cmd(_: Client, message: Message) -> None:
     )
 
 
-@cmdman.subcommand(
-    "id", "根据 ID 获取 Pixiv 相关插图", "<ID>"
-)
+@cmdman.subcommand("id", "根据 ID 获取 Pixiv 相关插图", "<ID>")
 async def id_cmd(_: Client, message: Message) -> None:
     try:
         id_ = int(message.arguments)

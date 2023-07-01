@@ -1,7 +1,13 @@
 from asyncio import sleep
 
 from pyrogram.enums import ChatType
-from pyrogram.errors import ChatAdminRequired, FloodWait, PeerIdInvalid, UserAdminInvalid, UsernameInvalid
+from pyrogram.errors import (
+    ChatAdminRequired,
+    FloodWait,
+    PeerIdInvalid,
+    UserAdminInvalid,
+    UsernameInvalid,
+)
 from pyrogram.types import Chat
 
 from pagermaid import log
@@ -13,7 +19,11 @@ from pagermaid.utils import lang
 
 
 def mention_group(chat: Chat):
-    return f'<a href="https://t.me/{chat.username}">{chat.title}</a>' if chat.username else f'<code>{chat.title}</code>'
+    return (
+        f'<a href="https://t.me/{chat.username}">{chat.title}</a>'
+        if chat.username
+        else f"<code>{chat.title}</code>"
+    )
 
 
 async def ban_one(chat: Chat, uid):
@@ -64,11 +74,13 @@ async def get_uid(chat: Chat, message: Message):
     return uid, channel, delete_all, sender
 
 
-@listener(command="sb",
-          description=lang('sb_des'),
-          need_admin=True,
-          groups_only=True,
-          parameters="[reply|id|username> <do_not_del_all]")
+@listener(
+    command="sb",
+    description=lang("sb_des"),
+    need_admin=True,
+    groups_only=True,
+    parameters="[reply|id|username> <do_not_del_all]",
+)
 async def super_ban(message: Message):
     chat = message.chat
     try:
@@ -126,6 +138,6 @@ async def super_ban(message: Message):
     else:
         text = f'{lang("sb_per")} {count} {lang("sb_in")} {sender.mention}'
     await message.edit(text)
-    groups = f'\n{lang("sb_pro")}\n' + "\n".join(groups) if groups else ''
-    await log(f'{text}\nuid: `{uid}` {groups}')
+    groups = f'\n{lang("sb_pro")}\n' + "\n".join(groups) if groups else ""
+    await log(f"{text}\nuid: `{uid}` {groups}")
     add_delete_message_job(message, 10)

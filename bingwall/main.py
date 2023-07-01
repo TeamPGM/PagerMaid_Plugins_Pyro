@@ -14,13 +14,12 @@ async def get_wallpaper_url(num):
     copy_right = ""
     if req.status_code == 200:
         data = req.json()
-        url = data['images'][0]['url']
-        copy_right = data['images'][0]['copyright']
+        url = data["images"][0]["url"]
+        copy_right = data["images"][0]["copyright"]
     return url, copy_right
 
 
-@listener(command="bingwall",
-          description="获取Bing每日壁纸（带参数发送原图）")
+@listener(command="bingwall", description="获取Bing每日壁纸（带参数发送原图）")
 async def bingwall(message: Message):
     status = False
     filename = f"data{sep}wallpaper.jpg"
@@ -39,16 +38,14 @@ async def bingwall(message: Message):
                 if message.arguments:
                     await message.reply_document(
                         filename,
-                        caption=f"#bing wallpaper\n"
-                                f"{str(copy_right)}",
+                        caption=f"#bing wallpaper\n" f"{str(copy_right)}",
                         quote=False,
                         reply_to_message_id=message.reply_to_top_message_id,
                     )
                 else:
                     await message.reply_photo(
                         filename,
-                        caption=f"#bing wallpaper\n"
-                                f"{str(copy_right)}",
+                        caption=f"#bing wallpaper\n" f"{str(copy_right)}",
                         quote=False,
                         reply_to_message_id=message.reply_to_top_message_id,
                     )
