@@ -13,7 +13,7 @@ for file in main["files"]:
         exit()
     if "/main.py" in file["filename"]:
         plugins.append(file["filename"].split("/")[0])
-delete = bool(main['commit']['message'].startswith("Delete:"))
+delete = bool(main['commit']['message'].startswith("Delete"))
 
 with open("list.json", "r", encoding="utf8") as f:
     list_json = json.load(f)
@@ -23,9 +23,8 @@ for plugin in plugins:
         if plug_dict["name"] == plugin:
             exist = True
             old_version = decimal.Decimal(plug_dict["version"])
-            list_json["list"][list_json["list"].index(plug_dict)]["version"] = str(
-                old_version + decimal.Decimal("0.01")
-            )
+            plug_dict["version"] = old_version + decimal.Decimal("0.01")
+            plug_dict["size"] = f"{os.path.getsize(f'{plugin}{os.sep}main.py') / 1000} kb"
             if delete:
                 list_json["list"].remove(plug_dict)
             break
