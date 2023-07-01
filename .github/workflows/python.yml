@@ -8,6 +8,7 @@ on:
       - '**.md'
       - '.github/**'
       - 'list.json'
+      - 'alpha/list.json'
       - 'telegram_update.py'
       - 'update_list.py'
       - 'telegraph_update.py'
@@ -49,4 +50,4 @@ jobs:
         # Optional. Commit message for the created commit.
         # Defaults to "Apply automatic changes"
         commit_message: "CI: Update version json"
-        file_pattern: 'list.json'
+        file_pattern: 'list.json alpha/list.json'
