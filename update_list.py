@@ -38,7 +38,7 @@ for plugin in plugins:
                  "maintainer": main['commit']['author']['name'],
                  "size": f"{os.path.getsize(f'{plugin}{os.sep}main.py') / 1000} kb",
                  "supported": True,
-                 "des-short": short_des,
+                 "des_short": short_des,
                  "des": "",
             }
         )

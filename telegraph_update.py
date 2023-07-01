@@ -17,8 +17,8 @@ def gen():
     k = []
     data["list"].sort(key=lambda i:i["name"])
     for i in data["list"]:
-        des = i["des-short"]
-        if i["des"].startswith("这个人很懒") or i["des"] == i["des-short"]:
+        des = i["des_short"]
+        if i["des"].startswith("这个人很懒") or i["des"] == i["des_short"]:
             pass
         else:
             des += i["des"]
