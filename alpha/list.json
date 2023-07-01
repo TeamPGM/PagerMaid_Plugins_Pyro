@@ -9,6 +9,16 @@
             "supported": true,
             "des_short": "Alpha: auto_send_reactions 自动回复Emoji",
             "des": "向别人的消息自动回复Emoji"
+        },
+        {
+            "name": "trace",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "20.483 kb",
+            "supported": true,
+            "des_short": "Alpha: trace 根据用户或者关键词自动点赞消息",
+            "des": "# Trace\n\n### 用法\n\n```\n  Reply to a message:\n    Trace      : .trace 👍👎🥰\n    Untrace    : .trace\n  Trace keyword: .trace kw add 👍👎🥰\n  Del keyword  : .trace kw del\n\n  List all   : .trace status\n  Untrace all: .trace clean\n  Keep log   : .trace log [true|false]\n```\n\n#### 踩的坑\n\n+ 对于一些emoji的字符长度为1，在SPECIAL_EMOJI中定义，不知道有没有写完，欢迎添加。\n\n#### 接下来可能加的东西（更有可能摆）\n\n+ 在某一段时间内随机react\n+ 优先级（keyword和user）\n+ 通过id/username添加\n+ 安全词（对方说了就停）\n+ 历史记录react\n+ big/sleep长度参数的设置\n+ 定时器\n+ 群组权限\n+ 黑白名单\n+ 还有什么好玩的么？\n\n#### Bugs\n\n+ disabled reaction检测\n+ `count_offset` 对非2/1长度emoji的计数，比如国旗emoji的长度为4"
         }
     ]
 }
