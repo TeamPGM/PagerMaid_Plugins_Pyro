@@ -1069,36 +1069,6 @@
             "supported": true,
             "des_short": "miaolang 喵语翻译机",
             "des": "喵语翻译机\n\n指令:\n- `,enmiao <待转换文本> (支持回复消息)` (转换指定文本到喵语)\n- `,demiao <喵语> (支持回复消息)` (转换喵语到明文)"
-        },
-        {
-            "name": "chatgpt",
-            "version": "1.0",
-            "section": "chat",
-            "maintainer": "xtaodada",
-            "size": "4.129 kb",
-            "supported": true,
-            "des_short": ":recycle: Reformat All Plugins",
-            "des": ""
-        },
-        {
-            "name": "today_in_history",
-            "version": "1.0",
-            "section": "chat",
-            "maintainer": "xtaodada",
-            "size": "2.643 kb",
-            "supported": true,
-            "des_short": ":recycle: Reformat All Plugins",
-            "des": ""
-        },
-        {
-            "name": "trace",
-            "version": "1.0",
-            "section": "chat",
-            "maintainer": "xtaodada",
-            "size": "20.483 kb",
-            "supported": true,
-            "des_short": ":recycle: Reformat All Plugins",
-            "des": ""
         }
     ]
 }

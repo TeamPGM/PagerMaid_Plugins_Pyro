@@ -26,20 +26,20 @@ delete = bool(main["commit"]["message"].startswith("Delete"))
 for idx, plugins_ in enumerate([plugins, alpha_plugins]):
     with open(f"{list_json_start[idx]}list.json", "r", encoding="utf8") as f:
         list_json = json.load(f)
+    plugin_map = {i["name"]: i for i in list_json["list"]}
     for plugin in plugins_:
-        exist = False
-        for plug_dict in list_json["list"]:
-            if plug_dict["name"] == plugin:
-                exist = True
-                old_version = decimal.Decimal(plug_dict["version"])
-                plug_dict["version"] = str(old_version + decimal.Decimal("0.01"))
-                plug_dict[
-                    "size"
-                ] = f"{os.path.getsize(f'{list_json_start[idx]}{plugin}{os.sep}main.py') / 1000} kb"
-                if delete:
-                    list_json["list"].remove(plug_dict)
-                break
-        if not exist:
+        if plugin in plugin_map:
+            if delete:
+                plugin_map.pop(plugin)
+                list_json["list"] = list(plugin_map.values())
+                continue
+            plug_dict = plugin_map[plugin]
+            old_version = decimal.Decimal(plug_dict["version"])
+            plug_dict["version"] = str(old_version + decimal.Decimal("0.01"))
+            plug_dict[
+                "size"
+            ] = f"{os.path.getsize(f'{list_json_start[idx]}{plugin}{os.sep}main.py') / 1000} kb"
+        else:
             short_des = main["commit"]["message"].split("\nCo-authored-by")[0].strip()
             list_json["list"].append(
                 {
