@@ -94,7 +94,7 @@ async def AutoSendReactions(client: Client, message: Message):
                         f"✅ 已{'更新' if hasSetted else '添加'}对 __{user_name}__ 的自动回复Emoji设置**",
                     )
                 except Exception as e:
-                    await message.edit(message, f"❌ **在设置中遇到了一些错误** > {e}")
+                    await message.edit(f"❌ **在设置中遇到了一些错误** > {e}")
                     await log(e)  # 打印错误日志
 
             elif reply and (len(message.parameter) == 2):
@@ -118,7 +118,7 @@ async def AutoSendReactions(client: Client, message: Message):
                         f"✅ 已{'更新' if hasSetted else '添加'}对 __{user_name}__ 的自动回复Emoji设置",
                     )
                 except Exception as e:
-                    await message.edit(message, f"❌ **在设置中遇到了一些错误** > {e}")
+                    await message.edit(f"❌ **在设置中遇到了一些错误** > {e}")
                     await log(e)  # 打印错误日志
             else:
                 return await message.edit(f"{lang('error_prefix')}{lang('arg_error')}")
@@ -148,7 +148,7 @@ async def AutoSendReactions(client: Client, message: Message):
                             message, f"❌ 还没有对 __{user_name}__ 设置自动回复Emoji哦~"
                         )
                 except Exception as e:
-                    await message.edit(message, f"❌ **在设置中遇到了一些错误** > {e}")
+                    await message.edit(f"❌ **在设置中遇到了一些错误** > {e}")
                     await log(e)  # 打印错误日志
 
             elif reply and (len(message.parameter) == 1):
@@ -170,7 +170,7 @@ async def AutoSendReactions(client: Client, message: Message):
                             message, f"❌ 还没有对 __{user_name}__ 设置自动回复Emoji哦~"
                         )
                 except Exception as e:
-                    await message.edit(message, f"❌ **在设置中遇到了一些错误** > {e}")
+                    await message.edit(f"❌ **在设置中遇到了一些错误** > {e}")
                     await log(e)  # 打印错误日志
             else:
                 return await message.edit(f"{lang('error_prefix')}{lang('arg_error')}")

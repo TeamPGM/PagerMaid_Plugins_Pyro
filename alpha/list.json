@@ -2,7 +2,7 @@
     "list": [
         {
             "name": "auto_send_reactions",
-            "version": "1.01",
+            "version": "1.2",
             "section": "chat",
             "maintainer": "xtaodada",
             "size": "11.28 kb",
