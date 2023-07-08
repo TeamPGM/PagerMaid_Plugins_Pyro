@@ -1269,7 +1269,10 @@ class Command:
         :alias: web
         """
         if not config:
-            config = sqlite[setting.key_name]
+            try:
+                config = sqlite[setting.key_name]
+            except KeyError:
+                config = {}
             config["version"] = get_version()
             config["cmd"] = user_cmd_name
             for key in ("pass", "banned", "flooded"):
