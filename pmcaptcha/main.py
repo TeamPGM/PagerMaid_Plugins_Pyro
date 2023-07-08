@@ -414,7 +414,7 @@ class Command:
             lang("tip_edit")
             % html.escape(f",{user_cmd_name} {sub_cmd} <{lang(value_type)}>"),
         ]
-        key and text.insert(0, lang(f"{key}_curr_rule") + ":")
+        key and text.insert(0, f'{lang(f"{key}_curr_rule")}:')
         return await self._edit("\n".join(text))
 
     # Set On / Off Boolean
@@ -534,8 +534,8 @@ class Command:
                 return await self.help("h")
             search_str = search_str.lower()
             search_results = [lang("cmd_search_result") % search_str]
-            have_doc = False
             have_cmd = False
+            have_doc = False
             for name, func in inspect.getmembers(self, inspect.iscoroutinefunction):
                 if name.startswith("_"):
                     continue
@@ -554,12 +554,8 @@ class Command:
                     )
                     have_cmd = True
                     search_results.append(
-                        (
-                            code(f"- {code(self._get_cmd_with_param(name))}".strip())
-                            + f"\n· {re.search(r'(.+)', docs)[1].strip()}\n"
-                        )
+                        f"""{code(f"- {code(self._get_cmd_with_param(name))}".strip())}\n· {re.search('(.+)', docs)[1].strip()}\n"""
                     )
-                # Search for aliases
                 elif result := re.search(self.alias_rgx, docs):
                     if search_str not in result[1].replace(" ", "").split(","):
                         continue
@@ -568,10 +564,7 @@ class Command:
                     )
                     have_cmd = True
                     search_results.append(
-                        (
-                            f"* {code(search_str)} -> {code(self._get_cmd_with_param(func.__name__))}".strip()
-                            + f"\n· {re.search(r'(.+)', docs)[1].strip()}\n"
-                        )
+                        f"""{f"* {code(search_str)} -> {code(self._get_cmd_with_param(func.__name__))}".strip()}\n· {re.search('(.+)', docs)[1].strip()}\n"""
                     )
             len(search_results) == 1 and search_results.append(
                 italic(lang("cmd_search_none"))
@@ -1269,7 +1262,10 @@ class Command:
         :alias: web
         """
         if not config:
-            config = sqlite[setting.key_name]
+            try:
+                config = sqlite[setting.key_name]
+            except KeyError:
+                config = {}
             config["version"] = get_version()
             config["cmd"] = user_cmd_name
             for key in ("pass", "banned", "flooded"):
