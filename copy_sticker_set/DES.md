@@ -1,1 +1,1 @@
-copy_sticker_set 复制整个贴纸包
+copy_sticker_set 复制一个/多个贴纸包到一个贴纸包

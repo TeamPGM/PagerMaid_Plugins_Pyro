@@ -1,3 +1,5 @@
+from typing import List
+
 from pyrogram.raw.functions.messages import GetStickerSet
 from pyrogram.raw.functions.stickers import CreateStickerSet
 from pyrogram.raw.types import (
@@ -49,49 +51,56 @@ async def create_sticker_set(
         raise NoStickerSetNameError("贴纸包名称或者链接非法或者已被占用，请换一个") from e
 
 
-async def process_old_sticker_set(sticker_set: str):
-    pack: StickerSet = await get_pack(sticker_set)
-    is_animated = pack.set.animated
-    is_video = pack.set.videos
-    hash_map = {}
-    for i in pack.packs:
-        for j in i.documents:
-            hash_map[j] = i.emoticon
-    stickers = [
-        InputStickerSetItem(
-            document=InputDocument(
-                id=i.id,
-                access_hash=i.access_hash,
-                file_reference=i.file_reference,
-            ),
-            emoji=hash_map.get(i.id, "👀"),
-        )
-        for i in pack.documents
-    ]
+async def process_old_sticker_set(sticker_sets: List[str]):
+    is_animated = False
+    is_video = False
+    stickers = []
+    for idx, sticker_set in enumerate(sticker_sets):
+        pack: StickerSet = await get_pack(sticker_set)
+        if idx == 0:
+            is_animated = pack.set.animated
+            is_video = pack.set.videos
+        else:
+            if pack.set.animated != is_animated:
+                raise NoStickerSetNameError("贴纸包类型不一致")
+            if pack.set.videos != is_video:
+                raise NoStickerSetNameError("贴纸包类型不一致")
+        hash_map = {}
+        for i in pack.packs:
+            for j in i.documents:
+                hash_map[j] = i.emoticon
+        _stickers = [
+            InputStickerSetItem(
+                document=InputDocument(
+                    id=i.id,
+                    access_hash=i.access_hash,
+                    file_reference=i.file_reference,
+                ),
+                emoji=hash_map.get(i.id, "👀"),
+            )
+            for i in pack.documents
+        ]
+        if len(stickers) + len(_stickers) > 120:
+            raise NoStickerSetNameError("贴纸包过多")
+        stickers.extend(_stickers)
     return stickers, is_animated, is_video
 
 
 @listener(
     command="copy_sticker_set",
-    parameters="贴纸包链接 贴纸包名称",
+    parameters="旧的贴纸包用户名1,旧的贴纸包用户名2 贴纸包用户名 贴纸包名称",
     description="复制某个贴纸包",
 )
 async def copy_sticker_set(message: Message):
-    if (
-        (not message.reply_to_message)
-        or (not message.reply_to_message.sticker)
-        or (not message.reply_to_message.sticker.set_name)
-    ):
-        return await message.edit("请先回复一张需要复制的贴纸包的贴纸")
-    sticker_set = message.reply_to_message.sticker.set_name
-    if len(message.parameter) < 2:
+    if len(message.parameter) < 3:
         return await message.edit(
-            "请指定贴纸包链接和贴纸包名称，例如 <code>xxxx_sticker xxxx 的贴纸包</code>"
+            "请指定贴纸包链接和贴纸包名称，例如 <code>xxx xxxx_sticker xxxx 的贴纸包</code>"
         )
-    set_name = message.parameter[0]
-    name = " ".join(message.parameter[1:])
+    old_set_names = message.parameter[0].split(",")
+    set_name = message.parameter[1]
+    name = " ".join(message.parameter[2:])
     try:
-        stickers, is_animated, is_video = await process_old_sticker_set(sticker_set)
+        stickers, is_animated, is_video = await process_old_sticker_set(old_set_names)
         await create_sticker_set(set_name, name, is_animated, is_video, stickers)
     except Exception as e:
         return await message.edit(f"复制贴纸包失败：{e}")
