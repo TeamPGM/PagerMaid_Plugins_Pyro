@@ -872,13 +872,13 @@
         },
         {
             "name": "copy_sticker_set",
-            "version": "1.01",
+            "version": "1.02",
             "section": "chat",
             "maintainer": "xtaodada",
-            "size": "3.258 kb",
+            "size": "3.702 kb",
             "supported": true,
             "des_short": "copy_sticker_set 复制整个贴纸包",
-            "des": "copy_sticker_set 复制整个贴纸包"
+            "des": "copy_sticker_set 复制一个/多个贴纸包到一个贴纸包"
         },
         {
             "name": "gfw",
