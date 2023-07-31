@@ -1,3 +1,4 @@
+import contextlib
 from asyncio import sleep
 
 from pyrogram.enums import ChatType
@@ -36,20 +37,18 @@ async def delete_all_messages(chat: Chat, uid):
 
 async def check_uid(chat: Chat, uid: str):
     channel = False
-    try:
+    with contextlib.suppress(ValueError):
         uid = int(uid)
         if uid < 0:
             channel = True
+    try:
         await bot.get_chat_member(chat.id, uid)
-    except ValueError:
-        try:
+    except ChatAdminRequired:
+        with contextlib.suppress(PeerIdInvalid):
             chat = await bot.get_chat(uid)
             uid = chat.id
             if chat.type in [ChatType.CHANNEL, ChatType.SUPERGROUP, ChatType.GROUP]:
                 channel = True
-        except PeerIdInvalid:
-            member = await bot.get_chat_member(chat.id, uid)
-            uid = member.user.id
     return uid, channel
 
 
@@ -70,7 +69,7 @@ async def get_uid(chat: Chat, message: Message):
         uid, channel = await check_uid(chat, message.parameter[0])
         delete_all = False
     elif len(message.parameter) == 1:
-        uid, channel = await check_uid(chat, message.arguments)
+        uid, channel = await check_uid(chat, message.parameter[0])
     return uid, channel, delete_all, sender
 
 
@@ -85,16 +84,17 @@ async def super_ban(message: Message):
     chat = message.chat
     try:
         uid, channel, delete_all, sender = await get_uid(chat, message)
+        if not uid:
+            raise ValueError
+        if channel and uid == chat.id:
+            raise ValueError
     except (ValueError, PeerIdInvalid, UsernameInvalid, FloodWait):
         await message.edit(lang("arg_error"))
-        return add_delete_message_job(message, 10)
-    if not uid:
-        await message.edit(lang("arg_error"))
-        return add_delete_message_job(message, 10)
+        return add_delete_message_job(message, 30)
+    except Exception as e:
+        await message.edit(f"出现错误：{e}")
+        return add_delete_message_job(message, 30)
     if channel:
-        if uid == chat.id:
-            await message.edit(lang("arg_error"))
-            return add_delete_message_job(message, 10)
         try:
             await ban_one(chat, uid)
         except ChatAdminRequired:
@@ -131,8 +131,7 @@ async def super_ban(message: Message):
         except Exception:  # noqa
             pass
     if not sender:
-        member = await bot.get_chat_member(chat.id, uid)
-        sender = member.user
+        sender = await bot.get_users(uid)
     if count == 0:
         text = f'{lang("sb_no")} {sender.mention}'
     else:
