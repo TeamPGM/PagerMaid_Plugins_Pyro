@@ -272,13 +272,13 @@
         },
         {
             "name": "sb",
-            "version": "1.04",
+            "version": "1.05",
             "section": "chat",
             "maintainer": "xtaodada",
-            "size": "4.409 kb",
+            "size": "4.347 kb",
             "supported": true,
             "des_short": "在自己拥有管理员权限的共同群组中封禁一位用户。",
-            "des": "在自己拥有管理员权限的共同群组中封禁一位用户。\n指令：,sb"
+            "des": "在自己拥有管理员权限的共同群组中封禁一位用户。\n\n指令： `,sb` 回复用户"
         },
         {
             "name": "sendat",
