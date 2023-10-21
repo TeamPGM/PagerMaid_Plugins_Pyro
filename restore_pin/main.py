@@ -3,9 +3,10 @@ from typing import Dict, List
 
 from pyrogram import filters
 from pyrogram.errors import ChatAdminRequired, UserAdminInvalid, FloodWait
-from pyrogram.raw.functions.channels import GetAdminLog
-from pyrogram.raw.types import ChannelAdminLogEventsFilter, ChannelAdminLogEventActionUpdatePinned
+from pyrogram.raw.functions.channels import GetAdminLog, GetMessages
+from pyrogram.raw.types import ChannelAdminLogEventsFilter, ChannelAdminLogEventActionUpdatePinned, InputMessageID
 from pyrogram.raw.types.channels import AdminLogResults
+from pyrogram.raw.types.messages import Messages
 
 from pagermaid.enums import Message
 from pagermaid.listener import listener
@@ -73,9 +74,20 @@ async def pin_one(message: Message, mid: int):
         await pin_one(message, mid)
 
 
+async def get_unpin_messages(cid: int, ids: List[int]) -> List[int]:
+    ids = [InputMessageID(id=i) for i in ids]
+    r: Messages = await bot.invoke(GetMessages(channel=await bot.resolve_peer(cid), id=ids))
+    new_ids = []
+    for i in r.messages:
+        if not i.pinned:
+            new_ids.append(i.id)
+    return new_ids
+
+
 async def try_restore_pin(message: Message, ids: List[int]):
-    msgs = await bot.get_messages(message.chat.id, ids)
-    new_ids = [i.id for i in msgs if not i.pinned_message]
+    new_ids = await get_unpin_messages(message.chat.id, ids)
+    if not new_ids:
+        return await message.edit("没有需要恢复的置顶")
     error = ""
     for idx, i in enumerate(new_ids):
         if (idx + 1) % 5 == 0:
