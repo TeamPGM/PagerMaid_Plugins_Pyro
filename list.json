@@ -1072,10 +1072,10 @@
         },
         {
             "name": "restore_pin",
-            "version": "1.0",
+            "version": "1.01",
             "section": "chat",
             "maintainer": "xtaodada",
-            "size": "4.0 kb",
+            "size": "4.438 kb",
             "supported": true,
             "des_short": "restore_pin 恢复管理员误取消的置顶",
             "des": "# 恢复管理员误取消的置顶"
