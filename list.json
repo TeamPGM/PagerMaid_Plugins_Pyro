@@ -302,10 +302,10 @@
         },
         {
             "name": "keyword",
-            "version": "1.043",
+            "version": "1.053",
             "section": "chat",
             "maintainer": "xtaodada",
-            "size": "14.045 kb",
+            "size": "14.61 kb",
             "supported": true,
             "des_short": "关键词回复。",
             "des": "关键词回复。\n\n指令：`,keyword`\n\n# 简介\n\n本插件提供关键词回复功能，此功能支持多种模式，并支持采取自选触发关键词后的操作。\n\n# 格式规约\n\n- 当设定消息内容的样式时（链接、加粗、斜体、代码块），内容需要遵从 HTML 格式，请见：https://docs.pyrogram.org/topics/text-formatting#html-style\n- `$mention`：此变量将自动被替换为 @ 该用户\n- `$code_id`：此变量将自动被替换为用户的 ID\n- `$code_name`：此变量将自动被替换为用户的昵称\n- `$delay_delete`：此变量将自动被替换为回复消息的自毁时间（单位为秒）。\n\n# 设置与示例\n\n## 添加关键词\n\n```\n,keyword 关键词\n+++\n这是一个关键词回复的示例消息。\n+++\n这里填写一些触发模式\n+++\n这里填写一些触发操作\n+++\n这里填写整数，代表消息自毁时间\n```\n\n设置关键词的匹配模式，默认为 `include`，并且大小写不敏感，如需指定多个模式，请将模式代号以空格分隔，可选的模式有：\n\n- `include`：包含匹配。\n- `exact`：全匹配。\n- `case`：大小写敏感。\n- `ignore_forward`：忽略被转发的消息。\n\n请注意，`include`，`exact` 模式互斥。\n\n设置关键词触发后应该执行的操作，默认为 `reply`，如需指定多个操作，请将操作以空格分隔，可选的操作有：\n\n- `reply`：回复预设内容。\n- `delete`：删除触发的消息。\n- `ban+n`：封禁用户 n 秒，小于 60 秒则永久封禁，例如 `ban+100`。\n- `restrict+n`：禁言用户 n 秒，例如 `restrict+100`。\n\n请注意，`ban*`、`restrict*` 操作互斥。\n\n设置关键词回复的自毁时间，默认不自毁：例如 `180`。\n\n```\n,keyword 关键词\n+++\n回复的文字内容\n+++\ninclude case\n+++\nreply restrict+100\n+++\n100\n```\n\n```\n,keyword 关键词\n+++\n回复的文字内容\n```\n\n## 删除关键词\n\n`,keyword rm 关键词id`\n`,keyword rm 关键词id1,关键词id2`\n\n# 多个群组同步关键词\n\n## 添加同步关系\n\n首先需要获取被同步的 A 群组的 id\n\n`,id`\n\n在需要同步的 B 群组输入下面的命令\n\n`,keyword alias A群组id`\n\n至此，A 群组的所有关键词都会在 B 群组响应，如需修改关键词，请在 A 群组操作\n\n## 删除同步关系\n\n在需要删除同步的 B 群组输入下面的命令\n\n`,keyword alias rm`\n\n## 获取同步关系\n\n在需要获取同步关系的 B 群组输入下面的命令\n\n`,keyword alias`"
