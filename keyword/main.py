@@ -30,6 +30,7 @@ class KeywordTask:
     ban: int
     restrict: int
     delay_delete: int
+    source_delay_delete: Optional[int] = 0
 
     def __init__(
         self,
@@ -47,6 +48,7 @@ class KeywordTask:
         ban: int = 0,
         restrict: int = 0,
         delay_delete: int = 0,
+        source_delay_delete: int = 0,
     ):
         self.task_id = task_id
         self.cid = cid
@@ -62,6 +64,7 @@ class KeywordTask:
         self.ban = ban
         self.restrict = restrict
         self.delay_delete = delay_delete
+        self.source_delay_delete = source_delay_delete
 
     def export(self):
         return {
@@ -79,6 +82,7 @@ class KeywordTask:
             "ban": self.ban,
             "restrict": self.restrict,
             "delay_delete": self.delay_delete,
+            "source_delay_delete": self.source_delay_delete,
         }
 
     def export_str(self, show_all: bool = False):
@@ -87,6 +91,7 @@ class KeywordTask:
         if show_all:
             text += f"<code>{self.cid}</code> - "
         text += f"{self.msg}"
+        text += f"{self.source_delay_delete}"
         return text
 
     def save_to_file(self):
@@ -162,7 +167,10 @@ class KeywordTask:
                 text, parse_mode=ParseMode.HTML, reply_to_message_id=reply_id
             )
         if self.delete:
-            await message.safe_delete()
+            if self.source_delay_delete > 0:
+                add_delete_message_job(message, self.source_delay_delete)
+            else:
+                await message.safe_delete()
         uid = message.from_user.id if message.from_user else message.sender_chat.id
         if self.ban > 0:
             with contextlib.suppress(Exception):
@@ -228,8 +236,10 @@ class KeywordTask:
 
         if len(data) > 4:
             self.delay_delete = int(data[4])
+        if len(data) > 5:  # assuming the source_delay_delete is the 6th part of the task format
+            self.source_delay_delete = int(data[5])
 
-        if self.ban < 0 or self.restrict < 0 or self.delay_delete < 0:
+        if self.ban < 0 or self.restrict < 0 or self.delay_delete < 0 or self.source_delay_delete < 0:
             raise ValueError("Invalid task format")
 
 
