@@ -30,7 +30,7 @@ class KeywordTask:
     ban: int
     restrict: int
     delay_delete: int
-    source_delay_delete: int
+    source_delay_delete: Optional[int] = 0
 
     def __init__(
         self,
@@ -167,7 +167,10 @@ class KeywordTask:
                 text, parse_mode=ParseMode.HTML, reply_to_message_id=reply_id
             )
         if self.delete:
-            await message.safe_delete()
+            if self.source_delay_delete > 0:
+                add_delete_message_job(message, self.source_delay_delete)
+            else:
+                await message.safe_delete()
         uid = message.from_user.id if message.from_user else message.sender_chat.id
         if self.ban > 0:
             with contextlib.suppress(Exception):
@@ -186,8 +189,6 @@ class KeywordTask:
                 )
         if self.delay_delete > 0 and msg:
             add_delete_message_job(msg, self.delay_delete)
-        if self.source_delay_delete > 0:
-            add_delete_message_job(message, self.source_delay_delete)
 
     def parse_task(self, text: str):
         data = text.split("\n+++\n")
@@ -235,13 +236,10 @@ class KeywordTask:
 
         if len(data) > 4:
             self.delay_delete = int(data[4])
-
-        if self.ban < 0 or self.restrict < 0 or self.delay_delete < 0:
-            raise ValueError("Invalid task format")
         if len(data) > 5:  # assuming the source_delay_delete is the 6th part of the task format
             self.source_delay_delete = int(data[5])
 
-        if self.source_delay_delete < 0:
+        if self.ban < 0 or self.restrict < 0 or self.delay_delete < 0 or self.source_delay_delete < 0:
             raise ValueError("Invalid task format")
 
 
