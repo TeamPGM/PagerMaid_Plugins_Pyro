@@ -241,7 +241,7 @@ class KeywordTask:
         if len(data) > 5:  # assuming the source_delay_delete is the 6th part of the task format
             self.source_delay_delete = int(data[5])
 
-        if self.ban < 0 or self.restrict < 0 or self.delay_delete < 0 or self.source_delay_delete < 0:
+        if self.source_delay_delete < 0:
             raise ValueError("Invalid task format")
 
 
