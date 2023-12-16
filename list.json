@@ -892,10 +892,10 @@
         },
         {
             "name": "annualreport",
-            "version": "1.01",
+            "version": "1.02",
             "section": "chat",
             "maintainer": "cloudreflection",
-            "size": "3.106 kb",
+            "size": "3.409 kb",
             "supported": true,
             "des_short": "annualreport TG年度报告",
             "des": "annualreport TG年度报告"
