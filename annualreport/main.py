@@ -2,6 +2,7 @@
 # Hello 2023
 
 from os.path import getmtime
+from datetime import datetime
 from time import time
 
 from pyrogram.enums import ChatType
@@ -16,7 +17,7 @@ from pagermaid.services import bot, sqlite
 
 async def get_chat_count():
     private, group, bots, channel = 0, 0, 0, 0
-    async for dialog in bot.get_dialogs():
+    for dialog in await bot.get_dialogs_list():
         if dialog.chat.type == ChatType.BOT:
             bots += 1
         if dialog.chat.type == ChatType.CHANNEL:
@@ -41,15 +42,28 @@ async def get_blocked_count():
 async def get_hitokoto(request: AsyncClient):
     try:
         htk = (await request.get("https://v1.hitokoto.cn/?charset=utf-8")).json()
-        text = f"\"{htk['hitokoto']}\" —— {htk['from_who']}「{htk['from']}」"
+        text = f"\"{htk['hitokoto']}\" —— "
+        if htk['from_who']:
+            text += f"{htk['from_who']}"
+        if htk['from']:
+            text += f"「{htk['from']}」"
     except Exception:
         text = '"用代码表达言语的魅力，用代码书写山河的壮丽。" —— 一言「一言开发者中心」'
     return text
 
 
+async def get_year() -> str:
+    now = datetime.now()
+    year = now.year
+    if now.month == 1:
+        year -= 1
+    return str(year)
+
+
 @listener(command="annualreport", description="TG年度报告")
 async def annualreport(client: Client, message: Message, request: AsyncClient):
     await message.edit("加载中请稍候。。。")
+    year = await get_year()
     private, group, bots, channel = await get_chat_count()
     days = int((time() - getmtime("LICENSE")) / 86400)
     plg = sorted(__list_plugins())
@@ -71,7 +85,7 @@ async def annualreport(client: Client, message: Message, request: AsyncClient):
         )
     htks = await get_hitokoto(request)
     msg = f"""{user} 的年度报告
-2022 一路上,你充实而满足
+{year} 一路上,你充实而满足
 此Pagermaid-Pyro实例陪伴了你的TG {days} 天,安装了 {len(plg)} 个插件
 为你的TG使用体验增光添彩
 
