@@ -1079,6 +1079,16 @@
             "supported": true,
             "des_short": "restore_pin 恢复管理员误取消的置顶",
             "des": "# 恢复管理员误取消的置顶"
+        },
+        {
+            "name": "emoji_transfer",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "4.759 kb",
+            "supported": true,
+            "des_short": "emoji_transfer Emoji 迁移",
+            "des": "Emoji 迁移。 指令：,emoji_transfer"
         }
     ]
 }
