@@ -1,0 +1,1 @@
+Emoji 迁移。 指令：,emoji_transfer
