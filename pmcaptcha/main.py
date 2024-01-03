@@ -2337,6 +2337,7 @@ class Rule:
                 or self.msg.from_user.is_contact
                 or self.msg.from_user.is_verified
                 or self.msg.chat.type == ChatType.BOT
+                or self.msg.service is not None  # skip service message
                 or setting.is_verified(self.user.id)
         )
 
