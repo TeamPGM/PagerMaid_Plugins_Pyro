@@ -692,10 +692,10 @@
         },
         {
             "name": "news60s",
-            "version": "1.04",
+            "version": "1.05",
             "section": "chat",
             "maintainer": "xtaodada",
-            "size": "3.34 kb",
+            "size": "3.347 kb",
             "supported": true,
             "des_short": "news60s 60s 看世界新闻",
             "des": "news60s 60s 看世界新闻"
