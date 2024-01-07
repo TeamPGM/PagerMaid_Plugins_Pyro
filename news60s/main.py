@@ -25,13 +25,13 @@ async def get_news60s() -> None:
     force_update = not isfile(CACHE_PATH)
     if news60s_cache_date == today and not force_update:
         return
-    resp = await client.get("https://api.emoao.com/api/60s?type=json")
+    resp = await client.get("https://api.03c3.cn/api/zb?type=jsonImg")
     res = resp.json()
     assert res["msg"] == "success", f"API 返回错误: {res['code']} ({res['msg']})"
-    news_date = datetime.strptime(res["data"]["date"], "%Y-%m-%d").date()
+    news_date = datetime.strptime(res["data"]["datetime"], "%Y-%m-%d").date()
     if news_date == news60s_cache_date and not force_update:
         return
-    image = await client.get(res["data"]["image"])
+    image = await client.get(res["data"]["imageurl"])
     with open(CACHE_PATH, "wb") as fp:
         fp.write(image.content)
     news60s_cache_date = news_date
