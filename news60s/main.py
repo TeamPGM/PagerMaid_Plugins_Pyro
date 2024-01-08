@@ -27,7 +27,7 @@ async def get_news60s() -> None:
         return
     resp = await client.get("https://api.03c3.cn/api/zb?type=jsonImg")
     res = resp.json()
-    assert res["msg"] == "success", f"API 返回错误: {res['code']} ({res['msg']})"
+    assert res["msg"] == "ok", f"API 返回错误: {res['code']} ({res['msg']})"
     news_date = datetime.strptime(res["data"]["datetime"], "%Y-%m-%d").date()
     if news_date == news60s_cache_date and not force_update:
         return
@@ -61,7 +61,7 @@ async def news60s(message: Message):
     if not message.arguments:
         try:
             await get_news60s()
-        except ValueError as e:
+        except (ValueError, AssertionError) as e:
             return await message.edit(e.__str__())
         await message.safe_delete()
         await push_news60s(message.chat.id)
