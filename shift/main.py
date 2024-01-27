@@ -5,17 +5,18 @@ from asyncio import sleep
 from random import uniform
 from typing import Any
 
-from pagermaid import log
-from pagermaid.enums import Client, Message
-from pagermaid.listener import listener
-from pagermaid.single_utils import sqlite
-from pagermaid.utils import lang
 from pyrogram.enums.chat_type import ChatType
 from pyrogram.errors.exceptions.flood_420 import FloodWait
 from pyrogram.types import Chat
 
+from pagermaid import log, logs
+from pagermaid.enums import Client, Message
+from pagermaid.listener import listener
+from pagermaid.single_utils import sqlite
+from pagermaid.utils import lang
+
 WHITELIST = [-1001441461877]
-AVAILABLE_OPTIONS = {"silent","none","all","photo","document","video"}
+AVAILABLE_OPTIONS = {"silent", "text", "all", "photo", "document", "video"}
 
 
 def try_cast_or_fallback(val: Any, t: type) -> Any:
@@ -26,18 +27,18 @@ def try_cast_or_fallback(val: Any, t: type) -> Any:
 
 
 def check_chat_available(chat: Chat):
-    assert chat.type == (ChatType.CHANNEL and not chat.has_protected_content) or (ChatType.GROUP and not chat.has_protected_content)
+    assert (chat.type in [ChatType.CHANNEL, ChatType.GROUP] and not chat.has_protected_content)
 
 
 @listener(
     command="shift",
     description="开启转发频道新消息功能",
     parameters="set [from channel] [to channel] (silent) 自动转发频道新消息（可以使用频道用户名或者 id）\n"
-    "del [from channel] 删除转发\n"
-    "backup [from channel] [to channel] (silent) 备份频道（可以使用频道用户名或者 id）\n"
-    "list 顯示目前轉發的頻道\n\n"
-    "选项说明：\n"
-    "silent: 禁用通知, none: 文字, all: 全部訊息都傳, photo: 圖片, document: 檔案, video: 影片",
+               "del [from channel] 删除转发\n"
+               "backup [from channel] [to channel] (silent) 备份频道（可以使用频道用户名或者 id）\n"
+               "list 顯示目前轉發的頻道\n\n"
+               "选项说明：\n"
+               "silent: 禁用通知, none: 文字, all: 全部訊息都傳, photo: 圖片, document: 檔案, video: 影片",
 )
 async def shift_set(client: Client, message: Message):
     if not message.parameter:
@@ -71,7 +72,7 @@ async def shift_set(client: Client, message: Message):
         if target.id in WHITELIST:
             await message.edit("出错了呜呜呜 ~ 此对话位于白名单中。")
             return
-        sqlite[f"shift.{source.id}"] = target.id #寫入資料庫
+        sqlite[f"shift.{source.id}"] = target.id
         sqlite[f"shift.{source.id}.options"] = (
             message.parameter[3:] if len(message.parameter) > 3 else ["all"]
         )
@@ -134,22 +135,24 @@ async def shift_set(client: Client, message: Message):
                 disable_notification="silent" in options,
             )
         await message.edit(f"备份频道 {source.id} 到 {target.id} 已完成。")
-    #列出要轉存的頻道
+    # 列出要轉存的頻道
     elif message.parameter[0] == "list":
-        output=""
-        if(len(sqlite)==0):
-            await message.edit("沒有要轉存的頻道")
-        elif(len(sqlite)>0):
-            output="總共有 %d 個頻道要轉存\n" %(len(sqlite)/2)
-            for index, (key, value) in enumerate(sqlite.items()):
-                # 只處理奇數索引的資料
-                if index % 2 == 0:
-                    output += "%s -> %s\n" % (key[6:], value)
+        from_ids = list(filter(lambda x: (x.startswith("shift.") and (not x.endswith("options"))), list(sqlite.keys())))
+        if not from_ids:
+            return await message.edit("沒有要轉存的頻道")
+        output = "總共有 %d 個頻道要轉存\n\n" % len(from_ids)
+        for from_id in from_ids:
+            to_id = sqlite[from_id]
+            output += "%s -> %s\n" % (format_channel_id(from_id[6:]), format_channel_id(to_id))
         await message.edit(output)
-        await log(f"已成功輸出所有自動轉發的頻道。")
     else:
         await message.edit(f"{lang('error_prefix')}{lang('arg_error')}")
         return
+
+
+def format_channel_id(channel_id: str):
+    short_channel_id = str(channel_id)[4:]
+    return f"[{channel_id}](https://t.me/c/{short_channel_id})"
 
 
 @listener(is_plugin=True, incoming=True, ignore_edited=True)
@@ -158,12 +161,8 @@ async def shift_channel_message(message: Message):
     d = dict(sqlite)
     source = message.chat.id
 
-    #找訊息類型video、document...
-    if message.media is not None:
-        mediaType=str(message.media)[17:].lower()
-    else:
-        mediaType="none"
-
+    # 找訊息類型video、document...
+    media_type = message.media.name.lower() if message.media else "text"
 
     target = d.get(f"shift.{source}")
     if not target:
@@ -174,24 +173,25 @@ async def shift_channel_message(message: Message):
     options = d.get(f"shift.{source}.options") or []
 
     with contextlib.suppress(Exception):
-        if("all" in options):
+        if (not options) or "all" in options:
             await message.forward(
-            target,
-            disable_notification="silent" in options,
-            )
-        else:
-            if(mediaType in options):
-                await message.forward(
                 target,
                 disable_notification="silent" in options,
-                )
+            )
+        elif media_type in options:
+            await message.forward(
+                target,
+                disable_notification="silent" in options,
+            )
+        else:
+            logs.debug("skip message type: %s", media_type)
 
 
 async def loosely_forward(
-    notifier: Message,
-    message: Message,
-    chat_id: int,
-    disable_notification: bool = False,
+        notifier: Message,
+        message: Message,
+        chat_id: int,
+        disable_notification: bool = False,
 ):
     try:
         await message.forward(chat_id, disable_notification=disable_notification)
