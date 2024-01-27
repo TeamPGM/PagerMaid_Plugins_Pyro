@@ -10,7 +10,7 @@
 
 需要加入 from_channel_id 和 to_channel_id。
 
-`, shift set [from channel_id] [to channel_id] (silent, all, none, all, photo, document, video)`
+`, shift set [from channel_id] [to channel_id] (silent, all, text, photo, document, video)`
 
 ### 取消转发
 
@@ -28,7 +28,7 @@
 
 - `silent`: 禁用通知
 - `all`: 全部都轉發(預設會有all)
-- `none`: 轉發文字
+- `text`: 轉發文字
 - `photo`: 轉發圖片
 - `document`: 轉發檔案
 - `video`: 轉發影片
