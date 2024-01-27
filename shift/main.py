@@ -15,7 +15,7 @@ from pyrogram.errors.exceptions.flood_420 import FloodWait
 from pyrogram.types import Chat
 
 WHITELIST = [-1001441461877]
-AVAILABLE_OPTIONS = {"silent"}
+AVAILABLE_OPTIONS = {"silent","none","all","photo","document","video"}
 
 
 def try_cast_or_fallback(val: Any, t: type) -> Any:
@@ -26,7 +26,7 @@ def try_cast_or_fallback(val: Any, t: type) -> Any:
 
 
 def check_chat_available(chat: Chat):
-    assert chat.type == ChatType.CHANNEL and not chat.has_protected_content
+    assert chat.type == (ChatType.CHANNEL and not chat.has_protected_content) or (ChatType.GROUP and not chat.has_protected_content)
 
 
 @listener(
@@ -34,9 +34,10 @@ def check_chat_available(chat: Chat):
     description="开启转发频道新消息功能",
     parameters="set [from channel] [to channel] (silent) 自动转发频道新消息（可以使用频道用户名或者 id）\n"
     "del [from channel] 删除转发\n"
-    "backup [from channel] [to channel] (silent) 备份频道（可以使用频道用户名或者 id）\n\n"
+    "backup [from channel] [to channel] (silent) 备份频道（可以使用频道用户名或者 id）\n"
+    "list 顯示目前轉發的頻道\n\n"
     "选项说明：\n"
-    "silent: 禁用通知",
+    "silent: 禁用通知, none: 文字, all: 全部訊息都傳, photo: 圖片, document: 檔案, video: 影片",
 )
 async def shift_set(client: Client, message: Message):
     if not message.parameter:
@@ -70,9 +71,9 @@ async def shift_set(client: Client, message: Message):
         if target.id in WHITELIST:
             await message.edit("出错了呜呜呜 ~ 此对话位于白名单中。")
             return
-        sqlite[f"shift.{source.id}"] = target.id
+        sqlite[f"shift.{source.id}"] = target.id #寫入資料庫
         sqlite[f"shift.{source.id}.options"] = (
-            message.parameter[3:] if len(message.parameter) > 3 else []
+            message.parameter[3:] if len(message.parameter) > 3 else ["all"]
         )
         await message.edit(f"已成功配置将对话 {source.id} 的新消息转发到 {target.id} 。")
         await log(f"已成功配置将对话 {source.id} 的新消息转发到 {target.id} 。")
@@ -133,6 +134,19 @@ async def shift_set(client: Client, message: Message):
                 disable_notification="silent" in options,
             )
         await message.edit(f"备份频道 {source.id} 到 {target.id} 已完成。")
+    #列出要轉存的頻道
+    elif message.parameter[0] == "list":
+        output=""
+        if(len(sqlite)==0):
+            await message.edit("沒有要轉存的頻道")
+        elif(len(sqlite)>0):
+            output="總共有 %d 個頻道要轉存\n" %(len(sqlite)/2)
+            for index, (key, value) in enumerate(sqlite.items()):
+                # 只處理奇數索引的資料
+                if index % 2 == 0:
+                    output += "%s -> %s\n" % (key[6:], value)
+        await message.edit(output)
+        await log(f"已成功輸出所有自動轉發的頻道。")
     else:
         await message.edit(f"{lang('error_prefix')}{lang('arg_error')}")
         return
@@ -143,6 +157,14 @@ async def shift_channel_message(message: Message):
     """Event handler to auto forward channel messages."""
     d = dict(sqlite)
     source = message.chat.id
+
+    #找訊息類型video、document...
+    if message.media is not None:
+        mediaType=str(message.media)[17:].lower()
+    else:
+        mediaType="none"
+
+
     target = d.get(f"shift.{source}")
     if not target:
         return
@@ -152,10 +174,17 @@ async def shift_channel_message(message: Message):
     options = d.get(f"shift.{source}.options") or []
 
     with contextlib.suppress(Exception):
-        await message.forward(
+        if("all" in options):
+            await message.forward(
             target,
             disable_notification="silent" in options,
-        )
+            )
+        else:
+            if(mediaType in options):
+                await message.forward(
+                target,
+                disable_notification="silent" in options,
+                )
 
 
 async def loosely_forward(
