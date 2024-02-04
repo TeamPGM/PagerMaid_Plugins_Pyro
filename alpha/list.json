@@ -2,10 +2,10 @@
     "list": [
         {
             "name": "auto_send_reactions",
-            "version": "1.2",
+            "version": "1.21",
             "section": "chat",
             "maintainer": "xtaodada",
-            "size": "11.28 kb",
+            "size": "11.244 kb",
             "supported": true,
             "des_short": "Alpha: auto_send_reactions 自动回复Emoji",
             "des": "向别人的消息自动回复Emoji"
