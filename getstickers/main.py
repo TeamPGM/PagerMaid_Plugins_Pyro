@@ -85,8 +85,8 @@ async def upload_sticker(bot: Client, message: Message, sticker_set: StickerSet)
         message.chat.id,
         f"{directory_name}.zip",
         caption=sticker_set.set.short_name,
-        reply_to_message_id=message.reply_to_message_id
-        or message.reply_to_top_message_id,
+        reply_to_message_id=message.reply_to_message_id,
+        message_thread_id=message.message_thread_id,
     )
     safe_remove(f"{directory_name}.zip")
     shutil.rmtree(directory_name)

@@ -161,10 +161,13 @@ class KeywordTask:
     async def process_keyword(self, message: Message):
         msg = None
         text = self.replace_reply(message)
-        reply_id = message.id if self.reply else message.reply_to_top_message_id
+        reply_id = message.id if self.reply else None
         with contextlib.suppress(Exception):
             msg = await message.reply(
-                text, parse_mode=ParseMode.HTML, reply_to_message_id=reply_id
+                text,
+                parse_mode=ParseMode.HTML,
+                reply_to_message_id=reply_id,
+                message_thread_id=message.message_thread_id,
             )
         if self.delete:
             if self.source_delay_delete > 0:
@@ -236,10 +239,17 @@ class KeywordTask:
 
         if len(data) > 4:
             self.delay_delete = int(data[4])
-        if len(data) > 5:  # assuming the source_delay_delete is the 6th part of the task format
+        if (
+            len(data) > 5
+        ):  # assuming the source_delay_delete is the 6th part of the task format
             self.source_delay_delete = int(data[5])
 
-        if self.ban < 0 or self.restrict < 0 or self.delay_delete < 0 or self.source_delay_delete < 0:
+        if (
+            self.ban < 0
+            or self.restrict < 0
+            or self.delay_delete < 0
+            or self.source_delay_delete < 0
+        ):
             raise ValueError("Invalid task format")
 
 

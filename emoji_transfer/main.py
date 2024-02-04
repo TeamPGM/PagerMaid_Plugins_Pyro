@@ -115,7 +115,7 @@ async def emoji_transfer(message: Message):
                 "emojis.csv",
                 caption=f"Emoji 包导出文件，成功导出了 {num} 个 Emoji 包",
                 thumb=f"pagermaid{sep}assets{sep}logo.jpg",
-                reply_to_message_id=message.reply_to_top_message_id,
+                message_thread_id=message.message_thread_id,
             )
             safe_remove("emojis.csv")
             await message.safe_delete()

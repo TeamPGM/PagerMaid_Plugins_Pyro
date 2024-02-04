@@ -17,8 +17,8 @@ async def weather_lite(request: AsyncClient, message: Message):
         f.write(data.content)
     await message.reply_photo(
         "weather.png",
-        reply_to_message_id=message.reply_to_message_id
-        or message.reply_to_top_message_id,
+        reply_to_message_id=message.reply_to_message_id,
+        message_thread_id=message.message_thread_id,
         quote=False,
     )
     await message.safe_delete()

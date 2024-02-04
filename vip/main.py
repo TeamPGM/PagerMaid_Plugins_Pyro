@@ -49,8 +49,8 @@ async def weather_pic(client: Client, message: Message):
         await conv.mark_as_read()
     await answer.copy(
         message.chat.id,
-        reply_to_message_id=message.reply_to_message_id
-        or message.reply_to_top_message_id,
+        reply_to_message_id=message.reply_to_message_id,
+        message_thread_id=message.message_thread_id,
     )
     await message.safe_delete()
 
@@ -67,8 +67,8 @@ async def weather_he(client: Client, message: Message):
         await conv.mark_as_read()
     await answer.copy(
         message.chat.id,
-        reply_to_message_id=message.reply_to_message_id
-        or message.reply_to_top_message_id,
+        reply_to_message_id=message.reply_to_message_id,
+        message_thread_id=message.message_thread_id,
     )
     await message.safe_delete()
 
@@ -82,8 +82,8 @@ async def az_tts(client: Client, message: Message, mode: str):
         await conv.mark_as_read()
     await answer.copy(
         message.chat.id,
-        reply_to_message_id=message.reply_to_message_id
-        or message.reply_to_top_message_id,
+        reply_to_message_id=message.reply_to_message_id,
+        message_thread_id=message.message_thread_id,
     )
     await message.safe_delete()
 
@@ -143,7 +143,7 @@ async def draw_photo(client: Client, message: Message):
         await conv.mark_as_read()
     await answer.copy(
         message.chat.id,
-        reply_to_message_id=message.reply_to_message_id
-        or message.reply_to_top_message_id,
+        reply_to_message_id=message.reply_to_message_id,
+        message_thread_id=message.message_thread_id,
     )
     await message.safe_delete()

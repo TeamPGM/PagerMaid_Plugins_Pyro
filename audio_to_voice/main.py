@@ -23,7 +23,8 @@ async def audio_to_voice(bot: Client, message: Message):
             audio,
             reply_to_message_id=message.id
             if message.audio
-            else (message.reply_to_message_id or message.reply_to_top_message_id),
+            else message.reply_to_message_id,
+            message_thread_id=message.message_thread_id,
         )
     except Exception as e:
         await message.edit(f"转换为语音消息失败：{e}")

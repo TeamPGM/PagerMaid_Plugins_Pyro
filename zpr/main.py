@@ -55,7 +55,6 @@ async def get_result(message, request, r18=2):
 @listener(command="zpr", description="随机获取一组涩涩纸片人。", parameters="{r18}")
 async def zpr(client: Client, message: Message, request: AsyncClient):
     arguments = message.arguments.upper().strip()
-    message_thread_id = message.reply_to_top_message_id or message.reply_to_message_id
     message = await message.edit("正在前往二次元。。。")
     try:
         photoList, des = await get_result(
@@ -68,7 +67,10 @@ async def zpr(client: Client, message: Message, request: AsyncClient):
             await message.edit("传送中。。。")
         try:
             await client.send_media_group(
-                message.chat.id, photoList, reply_to_message_id=message_thread_id
+                message.chat.id,
+                photoList,
+                reply_to_message_id=message.reply_to_message_id,
+                message_thread_id=message.message_thread_id,
             )
         except RPCError as e:
             return await message.edit(

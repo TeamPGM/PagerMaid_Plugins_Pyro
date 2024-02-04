@@ -35,8 +35,8 @@ async def qq_music(message: Message, client: AsyncClient):
                     uri,
                     thumb=cover or None,
                     caption=f"{text}",
-                    reply_to_message_id=message.reply_to_message_id
-                    or message.reply_to_top_message_id,
+                    reply_to_message_id=message.reply_to_message_id,
+                    message_thread_id=message.message_thread_id,
                 )
                 await msg.safe_delete()
             except Exception as e:

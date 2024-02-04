@@ -133,7 +133,7 @@ async def jikipedia(message: Message):
                 image,
                 quote=False,
                 caption=text,
-                reply_to_message_id=message.reply_to_top_message_id,
+                message_thread_id=message.message_thread_id,
             )
             await message.safe_delete()
         except Exception:

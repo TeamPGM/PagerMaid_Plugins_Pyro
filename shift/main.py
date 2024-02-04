@@ -27,18 +27,21 @@ def try_cast_or_fallback(val: Any, t: type) -> Any:
 
 
 def check_chat_available(chat: Chat):
-    assert (chat.type in [ChatType.CHANNEL, ChatType.GROUP] and not chat.has_protected_content)
+    assert (
+        chat.type in [ChatType.CHANNEL, ChatType.GROUP]
+        and not chat.has_protected_content
+    )
 
 
 @listener(
     command="shift",
     description="开启转发频道新消息功能",
     parameters="set [from channel] [to channel] (silent) 自动转发频道新消息（可以使用频道用户名或者 id）\n"
-               "del [from channel] 删除转发\n"
-               "backup [from channel] [to channel] (silent) 备份频道（可以使用频道用户名或者 id）\n"
-               "list 顯示目前轉發的頻道\n\n"
-               "选项说明：\n"
-               "silent: 禁用通知, none: 文字, all: 全部訊息都傳, photo: 圖片, document: 檔案, video: 影片",
+    "del [from channel] 删除转发\n"
+    "backup [from channel] [to channel] (silent) 备份频道（可以使用频道用户名或者 id）\n"
+    "list 顯示目前轉發的頻道\n\n"
+    "选项说明：\n"
+    "silent: 禁用通知, none: 文字, all: 全部訊息都傳, photo: 圖片, document: 檔案, video: 影片",
 )
 async def shift_set(client: Client, message: Message):
     if not message.parameter:
@@ -137,13 +140,21 @@ async def shift_set(client: Client, message: Message):
         await message.edit(f"备份频道 {source.id} 到 {target.id} 已完成。")
     # 列出要轉存的頻道
     elif message.parameter[0] == "list":
-        from_ids = list(filter(lambda x: (x.startswith("shift.") and (not x.endswith("options"))), list(sqlite.keys())))
+        from_ids = list(
+            filter(
+                lambda x: (x.startswith("shift.") and (not x.endswith("options"))),
+                list(sqlite.keys()),
+            )
+        )
         if not from_ids:
             return await message.edit("沒有要轉存的頻道")
         output = "總共有 %d 個頻道要轉存\n\n" % len(from_ids)
         for from_id in from_ids:
             to_id = sqlite[from_id]
-            output += "%s -> %s\n" % (format_channel_id(from_id[6:]), format_channel_id(to_id))
+            output += "%s -> %s\n" % (
+                format_channel_id(from_id[6:]),
+                format_channel_id(to_id),
+            )
         await message.edit(output)
     else:
         await message.edit(f"{lang('error_prefix')}{lang('arg_error')}")
@@ -188,10 +199,10 @@ async def shift_channel_message(message: Message):
 
 
 async def loosely_forward(
-        notifier: Message,
-        message: Message,
-        chat_id: int,
-        disable_notification: bool = False,
+    notifier: Message,
+    message: Message,
+    chat_id: int,
+    disable_notification: bool = False,
 ):
     try:
         await message.forward(chat_id, disable_notification=disable_notification)

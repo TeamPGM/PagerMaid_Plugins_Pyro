@@ -20,10 +20,9 @@ async def httpcat(client: Client, message: Message, request: AsyncClient):
     await client.send_photo(
         message.chat.id,
         io,
-        reply_to_message_id=(
-            message.reply_to_message_id or message.reply_to_top_message_id
-        )
+        reply_to_message_id=message.reply_to_message_id
         if message.outgoing
         else message.id,
+        message_thread_id=message.message_thread_id,
     )
     await message.safe_delete()

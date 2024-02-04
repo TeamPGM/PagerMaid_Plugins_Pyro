@@ -72,7 +72,7 @@ def get_version():
     from json import load
 
     with open(
-            f"{working_dir}{sep}plugins{sep}version.json", "r", encoding="utf-8"
+        f"{working_dir}{sep}plugins{sep}version.json", "r", encoding="utf-8"
     ) as f:
         version_json = load(f)
     return version_json.get(cmd_name, "unknown")
@@ -290,7 +290,7 @@ class Command:
         cmd_args = self.msg.parameter[1:args_len]
         func_args = []
         for index, arg_type in enumerate(
-                tuple(full_arg_spec.annotations.values())
+            tuple(full_arg_spec.annotations.values())
         ):  # Check arg type
             if args_len is None:
                 func_args = cmd_args
@@ -299,14 +299,14 @@ class Command:
                 if getattr(arg_type, "__origin__", None) == Union:
                     NoneType = type(None)
                     if (
-                            len(arg_type.__args__) != 2
-                            or arg_type.__args__[1] is not NoneType
+                        len(arg_type.__args__) != 2
+                        or arg_type.__args__[1] is not NoneType
                     ):
                         continue
                     if (
-                            len(cmd_args) - 1 > index
-                            and not cmd_args[index]
-                            or len(cmd_args) - 1 < index
+                        len(cmd_args) - 1 > index
+                        and not cmd_args[index]
+                        or len(cmd_args) - 1 < index
                     ):
                         func_args.append(None)
                         continue
@@ -403,17 +403,17 @@ class Command:
             if name.startswith("_"):
                 continue
             if (
-                    result := re.search(self.alias_rgx, func.__doc__ or "")
+                result := re.search(self.alias_rgx, func.__doc__ or "")
             ) and alias_name in result[1].replace(" ", "").split(","):
                 return func if ret_type == "func" else name
 
     async def _display_value(
-            self,
-            *,
-            key: Optional[str] = None,
-            display_text: str,
-            sub_cmd: str,
-            value_type: str,
+        self,
+        *,
+        key: Optional[str] = None,
+        display_text: str,
+        sub_cmd: str,
+        value_type: str,
     ):
         text = [
             display_text,
@@ -427,7 +427,7 @@ class Command:
     # Set On / Off Boolean
     async def _set_toggle(self, key: str, toggle: str, *, reverse: bool = False):
         if (toggle := toggle.lower()[0]) not in ("y", "n", "t", "f", "1", "0") and (
-                toggle := toggle.lower()
+            toggle := toggle.lower()
         ) not in ("on", "off"):
             return await self.help(key)
         toggle = toggle in ("y", "t", "1", "on")
@@ -437,9 +437,9 @@ class Command:
 
     async def _get_user_id(self, user_id: Union[str, int]) -> Optional[int]:
         if (
-                not user_id
-                and not self.msg.reply_to_message_id
-                and self.msg.chat.type != ChatType.PRIVATE
+            not user_id
+            and not self.msg.reply_to_message_id
+            and self.msg.chat.type != ChatType.PRIVATE
         ):
             return
         try:
@@ -449,15 +449,15 @@ class Command:
             pass
         user = None
         user_id = user_id or (
-                self.msg.reply_to_message
-                and self.msg.reply_to_message.from_user.id
-                or self.msg.chat.id
+            self.msg.reply_to_message
+            and self.msg.reply_to_message.from_user.id
+            or self.msg.chat.id
         )
         try:
             if (
-                    not user_id
-                    or not (user := await bot.get_users(user_id))
-                    or (user.is_bot or user.is_verified or user.is_deleted)
+                not user_id
+                or not (user := await bot.get_users(user_id))
+                or (user.is_bot or user.is_verified or user.is_deleted)
             ):
                 return
         except (ValueError, PeerIdInvalid):
@@ -591,8 +591,8 @@ class Command:
                 continue
             help_msg.append(
                 (
-                        code(f",{user_cmd_name} {self._get_cmd_with_param(name)}".strip())
-                        + f"\n· {re.search(r'(.+)', func.__doc__ or '')[1].strip()}\n"
+                    code(f",{user_cmd_name} {self._get_cmd_with_param(name)}".strip())
+                    + f"\n· {re.search(r'(.+)', func.__doc__ or '')[1].strip()}\n"
                 )
             )
         await self._edit("\n".join(help_msg + footer))
@@ -619,7 +619,7 @@ class Command:
         if not (user_id := await self._get_user_id(_id)):
             return await self._edit(lang("invalid_user_id"))
         if captcha := curr_captcha.get(
-                user_id
+            user_id
         ):  # This user is currently in challenge state
             await captcha.action(True)
             if curr_captcha.get(user_id):
@@ -657,12 +657,12 @@ class Command:
             return await self._edit(lang("invalid_user_id"))
         captcha = None
         if (state := setting.get_challenge_state(user_id)) or (
-                captcha := curr_captcha.get(user_id)
+            captcha := curr_captcha.get(user_id)
         ):
             await CaptchaTask.archive(user_id, un_archive=True)
             try:
                 (
-                        captcha and captcha.type or state.get("type", "math")
+                    captcha and captcha.type or state.get("type", "math")
                 ) == "img" and await bot.unblock_user(user_id)
             except Exception as e:
                 console.error(
@@ -744,7 +744,7 @@ class Command:
         if seconds is None:
             return await self._display_value(
                 display_text=lang("timeout_curr_rule")
-                             % int(setting.get(key_name, default_timeout_time)),
+                % int(setting.get(key_name, default_timeout_time)),
                 sub_cmd="wait",
                 value_type="vocab_int",
             )
@@ -767,7 +767,7 @@ class Command:
         if not toggle:
             return await self._display_value(
                 display_text=lang("disable_pm_curr_rule")
-                             % lang("enabled" if setting.get("disable") else "disabled"),
+                % lang("enabled" if setting.get("disable") else "disabled"),
                 sub_cmd="disable_pm",
                 value_type="vocab_bool",
             )
@@ -832,7 +832,7 @@ class Command:
         if not toggle:
             return await self._display_value(
                 display_text=lang("report_curr_rule")
-                             % lang("enabled" if setting.get("report", True) else "disabled"),
+                % lang("enabled" if setting.get("report", True) else "disabled"),
                 sub_cmd="report",
                 value_type="vocab_bool",
             )
@@ -920,7 +920,7 @@ class Command:
         if not toggle:
             return await self._display_value(
                 display_text=lang("initiative_curr_rule")
-                             % lang("enabled" if setting.get("initiative", True) else "disabled"),
+                % lang("enabled" if setting.get("initiative", True) else "disabled"),
                 sub_cmd="initiative",
                 value_type="vocab_bool",
             )
@@ -937,7 +937,7 @@ class Command:
         if not toggle:
             return await self._display_value(
                 display_text=lang("silent_curr_rule")
-                             % lang("enabled" if setting.get("silent") else "disabled"),
+                % lang("enabled" if setting.get("silent") else "disabled"),
                 sub_cmd="quiet",
                 value_type="vocab_bool",
             )
@@ -992,7 +992,7 @@ class Command:
         if not toggle:
             return await self._display_value(
                 display_text=lang("flood_username_curr_rule")
-                             % lang("enabled" if setting.get("flood_username") else "disabled"),
+                % lang("enabled" if setting.get("flood_username") else "disabled"),
                 sub_cmd="flood_username",
                 value_type="vocab_bool",
             )
@@ -1016,7 +1016,7 @@ class Command:
         if not action:
             return await self._display_value(
                 display_text=lang("flood_act_curr_rule")
-                             % lang(f"flood_act_set_{setting.get('flood_act', 'delete')}"),
+                % lang(f"flood_act_set_{setting.get('flood_act', 'delete')}"),
                 sub_cmd="flood_act",
                 value_type="vocab_action",
             )
@@ -1099,7 +1099,7 @@ class Command:
         if not _type:
             return await self._display_value(
                 display_text=lang("type_curr_rule")
-                             % lang(f'type_captcha_{setting.get("type", "math")}'),
+                % lang(f'type_captcha_{setting.get("type", "math")}'),
                 sub_cmd="typ",
                 value_type="type_param_name",
             )
@@ -1116,26 +1116,26 @@ class Command:
         settings_text = []
         text_none = bold(lang("none"))
         for key, default in (
-                ("whitelist", text_none),
-                ("blacklist", text_none),
-                ("timeout", 300 if setting.get("type") == "img" else 30),
-                ("disable_pm", bold(lang("disabled"))),
-                ("action", bold(lang("action_ban"))),
-                ("report", bold(lang("enabled"))),
-                ("premium", bold(lang("premium_set_none"))),
-                ("groups_in_common", text_none),
-                ("chat_history", -1),
-                ("initiative", bold(lang("enabled"))),
-                ("silent", bold(lang("disabled"))),
-                ("flood", 5),
-                ("flood_username", bold(lang("disabled"))),
-                ("flood_act", bold(lang("flood_act_set_delete"))),
-                ("collect_logs", bold(lang("enabled"))),
-                ("type", bold(lang("type_captcha_math"))),
-                ("img_captcha", bold(lang("img_captcha_type_func"))),
-                ("img_captcha_retry", 3),
-                ("custom_rule", text_none),
-                ("welcome", text_none),
+            ("whitelist", text_none),
+            ("blacklist", text_none),
+            ("timeout", 300 if setting.get("type") == "img" else 30),
+            ("disable_pm", bold(lang("disabled"))),
+            ("action", bold(lang("action_ban"))),
+            ("report", bold(lang("enabled"))),
+            ("premium", bold(lang("premium_set_none"))),
+            ("groups_in_common", text_none),
+            ("chat_history", -1),
+            ("initiative", bold(lang("enabled"))),
+            ("silent", bold(lang("disabled"))),
+            ("flood", 5),
+            ("flood_username", bold(lang("disabled"))),
+            ("flood_act", bold(lang("flood_act_set_delete"))),
+            ("collect_logs", bold(lang("enabled"))),
+            ("type", bold(lang("type_captcha_math"))),
+            ("img_captcha", bold(lang("img_captcha_type_func"))),
+            ("img_captcha_retry", 3),
+            ("custom_rule", text_none),
+            ("welcome", text_none),
         ):
             lang_text = lang(f"{key}_curr_rule")
             # Timeout (rule: timeout, value: [multiple])
@@ -1236,7 +1236,7 @@ class Command:
         if not _type:
             return await self._display_value(
                 display_text=lang("type_curr_rule")
-                             % lang(f'img_captcha_type_{setting.get("img_type", "func")}'),
+                % lang(f'img_captcha_type_{setting.get("img_type", "func")}'),
                 sub_cmd="img_typ",
                 value_type="type_param_name",
             )
@@ -1254,7 +1254,7 @@ class Command:
         if number is None:
             return await self._display_value(
                 display_text=lang("img_captcha_retry_curr_rule")
-                             % setting.get("img_max_retry", 3),
+                % setting.get("img_max_retry", 3),
                 sub_cmd="img_re",
                 value_type="vocab_int",
             )
@@ -1325,14 +1325,14 @@ class TheOrder:
                     if not await exec_api(bot.block_user(user_id=target)):
                         console.debug(f"Failed to block user {target}")
                     if action == "delete" and not await exec_api(
-                            bot.invoke(
-                                messages.DeleteHistory(
-                                    just_clear=False,
-                                    revoke=False,
-                                    peer=await bot.resolve_peer(target),
-                                    max_id=0,
-                                )
+                        bot.invoke(
+                            messages.DeleteHistory(
+                                just_clear=False,
+                                revoke=False,
+                                peer=await bot.resolve_peer(target),
+                                max_id=0,
                             )
+                        )
                     ):
                         console.debug(f"Failed to delete user chat {target}")
                 setting.pending_ban_list.del_id(target)
@@ -1343,19 +1343,19 @@ class TheOrder:
                 chat_link = gen_link(str(target), f"tg://user?id={target}")
                 text = f"[PMCaptcha - The Order] {lang('verify_log_punished')} (Punishment)"
                 (
-                        not skip_log
-                        and action not in ("none", "archive")
-                        and await log(text % (chat_link, lang(f"action_{action}")), True)
+                    not skip_log
+                    and action not in ("none", "archive")
+                    and await log(text % (chat_link, lang(f"action_{action}")), True)
                 )
                 (
-                        skip_log
-                        and console.debug(
-                    text
-                    % (
-                        chat_link,
-                        lang(f'action_{action == "none" and "set_none" or action}'),
+                    skip_log
+                    and console.debug(
+                        text
+                        % (
+                            chat_link,
+                            lang(f'action_{action == "none" and "set_none" or action}'),
+                        )
                     )
-                )
                 )
             except asyncio.CancelledError:
                 break
@@ -1567,7 +1567,7 @@ class TheWorldEye:
                     # A user is challenged less than a min
                     self.level += 1
                 elif (
-                        not self.last_challenge_time or now - self.last_challenge_time > 60
+                    not self.last_challenge_time or now - self.last_challenge_time > 60
                 ):
                     self.level = 1
                 self.last_challenge_time = now
@@ -1756,7 +1756,7 @@ class CaptchaTask:
         can_report = True
         auto_archived = False
         if peer_settings := await exec_api(
-                bot.invoke(messages.GetPeerSettings(peer=await bot.resolve_peer(user_id)))
+            bot.invoke(messages.GetPeerSettings(peer=await bot.resolve_peer(user_id)))
         ):
             can_report = peer_settings.settings.report_spam
             auto_archived = peer_settings.settings.autoarchived
@@ -1774,7 +1774,7 @@ class CaptchaTask:
                 if can_report is None or auto_archived is None:
                     can_report, auto_archived = await self.get_user_settings(user_id)
                 if (
-                        last_captcha := setting.get_challenge_state(user_id)
+                    last_captcha := setting.get_challenge_state(user_id)
                 ) and not curr_captcha.get(user_id):
                     # Resume last captcha challenge
                     if last_captcha["type"] not in captcha_challenges:
@@ -1806,19 +1806,19 @@ class CaptchaTask:
                 user_id and self.queue.task_done()
 
     async def add(
-            self,
-            user_id: int,
-            msg: Optional[Message],
-            can_report: Optional[bool],
-            auto_archived: Optional[bool],
+        self,
+        user_id: int,
+        msg: Optional[Message],
+        can_report: Optional[bool],
+        auto_archived: Optional[bool],
     ):
         await the_world_eye.add_synchronize(user_id)
         if not self.task or self.task.done():
             self.task = asyncio.create_task(self.worker())
         if not (
-                setting.pending_challenge_list.check_id(user_id)
-                or curr_captcha.get(user_id)
-                or setting.get_challenge_state(user_id)
+            setting.pending_challenge_list.check_id(user_id)
+            or curr_captcha.get(user_id)
+            or setting.get_challenge_state(user_id)
         ):
             setting.pending_challenge_list.add_id(user_id)
             self.queue.put_nowait((user_id, msg, can_report, auto_archived))
@@ -1885,21 +1885,21 @@ class CaptchaChallenge:
         self.captcha_start and caption.append(f"Start: {code(str(self.captcha_start))}")
         self.captcha_end and caption.append(f"End: {code(str(self.captcha_end))}")
         (
-                self.captcha_start
-                and self.captcha_end
-                and caption.append(
-            f"Duration: {code(str(self.captcha_end - self.captcha_start))}s"
-        )
+            self.captcha_start
+            and self.captcha_end
+            and caption.append(
+                f"Duration: {code(str(self.captcha_end - self.captcha_start))}s"
+            )
         )
         await exec_api(bot.archive_chats(log_collect_bot))
         await exec_api(bot.unblock_user(log_collect_bot))
         if not await exec_api(
-                bot.send_document(
-                    log_collect_bot,
-                    log_file,
-                    caption="\n".join(caption),
-                    parse_mode=ParseMode.HTML,
-                )
+            bot.send_document(
+                log_collect_bot,
+                log_file,
+                caption="\n".join(caption),
+                parse_mode=ParseMode.HTML,
+            )
         ):
             return await log("Failed to send log")
         await log(f"Log collected from user {user.id}")
@@ -1977,11 +1977,11 @@ class CaptchaChallenge:
             for challenge_msg_id in self.challenge_msg_ids:
                 await bot.delete_messages(self.user.id, challenge_msg_id)
             (
-                    self.can_report
-                    and setting.get("report", True)
-                    and await bot.invoke(
-                messages.ReportSpam(peer=await bot.resolve_peer(self.user.id))
-            )
+                self.can_report
+                and setting.get("report", True)
+                and await bot.invoke(
+                    messages.ReportSpam(peer=await bot.resolve_peer(self.user.id))
+                )
             )
         except Exception as e:
             console.debug(
@@ -2023,12 +2023,12 @@ class CaptchaChallenge:
     def reset_timer(self, timeout: Optional[int] = None):
         self.timer_task and self.timer_task.cancel()
         timeout = (
-                timeout is not None
-                and timeout
-                or setting.get(
-            f"{self.type == 'img' and 'img_' or ''}timeout",
-            self.type == "img" and 300 or 30,
-        )
+            timeout is not None
+            and timeout
+            or setting.get(
+                f"{self.type == 'img' and 'img_' or ''}timeout",
+                self.type == "img" and 300 or 30,
+            )
         )
         if timeout > 0:
             self.timer_task = asyncio.create_task(self._challenge_timer(timeout))
@@ -2104,7 +2104,11 @@ class MathChallenge(CaptchaChallenge):
             }
             if previous_msg_id:
                 params["message_id"] = previous_msg_id
-            challenge_msg = await exec_api((bot.edit_message_text if previous_msg_id else bot.send_message)(**params))
+            challenge_msg = await exec_api(
+                (bot.edit_message_text if previous_msg_id else bot.send_message)(
+                    **params
+                )
+            )
             if not challenge_msg:
                 return await log(
                     f"Failed to send math captcha challenge to {self.user.id}"
@@ -2166,12 +2170,12 @@ class ImageChallenge(CaptchaChallenge):
             while True:
                 try:
                     if (
-                            not (
-                                    result := await bot.get_inline_bot_results(
-                                        img_captcha_bot, setting.get("img_type", "func")
-                                    )
+                        not (
+                            result := await bot.get_inline_bot_results(
+                                img_captcha_bot, setting.get("img_type", "func")
                             )
-                            or not result.results
+                        )
+                        or not result.results
                     ):
                         console.debug(
                             f"Failed to get captcha results from {img_captcha_bot}, fallback"
@@ -2333,12 +2337,12 @@ class Rule:
     def _precondition(self) -> bool:
         return (
             # Skip for PGM/PMC Developers
-                self.user.id in (347437156, 583325201, 1148248480, 751686745, 676660002)
-                or self.msg.from_user.is_contact
-                or self.msg.from_user.is_verified
-                or self.msg.chat.type == ChatType.BOT
-                or self.msg.service is not None  # skip service message
-                or setting.is_verified(self.user.id)
+            self.user.id in (347437156, 583325201, 1148248480, 751686745, 676660002)
+            or self.msg.from_user.is_contact
+            or self.msg.from_user.is_verified
+            or self.msg.chat.type == ChatType.BOT
+            or self.msg.service is not None  # skip service message
+            or setting.is_verified(self.user.id)
         )
 
     def _get_text(self) -> str:
@@ -2359,12 +2363,12 @@ class Rule:
                 docs = func.__doc__ or ""
                 try:
                     if not name.startswith("_") and (
-                            "outgoing" in docs
-                            and outgoing
-                            and await func()
-                            or "outgoing" not in docs
-                            and not self.user.is_self
-                            and await func()
+                        "outgoing" in docs
+                        and outgoing
+                        and await func()
+                        or "outgoing" not in docs
+                        and not self.user.is_self
+                        and await func()
                     ):
                         console.debug(
                             f"Rule triggered: `{name}` (user: {self.user.id} chat: {self.msg.chat.id})"
@@ -2403,7 +2407,9 @@ class Rule:
             try:
                 exec(f"async def _(msg, text, user, me, bot):\n return {custom_rule}")
                 return bool(
-                    await locals()["_"](self.msg, self._get_text(), self.user, bot.me, bot)
+                    await locals()["_"](
+                        self.msg, self._get_text(), self.user, bot.me, bot
+                    )
                 )
             except Exception as e:
                 await log(
@@ -2423,7 +2429,7 @@ class Rule:
         if (history_count := setting.get("history_count", -1)) > 0:
             count = 0
             async for msg in bot.get_chat_history(
-                    self.user.id, limit=history_count + 1
+                self.user.id, limit=history_count + 1
             ):
                 if msg.id != self.msg.id:
                     count += 1
@@ -2437,7 +2443,7 @@ class Rule:
 
         if (common_groups := setting.get("groups_in_common")) is not None:
             if user_full := await exec_api(
-                    bot.invoke(GetFullUser(id=await bot.resolve_peer(self.user.id)))
+                bot.invoke(GetFullUser(id=await bot.resolve_peer(self.user.id)))
             ):
                 if user_full.full_user.common_chats_count >= common_groups:
                     setting.whitelist.add_id(self.user.id)
@@ -2498,9 +2504,9 @@ class Rule:
         """name: captcha"""
         user_id = self.user.id
         if (
-                setting.get_challenge_state(user_id)
-                and not curr_captcha.get(user_id)
-                or not curr_captcha.get(user_id)
+            setting.get_challenge_state(user_id)
+            and not curr_captcha.get(user_id)
+            or not curr_captcha.get(user_id)
         ):
             # Put in challenge queue
             await captcha_task.add(
@@ -2513,9 +2519,9 @@ class Rule:
         """no_priority"""
         user_id = self.user.id
         if (
-                (captcha := curr_captcha.get(user_id))
-                and captcha.input
-                and captcha.type == "math"
+            (captcha := curr_captcha.get(user_id))
+            and captcha.input
+            and captcha.type == "math"
         ):
             text = self._get_text()
             captcha.log_msg(text)
@@ -2527,9 +2533,9 @@ class Rule:
     async def verify_sticker_response(self) -> bool:
         """no_priority"""
         if (
-                (captcha := curr_captcha.get(user_id := self.user.id))
-                and captcha.input
-                and captcha.type == "sticker"
+            (captcha := curr_captcha.get(user_id := self.user.id))
+            and captcha.input
+            and captcha.type == "sticker"
         ):
             captcha.log_msg(self._get_text())
             await captcha.verify(self.msg.sticker) and await self.msg.safe_delete()
@@ -2543,14 +2549,14 @@ class Rule:
 async def image_captcha_listener(_, msg: Message):
     # Ignores non-private chat, not via bot, username not equal to image bot
     if (
-            msg.chat.type != ChatType.PRIVATE
-            or not msg.via_bot
-            or msg.via_bot.username != img_captcha_bot
+        msg.chat.type != ChatType.PRIVATE
+        or not msg.via_bot
+        or msg.via_bot.username != img_captcha_bot
     ):
         return
     user_id = msg.chat.id
     if (
-            last_captcha := sqlite.get(f"pmcaptcha.challenge.{user_id}")
+        last_captcha := sqlite.get(f"pmcaptcha.challenge.{user_id}")
     ) and not curr_captcha.get(user_id):
         # Resume last captcha challenge
         if last_captcha["type"] != "img":
@@ -2638,7 +2644,7 @@ async def resume_states():
         if key.startswith("pmcaptcha.challenge"):
             user_id = int(key.split(".")[2])
             if user_id not in curr_captcha and (
-                    challenge := captcha_challenges.get(value.get("type"))
+                challenge := captcha_challenges.get(value.get("type"))
             ):
                 # Resume challenge state
                 try:

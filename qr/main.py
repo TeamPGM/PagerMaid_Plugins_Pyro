@@ -34,8 +34,8 @@ async def gen_qr(client: Client, message: Message):
         await client.send_document(
             message.chat.id,
             document="qr.webp",
-            reply_to_message_id=message.reply_to_message_id
-            or message.reply_to_top_message_id,
+            reply_to_message_id=message.reply_to_message_id,
+            message_thread_id=message.message_thread_id,
         )
     except UnicodeEncodeError:
         await message.edit(f"{lang('error_prefix')}{lang('genqr_e_encode')}")

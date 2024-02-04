@@ -285,14 +285,14 @@ async def send_illust(message: Message, illust: Illust) -> None:
             illust.image_urls["large"],
             caption=caption,
             quote=False,
-            reply_to_message_id=message.reply_to_message_id
-            or message.reply_to_top_message_id,
+            reply_to_message_id=message.reply_to_message_id,
+            message_thread_id=message.message_thread_id,
         )
     else:
         await message.reply_text(
             caption,
-            reply_to_message_id=message.reply_to_message_id
-            or message.reply_to_top_message_id,
+            reply_to_message_id=message.reply_to_message_id,
+            message_thread_id=message.message_thread_id,
         )
 
 

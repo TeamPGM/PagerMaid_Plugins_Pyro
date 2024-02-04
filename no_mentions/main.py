@@ -51,8 +51,6 @@ async def set_read_mentions(client: Client, message: Message):
     await client.invoke(
         ReadMentions(
             peer=await client.resolve_peer(message.chat.id),
-            top_msg_id=message.reply_to_top_message_id
-            if message.chat.is_forum
-            else None,
+            top_msg_id=message.message_thread_id if message.topic else None,
         )
     )

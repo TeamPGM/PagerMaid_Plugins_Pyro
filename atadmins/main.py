@@ -24,7 +24,7 @@ async def at_admins(client: Client, message: Message):
     await client.send_message(
         message.chat.id,
         "%s：\n\n%s" % (say, send_list),
-        reply_to_message_id=message.reply_to_message_id
-        or message.reply_to_top_message_id,
+        reply_to_message_id=message.reply_to_message_id,
+        message_thread_id=message.message_thread_id,
     )
     await message.safe_delete()

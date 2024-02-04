@@ -120,13 +120,13 @@ async def epic(message: Message):
                         "epic.jpg",
                         caption=msg,
                         quote=False,
-                        reply_to_message_id=message.reply_to_top_message_id,
+                        message_thread_id=message.message_thread_id,
                     )
                 except Exception:
                     await message.reply(
                         msg,
                         quote=False,
-                        reply_to_message_id=message.reply_to_top_message_id,
+                        message_thread_id=message.message_thread_id,
                     )
                 safe_remove("epic.jpg")
             else:

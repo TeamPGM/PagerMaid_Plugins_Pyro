@@ -77,7 +77,7 @@ async def start_download(message: Message, url: str):
                     cid,
                     video=file,
                     supports_streaming=True,
-                    reply_to_message_id=message.reply_to_top_message_id,
+                    message_thread_id=message.message_thread_id,
                 )
             except Exception:
                 try:
@@ -85,7 +85,7 @@ async def start_download(message: Message, url: str):
                         cid,
                         document=file,
                         force_document=True,
-                        reply_to_message_id=message.reply_to_top_message_id,
+                        message_thread_id=message.message_thread_id,
                     )
                 except Exception as e:
                     result["status"] = False

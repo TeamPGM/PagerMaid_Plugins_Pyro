@@ -118,7 +118,7 @@ async def sticker_transfer(message: Message):
                 "stickers.csv",
                 caption=f"贴纸包导出文件，成功导出了 {num} 个贴纸包",
                 thumb=f"pagermaid{sep}assets{sep}logo.jpg",
-                reply_to_message_id=message.reply_to_top_message_id,
+                message_thread_id=message.message_thread_id,
             )
             safe_remove("stickers.csv")
             await message.safe_delete()

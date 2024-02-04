@@ -18,8 +18,8 @@ async def xjj(message: Message, client: AsyncClient):
                 await message.reply_video(
                     url,
                     quote=False,
-                    reply_to_message_id=message.reply_to_message_id
-                    or message.reply_to_top_message_id,
+                    reply_to_message_id=message.reply_to_message_id,
+                    message_thread_id=message.message_thread_id,
                 )
                 await message.safe_delete()
             except Exception as e:

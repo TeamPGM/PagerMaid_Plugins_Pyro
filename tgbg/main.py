@@ -29,7 +29,7 @@ async def tg_bg(client: Client, message: Message):
                         message.chat.id,
                         bg_doc.file_id,
                         file_name="bg.jpg",
-                        reply_to_message_id=message.reply_to_top_message_id,
+                        message_thread_id=message.message_thread_id,
                     )
                     return await message.safe_delete()
     await message.edit("获取失败，请检查 URL")

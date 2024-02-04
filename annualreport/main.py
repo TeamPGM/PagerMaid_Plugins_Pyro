@@ -43,9 +43,9 @@ async def get_hitokoto(request: AsyncClient):
     try:
         htk = (await request.get("https://v1.hitokoto.cn/?charset=utf-8")).json()
         text = f"\"{htk['hitokoto']}\" —— "
-        if htk['from_who']:
+        if htk["from_who"]:
             text += f"{htk['from_who']}"
-        if htk['from']:
+        if htk["from"]:
             text += f"「{htk['from']}」"
     except Exception:
         text = '"用代码表达言语的魅力，用代码书写山河的壮丽。" —— 一言「一言开发者中心」'

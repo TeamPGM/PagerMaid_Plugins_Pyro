@@ -79,7 +79,7 @@ async def chat_transfer(message: Message):
                 "chats.csv",
                 caption=f"对话导出文件，成功导出了 {num} 个群组/频道",
                 thumb=f"pagermaid{sep}assets{sep}logo.jpg",
-                reply_to_message_id=message.reply_to_top_message_id,
+                message_thread_id=message.message_thread_id,
             )
             safe_remove("chats.csv")
             await message.safe_delete()
