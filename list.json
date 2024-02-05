@@ -982,10 +982,10 @@
         },
         {
             "name": "xjj",
-            "version": "1.02",
+            "version": "1.03",
             "section": "chat",
             "maintainer": "zero",
-            "size": "1.156 kb",
+            "size": "1.185 kb",
             "supported": true,
             "des_short": "xjj 生成小姐姐视频",
             "des": "# 生成小姐姐视频\n\n```\n,xjj\n```"
