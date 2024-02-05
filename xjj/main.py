@@ -2,6 +2,12 @@ from pagermaid.listener import listener
 from pagermaid.enums import Message, AsyncClient
 
 
+async def get_video_url(client: AsyncClient) -> str:
+    res = await client.get("https://tucdn.wpon.cn/api-girl/index.php?wpon=json", timeout=10.0)
+    data = res.json()
+    return "https:" + data["mp4"]
+
+
 @listener(command="xjj", description="小姐姐视频")
 async def xjj(message: Message, client: AsyncClient):
     if message.chat and message.chat.id == -1001441461877:
@@ -10,19 +16,16 @@ async def xjj(message: Message, client: AsyncClient):
         return
     await message.edit("小姐姐视频生成中 . . .")
     try:
-        res = await client.get("https://cao3.ml/get/get1.php", timeout=10.0)
-        if res.status_code == 200:
-            url = res.text
-            url = url.split("?tag=")[0]
-            try:
-                await message.reply_video(
-                    url,
-                    quote=False,
-                    reply_to_message_id=message.reply_to_message_id,
-                    message_thread_id=message.message_thread_id,
-                )
-                await message.safe_delete()
-            except Exception as e:
-                await message.edit(f"出错了呜呜呜 ~ {e.__class__.__name__}")
+        url = await get_video_url(client)
+        try:
+            await message.reply_video(
+                url,
+                quote=False,
+                reply_to_message_id=message.reply_to_message_id,
+                message_thread_id=message.message_thread_id,
+            )
+            await message.safe_delete()
+        except Exception as e:
+            await message.edit(f"出错了呜呜呜 ~ {e.__class__.__name__}")
     except Exception as e:
         await message.edit(f"出错了呜呜呜 ~ {e.__class__.__name__}")
