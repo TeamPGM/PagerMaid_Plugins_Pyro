@@ -41,7 +41,7 @@ def check_chat_available(chat: Chat):
     "backup [from channel] [to channel] (silent) 备份频道（可以使用频道用户名或者 id）\n"
     "list 顯示目前轉發的頻道\n\n"
     "选项说明：\n"
-    "silent: 禁用通知, none: 文字, all: 全部訊息都傳, photo: 圖片, document: 檔案, video: 影片",
+    "silent: 禁用通知, text: 文字, all: 全部訊息都傳, photo: 圖片, document: 檔案, video: 影片",
 )
 async def shift_set(client: Client, message: Message):
     if not message.parameter:
