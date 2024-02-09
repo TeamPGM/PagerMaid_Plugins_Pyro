@@ -1089,6 +1089,16 @@
             "supported": true,
             "des_short": "emoji_transfer Emoji 迁移",
             "des": "Emoji 迁移。 指令：,emoji_transfer"
+        },
+        {
+            "name": "carbon",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "omg-xtao",
+            "size": "1.558 kb",
+            "supported": true,
+            "des_short": "carbon 代码截图",
+            "des": ""
         }
     ]
 }
