@@ -28,8 +28,8 @@ def try_cast_or_fallback(val: Any, t: type) -> Any:
 
 def check_chat_available(chat: Chat):
     assert (
-        chat.type in [ChatType.CHANNEL, ChatType.GROUP,ChatType.SUPERGROUP,ChatType.BOT,ChatType.PRIVATE]
-        and not chat.has_protected_content
+            chat.type in [ChatType.CHANNEL, ChatType.GROUP, ChatType.SUPERGROUP, ChatType.BOT, ChatType.PRIVATE]
+            and not chat.has_protected_content
     )
 
 
@@ -37,11 +37,11 @@ def check_chat_available(chat: Chat):
     command="shift",
     description="开启转发频道新消息功能",
     parameters="set [from channel] [to channel] (silent) 自动转发频道新消息（可以使用频道用户名或者 id）\n"
-    "del [from channel] 删除转发\n"
-    "backup [from channel] [to channel] (silent) 备份频道（可以使用频道用户名或者 id）\n"
-    "list 顯示目前轉發的頻道\n\n"
-    "选项说明：\n"
-    "silent: 禁用通知, text: 文字, all: 全部訊息都傳, photo: 圖片, document: 檔案, video: 影片",
+               "del [from channel] 删除转发\n"
+               "backup [from channel] [to channel] (silent) 备份频道（可以使用频道用户名或者 id）\n"
+               "list 顯示目前轉發的頻道\n\n"
+               "选项说明：\n"
+               "silent: 禁用通知, text: 文字, all: 全部訊息都傳, photo: 圖片, document: 檔案, video: 影片",
 )
 async def shift_set(client: Client, message: Message):
     if not message.parameter:
@@ -203,11 +203,11 @@ async def shift_channel_message(message: Message):
 
 
 async def loosely_forward(
-    notifier: Message,
-    message: Message,
-    chat_id: int,
-    options: Union[List[str], Set[str]],
-    disable_notification: bool = False,
+        notifier: Message,
+        message: Message,
+        chat_id: int,
+        options: Union[List[str], Set[str]],
+        disable_notification: bool = False,
 ):
     # 找訊息類型video、document...
     media_type = message.media.value if message.media else "text"
