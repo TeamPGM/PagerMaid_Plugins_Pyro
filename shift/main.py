@@ -3,7 +3,7 @@
 import contextlib
 from asyncio import sleep
 from random import uniform
-from typing import Any
+from typing import Any, List, Union, Set
 
 from pyrogram.enums.chat_type import ChatType
 from pyrogram.errors.exceptions.flood_420 import FloodWait
@@ -17,7 +17,7 @@ from pagermaid.utils import lang
 
 WHITELIST = [-1001441461877]
 AVAILABLE_OPTIONS = {"silent", "text", "all", "photo", "document", "video"}
-options=[]
+
 
 def try_cast_or_fallback(val: Any, t: type) -> Any:
     try:
@@ -44,7 +44,6 @@ def check_chat_available(chat: Chat):
     "silent: 禁用通知, text: 文字, all: 全部訊息都傳, photo: 圖片, document: 檔案, video: 影片",
 )
 async def shift_set(client: Client, message: Message):
-    global options
     if not message.parameter:
         await message.edit(f"{lang('error_prefix')}{lang('arg_error')}")
         return
@@ -132,14 +131,15 @@ async def shift_set(client: Client, message: Message):
         await message.edit(f"开始备份频道 {source.id} 到 {target.id} 。")
 
         # 如果有把get_chat_history方法merge進去就可以實現從舊訊息到新訊息,https://github.com/pyrogram/pyrogram/pull/1046
-        # async for msg in client.get_chat_history(source.id,reverse=True):  
+        # async for msg in client.get_chat_history(source.id,reverse=True):
 
-        async for msg in client.search_messages(source.id):  # type: ignore    
+        async for msg in client.search_messages(source.id):  # type: ignore
             await sleep(uniform(0.5, 1.0))
             await loosely_forward(
                 message,
                 msg,
                 target.id,
+                options,
                 disable_notification="silent" in options,
             )
         await message.edit(f"备份频道 {source.id} 到 {target.id} 已完成。")
@@ -206,6 +206,7 @@ async def loosely_forward(
     notifier: Message,
     message: Message,
     chat_id: int,
+    options: Union[List[str], Set[str]],
     disable_notification: bool = False,
 ):
     # 找訊息類型video、document...
@@ -229,6 +230,6 @@ async def loosely_forward(
         delay = min + uniform(0.5, 1.0)
         await notifier.edit(f"触发 Flood ，暂停 {delay} 秒。")
         await sleep(delay)
-        await loosely_forward(notifier, message, chat_id, disable_notification)
+        await loosely_forward(notifier, message, chat_id, options, disable_notification)
     except Exception:
         pass  # drop other errors
