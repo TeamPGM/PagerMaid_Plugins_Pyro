@@ -17,7 +17,7 @@ from pagermaid.utils import lang
 
 WHITELIST = [-1001441461877]
 AVAILABLE_OPTIONS = {"silent", "text", "all", "photo", "document", "video"}
-options=[]
+
 
 def try_cast_or_fallback(val: Any, t: type) -> Any:
     try:
@@ -28,7 +28,7 @@ def try_cast_or_fallback(val: Any, t: type) -> Any:
 
 def check_chat_available(chat: Chat):
     assert (
-        chat.type in [ChatType.CHANNEL, ChatType.GROUP,ChatType.SUPERGROUP,ChatType.BOT,ChatType.PRIVATE]
+        chat.type in [ChatType.CHANNEL, ChatType.GROUP]
         and not chat.has_protected_content
     )
 
@@ -44,7 +44,6 @@ def check_chat_available(chat: Chat):
     "silent: 禁用通知, text: 文字, all: 全部訊息都傳, photo: 圖片, document: 檔案, video: 影片",
 )
 async def shift_set(client: Client, message: Message):
-    global options
     if not message.parameter:
         await message.edit(f"{lang('error_prefix')}{lang('arg_error')}")
         return
@@ -130,11 +129,7 @@ async def shift_set(client: Client, message: Message):
             return await message.edit("出错了呜呜呜 ~ 此对话位于白名单中。")
         # 开始遍历消息
         await message.edit(f"开始备份频道 {source.id} 到 {target.id} 。")
-
-        # 如果有把get_chat_history方法merge進去就可以實現從舊訊息到新訊息,https://github.com/pyrogram/pyrogram/pull/1046
-        # async for msg in client.get_chat_history(source.id,reverse=True):  
-
-        async for msg in client.search_messages(source.id):  # type: ignore    
+        async for msg in client.search_messages(source.id):  # type: ignore
             await sleep(uniform(0.5, 1.0))
             await loosely_forward(
                 message,
@@ -178,7 +173,8 @@ async def shift_channel_message(message: Message):
     source = message.chat.id
 
     # 找訊息類型video、document...
-    media_type = message.media.value if message.media else "text"
+    media_type = message.media.name.lower() if message.media else "text"
+
     target = d.get(f"shift.{source}")
     if not target:
         return
@@ -208,22 +204,8 @@ async def loosely_forward(
     chat_id: int,
     disable_notification: bool = False,
 ):
-    # 找訊息類型video、document...
-    media_type = message.media.value if message.media else "text"
     try:
-        if (not options) or "all" in options:
-            await message.forward(
-                chat_id,
-                disable_notification=disable_notification,
-            )
-        elif media_type in options:
-            await message.forward(
-                chat_id,
-                disable_notification=disable_notification,
-            )
-        else:
-            logs.debug("skip message type: %s", media_type)
-        # await message.forward(chat_id, disable_notification=disable_notification)
+        await message.forward(chat_id, disable_notification=disable_notification)
     except FloodWait as ex:
         min: int = ex.value  # type: ignore
         delay = min + uniform(0.5, 1.0)
