@@ -3,7 +3,7 @@
 import contextlib
 from asyncio import sleep
 from random import uniform
-from typing import Any
+from typing import Any, List, Union, Set
 
 from pyrogram.enums.chat_type import ChatType
 from pyrogram.errors.exceptions.flood_420 import FloodWait
@@ -28,8 +28,8 @@ def try_cast_or_fallback(val: Any, t: type) -> Any:
 
 def check_chat_available(chat: Chat):
     assert (
-        chat.type in [ChatType.CHANNEL, ChatType.GROUP]
-        and not chat.has_protected_content
+            chat.type in [ChatType.CHANNEL, ChatType.GROUP, ChatType.SUPERGROUP, ChatType.BOT, ChatType.PRIVATE]
+            and not chat.has_protected_content
     )
 
 
@@ -37,11 +37,11 @@ def check_chat_available(chat: Chat):
     command="shift",
     description="开启转发频道新消息功能",
     parameters="set [from channel] [to channel] (silent) 自动转发频道新消息（可以使用频道用户名或者 id）\n"
-    "del [from channel] 删除转发\n"
-    "backup [from channel] [to channel] (silent) 备份频道（可以使用频道用户名或者 id）\n"
-    "list 顯示目前轉發的頻道\n\n"
-    "选项说明：\n"
-    "silent: 禁用通知, text: 文字, all: 全部訊息都傳, photo: 圖片, document: 檔案, video: 影片",
+               "del [from channel] 删除转发\n"
+               "backup [from channel] [to channel] (silent) 备份频道（可以使用频道用户名或者 id）\n"
+               "list 顯示目前轉發的頻道\n\n"
+               "选项说明：\n"
+               "silent: 禁用通知, text: 文字, all: 全部訊息都傳, photo: 圖片, document: 檔案, video: 影片",
 )
 async def shift_set(client: Client, message: Message):
     if not message.parameter:
@@ -129,12 +129,17 @@ async def shift_set(client: Client, message: Message):
             return await message.edit("出错了呜呜呜 ~ 此对话位于白名单中。")
         # 开始遍历消息
         await message.edit(f"开始备份频道 {source.id} 到 {target.id} 。")
+
+        # 如果有把get_chat_history方法merge進去就可以實現從舊訊息到新訊息,https://github.com/pyrogram/pyrogram/pull/1046
+        # async for msg in client.get_chat_history(source.id,reverse=True):
+
         async for msg in client.search_messages(source.id):  # type: ignore
             await sleep(uniform(0.5, 1.0))
             await loosely_forward(
                 message,
                 msg,
                 target.id,
+                options,
                 disable_notification="silent" in options,
             )
         await message.edit(f"备份频道 {source.id} 到 {target.id} 已完成。")
@@ -173,8 +178,7 @@ async def shift_channel_message(message: Message):
     source = message.chat.id
 
     # 找訊息類型video、document...
-    media_type = message.media.name.lower() if message.media else "text"
-
+    media_type = message.media.value if message.media else "text"
     target = d.get(f"shift.{source}")
     if not target:
         return
@@ -199,18 +203,33 @@ async def shift_channel_message(message: Message):
 
 
 async def loosely_forward(
-    notifier: Message,
-    message: Message,
-    chat_id: int,
-    disable_notification: bool = False,
+        notifier: Message,
+        message: Message,
+        chat_id: int,
+        options: Union[List[str], Set[str]],
+        disable_notification: bool = False,
 ):
+    # 找訊息類型video、document...
+    media_type = message.media.value if message.media else "text"
     try:
-        await message.forward(chat_id, disable_notification=disable_notification)
+        if (not options) or "all" in options:
+            await message.forward(
+                chat_id,
+                disable_notification=disable_notification,
+            )
+        elif media_type in options:
+            await message.forward(
+                chat_id,
+                disable_notification=disable_notification,
+            )
+        else:
+            logs.debug("skip message type: %s", media_type)
+        # await message.forward(chat_id, disable_notification=disable_notification)
     except FloodWait as ex:
         min: int = ex.value  # type: ignore
         delay = min + uniform(0.5, 1.0)
         await notifier.edit(f"触发 Flood ，暂停 {delay} 秒。")
         await sleep(delay)
-        await loosely_forward(notifier, message, chat_id, disable_notification)
+        await loosely_forward(notifier, message, chat_id, options, disable_notification)
     except Exception:
         pass  # drop other errors
