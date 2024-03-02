@@ -35,7 +35,7 @@ class Rate:
                 "notice": "数据每日八点更新",
                 "warning": "数据每日八点更新",
             }
-        self.host = "https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest"
+        self.host = "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1"
         self.api = f"{self.host}/currencies.json"
         self.currencies = []
         self.data = {}
@@ -52,14 +52,14 @@ class Rate:
             await log(f"Warning: plugin rate failed to refresh rates data. {e}")
 
     async def get_rate(self, from_: str, to_: str, nb: float):
-        endpoint = f"{self.host}/currencies/{from_.lower()}/{to_.lower()}.json"
+        endpoint = f"{self.host}/currencies/{from_.lower()}.json"
         try:
             req = await client.get(endpoint, follow_redirects=True)
             rate__data = req.json()
             return (
-                f"`{from_} : {to_} = {nb} : {round(nb * rate__data[to_.lower()], 4)}`"
+                f"`{from_} : {to_} = {nb} : {round(nb * rate__data[from_.lower()][to_.lower()], 4)}`"
                 f"\n\n"
-                f'{self.lang_rate["warning"]}'
+                f'{self.lang_rate["warning"]} - {rate__data["date"]}'
             )
         except Exception as e:
             return str(e)
