@@ -582,10 +582,10 @@
         },
         {
             "name": "rate",
-            "version": "1.02",
+            "version": "1.03",
             "section": "chat",
             "maintainer": "xtaodada",
-            "size": "4.371 kb",
+            "size": "4.398 kb",
             "supported": true,
             "des_short": "rate 货币汇率查询",
             "des": "rate 货币汇率查询"
