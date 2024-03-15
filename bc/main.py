@@ -14,7 +14,7 @@ from pyrogram import Client
 from pagermaid.listener import listener
 from pagermaid.utils import Message, pip_install
 
-pip_install("binance-connector", alias="binance")
+pip_install("binance-connector")
 pip_install("xmltodict")
 
 from binance.spot import Spot
