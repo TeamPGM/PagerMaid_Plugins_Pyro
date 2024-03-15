@@ -82,10 +82,10 @@
         },
         {
             "name": "bc",
-            "version": "1.252",
+            "version": "1.3",
             "section": "chat",
             "maintainer": "Pentacene",
-            "size": "4.171 kb",
+            "size": "4.116 kb",
             "supported": true,
             "des_short": "查询含虚拟货币在内的货币价格",
             "des": "命令：bc 数量 货币1 货币2"
