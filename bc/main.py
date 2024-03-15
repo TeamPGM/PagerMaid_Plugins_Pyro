@@ -18,6 +18,7 @@ pip_install("binance-connector", alias="binance")
 pip_install("xmltodict")
 
 from binance.spot import Spot
+from binance.error import ClientError
 import xmltodict
 
 API = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml"
