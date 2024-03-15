@@ -44,32 +44,32 @@ async def coin(_: Client, message: Message) -> None:
     binanceclient = Spot()
     nowtimestamp = binanceclient.time()
     nowtime = datetime.fromtimestamp(float(nowtimestamp['serverTime'])/1000)
-    if len(context.parameter) == 0:
+    if len(message.parameter) == 0:
         btc_usdt_data = binanceclient.klines("BTCUSDT", "1m")[:1][0]
         eth_usdt_data = binanceclient.klines("ETHUSDT", "1m")[:1][0]
-        await context.edit((
+        await message.edit((
             f'{nowtime.strftime("%Y-%m-%d %H:%M:%S")} UTC\n'
             f'**1 BTC** = {btc_usdt_data[1]} USDT '
             f'\n'
             f'**1 ETH** = {eth_usdt_data[1]} USDT '))
         return
-    if len(context.parameter) < 3:
-        await context.edit('输入错误.\nbc 数量 币种1 币种2')
+    if len(message.parameter) < 3:
+        await message.edit('输入错误.\nbc 数量 币种1 币种2')
         return
     try:
-        number = float(context.parameter[0])
+        number = float(message.parameter[0])
     except ValueError:
-        await context.edit('输入错误.\nbc 数量 币种1 币种2')
+        await message.edit('输入错误.\nbc 数量 币种1 币种2')
         return
-    _from = context.parameter[1].upper().strip()
-    _to = context.parameter[2].upper().strip()
+    _from = message.parameter[1].upper().strip()
+    _to = message.parameter[2].upper().strip()
 
     # both are real currency
     if (currencies.count(_from) != 0) and (currencies.count(_to) != 0):
-        await context.edit((
-            f'{context.parameter[0]} {context.parameter[1].upper().strip()} ='
+        await message.edit((
+            f'{message.parameter[0]} {message.parameter[1].upper().strip()} ='
             f'{number * data[_to] / data[_from]:.2f} '
-            f'{context.parameter[2].upper().strip()}'))
+            f'{message.parameter[2].upper().strip()}'))
         return
     
     # from real currency to crypto
@@ -78,12 +78,12 @@ async def coin(_: Client, message: Message) -> None:
         try:
             x_usdt_data = binanceclient.klines(f"{_to}USDT", "1m")[:1][0]
         except ClientError:
-            await context.edit(f'Cannot find coinpair {_to}USDT')
+            await message.edit(f'Cannot find coinpair {_to}USDT')
             return
-        await context.edit((
-            f'{context.parameter[0]} **{_from}** = '
+        await message.edit((
+            f'{message.parameter[0]} **{_from}** = '
             f'{1 / float(x_usdt_data[1]) * usd_number:.8f} **{_to}**\n'
-            f'{context.parameter[0]} **{_from}** = '
+            f'{message.parameter[0]} **{_from}** = '
             f'{usd_number:.2f} **USD**'))
         return
     
@@ -93,12 +93,12 @@ async def coin(_: Client, message: Message) -> None:
         try:
             x_usdt_data = binanceclient.klines(f"{_from}USDT", "1m")[:1][0]
         except ClientError:
-            await context.edit(f'Cannot find coinpair {_from}USDT')
+            await message.edit(f'Cannot find coinpair {_from}USDT')
             return
-        await context.edit((
-            f'{context.parameter[0]} **{_from}** = '
+        await message.edit((
+            f'{message.parameter[0]} **{_from}** = '
             f'{float(x_usdt_data[1]) * usd_number:.2f} **{_to}**\n'
-            f'{context.parameter[0]} **{_from}** = '
+            f'{message.parameter[0]} **{_from}** = '
             f'{float(x_usdt_data[1]):.2f} **USD**'))
         return
 
@@ -106,8 +106,8 @@ async def coin(_: Client, message: Message) -> None:
     try:
         from_to_data = binanceclient.klines(f"{_from}{_to}", "1m")[:1][0]
     except ClientError:
-        await context.edit(f'Cannot find coinpair {_from}{_to}')
+        await message.edit(f'Cannot find coinpair {_from}{_to}')
         return
-    await context.edit((
-            f'{context.parameter[0]} **{_from}** = '
+    await message.edit((
+            f'{message.parameter[0]} **{_from}** = '
             f'{float(from_to_data[1]) * number} **{_to}**\n'))
