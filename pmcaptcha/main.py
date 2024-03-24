@@ -2612,6 +2612,7 @@ async def initiative_listener(_, msg: Message):
     outgoing=False,
     ignore_edited=True,
     privates_only=True,
+    ignore_forwarded=False,
 )
 async def chat_listener(_, msg: Message):
     await Rule(msg.from_user, msg)._run_rules()
