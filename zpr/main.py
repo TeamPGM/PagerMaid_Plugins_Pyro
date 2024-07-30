@@ -6,25 +6,22 @@ from pyrogram.types import InputMediaPhoto
 from pyrogram.errors import RPCError
 from pathlib import Path
 
+# pixiv反代服务器
 pixiv_img_host = "i.pixiv.cat"
 headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36 Edg/106.0.1370.42"
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36 Edg/127.0.2651.74"
 }
 data_path = Path("data/zpr")
 
-
-async def get_result(message, request, r18=0):
-    # r18: 0为非 R18，1为 R18，2为混合（在库中的分类，不等同于作品本身的 R18 标识）
-    # num: 图片的数量
-    # size: 返回图片的尺寸质量
+async def get_result(message, request, r18=0, tag="", num=1):
     data_path.mkdir(parents=True, exist_ok=True)
-    size = "regular"
     des = "出错了，没有纸片人看了。"
     data = await request.get(
-        f"https://api.lolicon.app/setu/v2?num=1&r18={r18}&size={size}",
+        f"https://api.lolicon.app/setu/v2?num={num}&r18={r18}&tag={tag}&size=regular&size=original&proxy={pixiv_img_host}&excludeAI=true",
         headers=headers,
         timeout=10,
     )
+    spoiler = r18 == 1
     if data.status_code != 200:
         return None, "连接二次元大门出错。。。"
     await message.edit("已进入二次元 . . .")
@@ -34,10 +31,13 @@ async def get_result(message, request, r18=0):
         return None, "解析JSON出错。"
     setu_list = []  # 发送
     await message.edit("努力获取中 。。。")
-    for i in range(1):
-        urls = result[i]["urls"][size].replace("i.pixiv.re", pixiv_img_host)
+    for i in range(int(num)):
+        urls = result[i]["urls"]["regular"]
+        original = result[i]["urls"]["original"]
         pid = result[i]["pid"]
         title = result[i]["title"]
+        width = result[i]["width"]
+        height = result[i]["height"]
         img_name = f"{result[i]['pid']}_{i}.jpg"
         file_path = data_path / img_name
         try:
@@ -48,18 +48,35 @@ async def get_result(message, request, r18=0):
                 f.write(img.content)
         except Exception:
             return None, None, "连接二次元出错。。。"
-        spoiler = r18 == 1
-        setu_list.append(InputMediaPhoto(media=str(file_path), caption=f"[Pixiv] {title} PID:{pid}", has_spoiler=spoiler))
+        setu_list.append(InputMediaPhoto(media=str(file_path), caption=f"**{title}**\nPID:[{pid}](https://www.pixiv.net/artworks/{pid})\n查看原图:[点击查看]({original})\n原图尺寸:{width}x{height}", has_spoiler=spoiler))
     return setu_list, des if setu_list else None
 
-
-@listener(command="zpr", description="随机获取一组涩涩纸片人。", parameters="{r18}")
+@listener(command="zpr", description="随机获取一组涩涩纸片人。", parameters="{tag} {r18} {num}")
 async def zpr(client: Client, message: Message, request: AsyncClient):
-    arguments = message.arguments.upper().strip()
     message = await message.edit("正在前往二次元。。。")
+    p = message.parameter
+    n = 1
+    r = 0
+    t = ""
     try:
+        if len(p) > 0:
+            if p[0].isdigit():
+                n = p[0]
+            elif p[0] == "r18":
+                r = 1
+                if len(p) > 1 and p[1].isdigit():
+                    n = p[1]
+            else:
+                t = p[0]
+                if len(p) > 1:
+                    if p[1].isdigit():
+                        n = p[1]
+                    elif p[1] == "r18":
+                        r = 1
+                        if len(p) > 2 and p[2].isdigit():
+                            n = p[2]
         photoList, des = await get_result(
-            message, request, r18=1 if arguments == "R18" else 0
+            message, request, r18=r, tag=t, num=n
         )
         if not photoList:
             shutil.rmtree("data/zpr")
