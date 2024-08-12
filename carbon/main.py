@@ -20,7 +20,7 @@ async def get_from_file(message: Message) -> str:
     reply = message.reply_to_message
     if message.document and message.document.mime_type.startswith("text"):
         msg = message
-    elif reply.document and reply.document.mime_type.startswith("text"):
+    elif reply and reply.document and reply.document.mime_type.startswith("text"):
         msg = reply
     if msg:
         path = await msg.download()
