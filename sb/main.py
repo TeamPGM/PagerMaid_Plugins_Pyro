@@ -139,4 +139,8 @@ async def super_ban(message: Message):
     await message.edit(text)
     groups = f'\n{lang("sb_pro")}\n' + "\n".join(groups) if groups else ""
     await log(f"{text}\nuid: `{uid}` {groups}")
-    add_delete_message_job(message, 10)
+    add_delete_message_job(message, 3)
+    async for msg in bot.get_chat_history(message.chat.id, limit=10):
+        if msg.service:
+            add_delete_message_job(msg, 1)
+            break
