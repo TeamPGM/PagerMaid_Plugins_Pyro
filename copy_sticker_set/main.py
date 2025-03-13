@@ -33,17 +33,15 @@ async def get_pack(name: str):
 
 
 async def create_sticker_set(
-    sticker_set: str, title: str, is_animated: bool, is_video: bool, stickers
+    sticker_set: str, title: str, stickers
 ):
     try:
         await bot.invoke(
             CreateStickerSet(
-                user_id=await bot.resolve_peer((await bot.get_me()).id),
+                user_id=await bot.resolve_peer("me"),
                 title=title,
                 short_name=sticker_set,
                 stickers=stickers,
-                animated=is_animated,
-                videos=is_video,
                 software="pagermaid-pyro",
             )
         )
@@ -52,19 +50,9 @@ async def create_sticker_set(
 
 
 async def process_old_sticker_set(sticker_sets: List[str]):
-    is_animated = False
-    is_video = False
     stickers = []
     for idx, sticker_set in enumerate(sticker_sets):
         pack: StickerSet = await get_pack(sticker_set)
-        if idx == 0:
-            is_animated = pack.set.animated
-            is_video = pack.set.videos
-        else:
-            if pack.set.animated != is_animated:
-                raise NoStickerSetNameError("贴纸包类型不一致")
-            if pack.set.videos != is_video:
-                raise NoStickerSetNameError("贴纸包类型不一致")
         hash_map = {}
         for i in pack.packs:
             for j in i.documents:
@@ -83,7 +71,7 @@ async def process_old_sticker_set(sticker_sets: List[str]):
         if len(stickers) + len(_stickers) > 120:
             raise NoStickerSetNameError("贴纸包过多")
         stickers.extend(_stickers)
-    return stickers, is_animated, is_video
+    return stickers
 
 
 @listener(
@@ -100,8 +88,8 @@ async def copy_sticker_set(message: Message):
     set_name = message.parameter[1]
     name = " ".join(message.parameter[2:])
     try:
-        stickers, is_animated, is_video = await process_old_sticker_set(old_set_names)
-        await create_sticker_set(set_name, name, is_animated, is_video, stickers)
+        stickers = await process_old_sticker_set(old_set_names)
+        await create_sticker_set(set_name, name, stickers)
     except Exception as e:
         return await message.edit(f"复制贴纸包失败：{e}")
     await message.edit(
