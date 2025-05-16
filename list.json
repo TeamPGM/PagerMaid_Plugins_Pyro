@@ -1159,6 +1159,16 @@
             "supported": true,
             "des_short": "cut_sticker_set 剪切贴纸包",
             "des": "剪切某个贴纸包 生成新的贴纸包\n\ncut_sticker_set 旧的贴纸包用户名 贴纸包用户名 开始,结束 贴纸包名称"
+        },
+        {
+            "name": "cleanda",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "pplulee",
+            "size": "0.872 kb",
+            "supported": true,
+            "des_short": "cleanda 支持查找与已注销账号的会话 (#192)",
+            "des": "cleanda 查找会话列表中所有Deleted Account"
         }
     ]
 }
