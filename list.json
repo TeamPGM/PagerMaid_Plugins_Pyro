@@ -32,10 +32,10 @@
         },
         {
             "name": "moyu",
-            "version": "1.031",
+            "version": "1.041",
             "section": "chat",
             "maintainer": "xtaodada",
-            "size": "3.302 kb",
+            "size": "3.084 kb",
             "supported": true,
             "des_short": "摸鱼日历",
             "des": "支持群订阅"
