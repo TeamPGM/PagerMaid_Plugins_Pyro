@@ -1,7 +1,5 @@
-from pagermaid.dependence import add_delete_message_job
 from pagermaid.enums import Message
 from pagermaid.listener import listener
-from pagermaid.services import bot
 from pyrogram import Client, enums
 
 
