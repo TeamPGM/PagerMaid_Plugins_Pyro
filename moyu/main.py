@@ -19,14 +19,10 @@ moyu_sub = Sub("moyu")
 
 
 async def get_calendar() -> None:
-    resp = await client.get("https://api.j4u.ink/v1/store/other/proxy/remote/moyu.json")
+    url = "https://dayu.qqsuu.cn/moyuribao/apis.php"
+    resp = await client.get(url, follow_redirects=True)
     if resp.is_error:
         raise ValueError(f"摸鱼日历获取失败，错误码：{resp.status_code}")
-    content = resp.json()
-    url = content.get("data", {}).get("moyu_url", "")
-    if not url:
-        raise ValueError("摸鱼日历获取失败，无法获取摸鱼日历链接")
-    resp = await client.get(url, follow_redirects=True)
     with open(f"data{sep}moyu.png", "wb") as f:
         f.write(resp.content)
 
