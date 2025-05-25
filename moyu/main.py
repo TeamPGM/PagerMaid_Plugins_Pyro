@@ -19,7 +19,7 @@ moyu_sub = Sub("moyu")
 
 
 async def get_calendar() -> None:
-    url = "https://dayu.qqsuu.cn/moyuribao/apis.php"
+    url = "https://api.52vmy.cn/api/wl/moyu"
     resp = await client.get(url, follow_redirects=True)
     if resp.is_error:
         raise ValueError(f"摸鱼日历获取失败，错误码：{resp.status_code}")
