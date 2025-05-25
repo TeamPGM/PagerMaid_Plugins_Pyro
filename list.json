@@ -232,10 +232,10 @@
         },
         {
             "name": "yvlu",
-            "version": "1.31",
+            "version": "1.32",
             "section": "chat",
             "maintainer": "xtaodada, xiluo",
-            "size": "1.682 kb",
+            "size": "1.692 kb",
             "supported": true,
             "des_short": "将回复的消息转换成语录图片",
             "des": "将回复的消息或者输入字符串转换成语录图片。\n指令：,yvlu"
