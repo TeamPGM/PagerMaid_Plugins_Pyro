@@ -27,13 +27,13 @@ async def get_news60s() -> None:
     force_update = not isfile(CACHE_PATH)
     if news60s_cache_date == today and not force_update:
         return
-    resp = await client.get("https://api.03c3.cn/api/zb?type=jsonImg")
+    resp = await client.get("https://api.southerly.top/api/60s?format=json")
     res = resp.json()
-    assert res["msg"] == "ok", f"API 返回错误: {res['code']} ({res['msg']})"
-    news_date = datetime.strptime(res["data"]["datetime"], "%Y-%m-%d").date()
+    assert res["message"] == "success", f"API 返回错误: {res['code']} ({res['message']})"
+    news_date = datetime.strptime(res["data"]["date"], "%Y-%m-%d").date()
     if news_date == news60s_cache_date and not force_update:
         return
-    image = await client.get(res["data"]["imageurl"])
+    image = await client.get("https://api.southerly.top/api/60s?format=image")
     with open(CACHE_PATH, "wb") as fp:
         fp.write(image.content)
     news60s_cache_date = news_date
