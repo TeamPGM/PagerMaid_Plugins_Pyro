@@ -1169,6 +1169,16 @@
             "supported": true,
             "des_short": "cleanda 支持查找与已注销账号的会话 (#192)",
             "des": "cleanda 查找会话列表中所有Deleted Account"
+        },
+        {
+            "name": "fuck",
+            "version": "1.0",
+            "section": "chat",
+            "maintainer": "xtaodada",
+            "size": "4.551 kb",
+            "supported": true,
+            "des_short": "fuck 上不上AI评分系统",
+            "des": "fuck 上不上AI评分系统"
         }
     ]
 }
