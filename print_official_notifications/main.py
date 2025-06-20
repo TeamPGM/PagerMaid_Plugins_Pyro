@@ -1,4 +1,4 @@
-from pagermaid import logs
+from pagermaid.utils import logs
 from pagermaid.enums import Message
 from pagermaid.listener import listener
 
